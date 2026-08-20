@@ -19,17 +19,34 @@ Le type est le contrat : aucune duplication de schéma entre client et serveur.
 
 ## 2. Authentification
 
+Assurée par **Better Auth**, monté sous `/auth`. Les routes ci-dessous sont celles
+de la bibliothèque : les réécrire derrière des alias maison ferait perdre le
+client typé et la rotation de session qu'elle fournit.
+
 ```
-POST /auth/apple          { identity_token }              → { access_token, refresh_token }
-POST /auth/google         { id_token }                    → { access_token, refresh_token }
-POST /auth/email/request  { email }                       → 204   (envoi d'un code à 6 chiffres)
-POST /auth/email/verify   { email, code }                 → { access_token, refresh_token }
-POST /auth/refresh        { refresh_token }               → { access_token }
-POST /auth/logout                                          → 204
+POST /auth/email-otp/send-verification-otp
+     { email, type: "sign-in" }                  → { success }   (code à 6 chiffres)
+POST /auth/sign-in/email-otp   { email, otp }    → { token, user }
+GET  /auth/get-session                            → { session, user } | null
+POST /auth/sign-out                               → { success }
 ```
 
-JWT court (15 min) + refresh token rotatif (30 jours). `Authorization: Bearer` sur
-tout le reste.
+Pas de mot de passe : un code à usage unique valable 10 minutes, conformément au
+cadrage. La première connexion à une adresse **crée le compte** — il n'y a pas
+d'inscription distincte.
+
+**Session par cookie signé**, pas de JWT porté à la main. Côté mobile, le plugin
+Expo de Better Auth range le cookie dans le `SecureStore` et le rejoue
+automatiquement ; le client (`createAuthClient`) expose `signIn`, `signOut` et
+`useSession` sans qu'aucune route ne soit écrite à la main.
+
+Les routes protégées se déclarent avec la macro `auth` d'Elysia, qui résout
+`utilisateur` et `session` et répond `401` en leur absence — la vérification ne
+peut pas être oubliée sur une route.
+
+**Apple et Google** arrivent plus tard via `POST /auth/sign-in/social` : Better
+Auth range les identités externes dans la table `accounts`, ce qui rend inutiles
+les colonnes `apple_sub` et `google_sub` prévues au doc 05.
 
 ## 3. Profil et objectif
 
