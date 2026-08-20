@@ -9,7 +9,8 @@ est nécessaire pour la saisie hors ligne).
 - **Horodatage** : `timestamptz` partout, jamais de `timestamp` nu.
 - **`occurred_at` vs `local_date`** — chaque entrée porte les deux : l'instant absolu
   (`timestamptz`) et le jour local auquel elle est rattachée (`date`). `local_date`
-  est calculé **à l'écriture** selon le fuseau et l'heure de bascule du profil, puis
+  est calculé **à l'écriture** selon le fuseau et l'heure de bascule de l'application
+  (deux constantes, pas des colonnes), puis
   figé. Sans cela, un voyage ou un changement d'heure réécrit l'histoire.
 - **Calories** : entiers, en kcal. Aucun besoin de décimales.
 - **Poids** : `numeric(5,2)` en kg.
@@ -38,7 +39,8 @@ Identité et authentification.
 > qui s'y trouve.
 
 ### `profiles`
-Morphologie et préférences. Une ligne par utilisateur.
+Morphologie. Une ligne par utilisateur. Aucune préférence : ce qui était réglable
+(fuseau, heure de bascule, notifications) est devenu constant ou a été retiré.
 
 | Colonne | Type | Notes |
 |---|---|---|
@@ -46,8 +48,6 @@ Morphologie et préférences. Une ligne par utilisateur.
 | `sexe` | enum(`homme`,`femme`) | Paramètre de la formule BMR, cf. [02](02-modele-calorique.md) § 2 |
 | `date_naissance` | date | L'âge est dérivé, jamais stocké |
 | `taille_cm` | smallint | |
-| `heure_bascule_journee` | smallint | 0 par défaut, 3 pour les couche-tard |
-| `notifications_pesee`, `notifications_recap` | boolean | |
 
 ### `goals`
 Objectif de perte. Historisé : changer d'objectif ne réécrit pas le passé.
@@ -90,7 +90,6 @@ verre de jus est un aliment liquide).
 | `libelle` | text | Ex. « Burger et frites » — dérivé des composants si non fourni |
 | `kcal` | integer null | **Somme des composants**, dénormalisée ; `null` tant que l'état est `en_attente` |
 | `proteines_g`, `glucides_g`, `lipides_g` | numeric(6,1) null | Stockés, non affichés en v1 |
-| `kcal_min`, `kcal_max` | integer null | Fourchette d'incertitude |
 | `etat` | enum(`en_attente`,`estime`,`corrige`,`manuel`,`echec`) | |
 | `source` | enum(`ia_photo`,`ia_texte`,`favori`,`manuel`) | |
 | `estimation_id` | uuid FK null | Vers `estimations` |
@@ -382,6 +381,6 @@ Calculées à la lecture, pour éviter les incohérences :
    200 × duree_min`, à l'arrondi près. Vérifiable a posteriori.
 8. `daily_summaries.apport_cible_kcal` d'une journée close n'est jamais modifié.
 9. `local_date` d'une entrée est cohérent avec `occurred_at`, le fuseau de
-   l'application et l'`heure_bascule_journee` **du moment de l'écriture**.
+   l'application et l'heure de bascule **du moment de l'écriture**.
 10. Une entrée supprimée l'est physiquement, avec ses composants en cascade, et sa
    vignette est effacée dans le même mouvement.

@@ -109,7 +109,7 @@ compte est le refus de démarrer en production avec ce raccourci actif (cf.
 [06](06-api.md) § 2).
 
 Tranchées depuis, pour mémoire : les photos de repas gardent une vignette locale
-(plus de débat RGPD) ; les notifications restent dans le périmètre parce qu'elles sont
-utiles et coûtent peu ; la version CIQUAL sera celle publiée au moment de l'import ; le
+(plus de débat RGPD) ; les notifications sortent du périmètre, leur coût technique
+dépassant le service rendu ; la version CIQUAL sera celle publiée au moment de l'import ; le
 sous-ensemble curé est réduit à ~200 aliments, taille suffisante pour une cuisine
 personnelle.

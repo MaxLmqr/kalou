@@ -94,8 +94,8 @@ const AlimentSchema = z.object({
 const EstimationSchema = z.object({
   aliments: z.array(AlimentSchema),
   kcal_total: z.number(),
-  kcal_min: z.number(),             // borne basse plausible
-  kcal_max: z.number(),             // borne haute plausible
+  kcal_min: z.number(),             // borne basse plausible — affichée, non stockée
+  kcal_max: z.number(),             // borne haute plausible — affichée, non stockée
   libelle_court: z.string(),        // "Burger et frites" — pour le journal et le favori
   hypotheses: z.array(z.string()),  // "cuisson supposée à l'huile", "portion estimée à 150 g"
   hors_sujet: z.boolean(),          // true si l'image ne contient pas de nourriture
@@ -124,7 +124,9 @@ Le texte exact vit dans le code ; les règles qu'il doit encoder sont normatives
    ne l'est pas. Toujours produire un nombre, quitte à élargir la fourchette.
 2. **Ancrer les portions** sur des repères visuels explicites (taille de l'assiette,
    des ustensiles, de la main) et, à défaut, sur des portions standard françaises.
-3. **Fourchette honnête.** `kcal_min` et `kcal_max` doivent refléter l'incertitude
+3. **Fourchette honnête.** `kcal_min` et `kcal_max` servent à l'affichage pendant la
+   validation de l'estimation, et ne sont pas conservés sur l'entrée. Ils doivent
+   refléter l'incertitude
    réelle : un plat identifiable au restaurant a une fourchette étroite, un plat en
    sauce non identifiable a une fourchette large.
 4. **Ne pas moraliser.** Aucun commentaire sur la qualité nutritionnelle. Le modèle

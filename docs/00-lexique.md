@@ -64,8 +64,8 @@ devrait pas exister.
 
 | Terme | Identifiant | Définition |
 |---|---|---|
-| **Journée locale** | `local_date` | Le jour auquel une entrée est rattachée, calculé à l'écriture selon le fuseau de l'application et l'heure de bascule, puis **figé** |
-| **Heure de bascule** | `heure_bascule_journee` | L'heure à laquelle la journée change. 0 par défaut, 3 pour les couche-tard |
+| **Journée locale** | `local_date` | Le jour auquel une entrée est rattachée, calculé à l'écriture selon le fuseau et l'heure de bascule de l'application, puis **figé** |
+| **Heure de bascule** | `HEURE_BASCULE` | Constante d'application : l'heure à laquelle la journée change. 0 (minuit) |
 | **Récapitulatif quotidien** | `daily_summary` | La photographie figée d'une journée close : socle, besoin, apport cible, apports, balance |
 
 ## Termes écartés

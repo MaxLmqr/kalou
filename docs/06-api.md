@@ -87,8 +87,7 @@ les colonnes `apple_sub` et `google_sub`, retirées du doc 05.
 
 ```
 GET   /me                          → { user, profile, goal, calibration_state }
-PATCH /me/profile                  { sexe?, date_naissance?, taille_cm?, timezone?,
-                                     heure_bascule_journee?, notifications_* }
+PATCH /me/profile                  { sexe?, date_naissance?, taille_cm? }
 PUT   /me/goal                     { rythme_kg_semaine, poids_cible_kg? }
                                    → { goal, rythme_applique, plafond_applique?, apport_cible_estime }
 ```
@@ -333,4 +332,3 @@ Format unique :
 | Clôture de journée | Chaque heure (par fuseau) | Fige les `daily_summaries` de la journée écoulée |
 | Calibration | Quotidien, après clôture | Recalcule le socle, applique les garde-fous |
 | Purge | Quotidien | Vignettes orphelines, estimations de plus de 90 jours |
-| Notifications | Selon profil | Rappel de pesée, récapitulatif du soir |

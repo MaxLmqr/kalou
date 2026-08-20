@@ -94,7 +94,6 @@ et l'historisation.
 - Repas enregistrés et réutilisations en un tap, avec redimensionnement (dépend d'un
   historique réel — donc après les jalons 2 et 3).
 - Aliments perso.
-- Notifications.
 
 Ce jalon a fondu avec le recadrage en usage personnel : sans second appareil, il n'y a
 ni synchronisation différentielle, ni résolution de conflits, ni jeu CIQUAL embarqué à

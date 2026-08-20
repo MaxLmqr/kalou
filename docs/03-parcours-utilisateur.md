@@ -190,18 +190,19 @@ Trois états possibles, toujours explicites :
 
 ## 6. Profil et réglages
 
-Minimal : morphologie, objectif, plancher de sécurité (lecture seule avec explication),
-heure de bascule de journée, notifications. Ni compte, ni sources de données, ni
-suppression — le fuseau horaire est une constante d'application, pas un réglage.
+Trois lignes : morphologie, objectif, plancher de sécurité (lecture seule, avec son
+explication). Rien d'autre — ni compte, ni notifications, ni sources de données, ni
+suppression. Le fuseau horaire et l'heure de bascule de journée sont des constantes
+d'application, pas des réglages.
 
-## 7. Notifications
+## 7. Notifications — hors périmètre
 
-Deux au maximum, désactivables, jamais en série ni en rappel culpabilisant :
+Aucune notification en v1. Un rappel de pesée et un récapitulatif du soir demandent
+deux permissions système, un planificateur et un travail de fond quotidien, pour un
+rappel qu'une alarme de téléphone rend déjà. À reprendre si l'oubli de pesée devient un
+problème constaté — pas avant.
 
-- **Matin** — rappel de pesée, à l'heure habituelle constatée.
-- **Soir** — récapitulatif du jour, uniquement si au moins une saisie a eu lieu.
-
-Aucune notification « tu n'as rien saisi depuis 3 jours ».
+Et quoi qu'il arrive : jamais de notification « tu n'as rien saisi depuis 3 jours ».
 
 ## 8. Règles de ton
 
