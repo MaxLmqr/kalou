@@ -83,6 +83,8 @@ Explicitement hors périmètre v1, pour que la v1 existe :
 | Comptes, inscription, authentification tierce | Un utilisateur unique, pré-créé. Un jeton en configuration tient lieu d'accès. |
 | Export de données, portabilité | Les données sont sur une base personnelle, accessibles directement en SQL. |
 | Jeûne intermittent, cycles, recharges | Complexité de modèle sans bénéfice sur l'objectif de départ. |
+| **Mode maintenance après l'objectif** | Choix explicite : la v1 s'arrête à l'atteinte du poids cible. Ce qui vient après (stabilisation, alerte de dérive) est un autre produit, à traiter le jour où la question se posera. |
+| **Cadre hebdomadaire** | La journée reste l'unité de décision. Une vue hebdomadaire, pour le recul, est une évolution identifiée — pas un second budget. |
 
 ## Critères de réussite
 

@@ -111,9 +111,12 @@ Par ordre d'intérêt décroissant, sans engagement de calendrier :
 4. **Recettes structurées** — rendement, portions produites, échelle d'ingrédients. Les
    repas enregistrés redimensionnables du jalon 5 couvrent l'essentiel du besoin ; le
    reste ne se justifie que si l'usage le demande.
-5. **Recherche d'aliments hors ligne** — jeu CIQUAL embarqué et index FTS5, si
+5. **Vue hebdomadaire** — apports, dépense et balance agrégés sur la semaine, pour
+   prendre du recul sur un écart isolé. C'est une vue de lecture : la journée reste
+   l'unité de décision et le budget ne devient pas hebdomadaire.
+6. **Recherche d'aliments hors ligne** — jeu CIQUAL embarqué et index FTS5, si
    l'absence de réseau se révèle gênante à l'usage.
-6. **Widget et raccourci Siri** — « ajouter un repas » sans ouvrir l'application. Très
+7. **Widget et raccourci Siri** — « ajouter un repas » sans ouvrir l'application. Très
    aligné avec le principe des trois taps.
 
 ## Risques identifiés
