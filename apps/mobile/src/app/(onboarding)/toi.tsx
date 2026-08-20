@@ -14,17 +14,16 @@ const NAISSANCE = new Intl.DateTimeFormat('fr-FR', {
   year: 'numeric',
 });
 
-/** Écran 2 — les trois valeurs du BMR, et rien d'autre. */
+/** Écran 1 — les trois valeurs du BMR, et rien d'autre. */
 export default function ToiScreen() {
   const theme = useTheme();
   const [sexe, setSexe] = useState<Sexe>(profil.sexe);
 
   return (
     <OnboardingStep
-      etape={2}
+      etape={1}
       titre="Toi"
       intro="Ces trois valeurs servent au calcul de ton métabolisme de base. Rien d'autre."
-      onBack={() => router.back()}
       actionLabel="Continuer"
       onAction={() => router.push('/(onboarding)/poids')}>
       <View style={{ gap: theme.spacing.sm }}>

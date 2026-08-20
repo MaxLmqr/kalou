@@ -11,7 +11,7 @@ import { profil, rythmes } from '@/data/exemple';
 const DATE_COURTE = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' });
 
 /**
- * Écran 4 — trois cartes de rythme, avec la date d'atteinte projetée sur
+ * Écran 3 — trois cartes de rythme, avec la date d'atteinte projetée sur
  * chacune. Les dates sont calculées, pas écrites : elles bougeront quand la
  * calibration aura mesuré la dépense réelle, et l'écran le dit.
  */
@@ -21,7 +21,7 @@ export default function RythmeScreen() {
 
   return (
     <OnboardingStep
-      etape={4}
+      etape={3}
       titre="Ton rythme"
       intro="Plus le rythme est lent, plus il tient dans la durée. Tu pourras en changer."
       onBack={() => router.back()}

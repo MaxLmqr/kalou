@@ -12,7 +12,8 @@
     "db:migrate": "bun --env-file=../../.env drizzle-kit migrate",
     "db:push": "bun --env-file=../../.env drizzle-kit push",
     "db:studio": "bun --env-file=../../.env drizzle-kit studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:seed": "bun --env-file=../../.env src/seed/index.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.1",
