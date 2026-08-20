@@ -40,8 +40,8 @@ de l'application.**
   [`data/aliments-premier-jet.csv`](data/aliments-premier-jet.csv) : 203 aliments,
   libellés déjà réécrits, alias et portions inclus. **Les valeurs caloriques sont
   indicatives** (±15 %) et seront remplacées par CIQUAL en V0.1 — voir la note ci-dessous.
-- **Saisir une dépense** — table MET, durée → calories nettes. Le calcul est déjà
-  spécifié et implémenté ; il ne manque que l'écran et le seed du référentiel.
+- **Saisir une dépense** — table MET, durée → calories nettes. Référentiel semé, calcul
+  et routes en place ; il ne manque que l'écran.
 - **Se peser** — une pesée par jour, tendance lissée calculée et affichée. Collectée
   pour la calibration à venir.
 
