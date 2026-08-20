@@ -99,7 +99,12 @@ export default function ProfilScreen() {
             title={goal ? formatRythme(goal.rythmeKgSemaine) : A_RENSEIGNER}
             detail={
               goal
-                ? `déficit de ${formatKcal(deficitQuotidien(goal.rythmeKgSemaine))} kcal par jour`
+                ? `déficit de ${formatKcal(deficitQuotidien(goal.rythmeKgSemaine))} kcal par jour` +
+                  // Le rythme retenu peut différer de celui demandé : les
+                  // plafonds du doc 02 § 6 s'appliquent côté serveur.
+                  (goal.rythmeDemande !== goal.rythmeKgSemaine
+                    ? ` · demandé ${formatRythme(goal.rythmeDemande)}`
+                    : '')
                 : 'aucun objectif actif'
             }
             trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
