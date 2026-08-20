@@ -1,11 +1,19 @@
 import { QueryClientProvider } from '@tanstack/react-query';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
+import {
+  DarkTheme,
+  DefaultTheme,
+  Stack,
+  ThemeProvider as NavigationThemeProvider,
+  useRouter,
+  useSegments,
+} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useMemo } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { ThemeProvider, radius, themes } from '@/design';
+import { useSession } from '@/lib/auth';
 import { queryClient } from '@/lib/query-client';
 
 SplashScreen.preventAutoHideAsync();
@@ -51,11 +59,13 @@ export default function RootLayout() {
       <ThemeProvider>
         <NavigationThemeProvider value={navigationTheme}>
           <StatusBar style="auto" />
+          <GardeDeSession>
           <Stack
             screenOptions={{
               headerShown: false,
               contentStyle: { backgroundColor: themes[scheme].background },
             }}>
+            <Stack.Screen name="(auth)" options={{ gestureEnabled: false }} />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(onboarding)" options={{ gestureEnabled: false }} />
 
@@ -76,11 +86,50 @@ export default function RootLayout() {
             <Stack.Screen name="meal" options={{ presentation: 'fullScreenModal' }} />
             <Stack.Screen name="search" options={{ presentation: 'fullScreenModal' }} />
 
+            {/* Réglages du profil : une feuille par sujet, pas un formulaire. */}
+            <Stack.Screen
+              name="profil-morphologie"
+              options={{ ...sheet, sheetAllowedDetents: [0.7, 1] }}
+            />
+            <Stack.Screen
+              name="profil-objectif"
+              options={{ ...sheet, sheetAllowedDetents: [0.8, 1] }}
+            />
+
             <Stack.Screen name="calibration" />
             <Stack.Screen name="design-system" />
           </Stack>
+          </GardeDeSession>
         </NavigationThemeProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
+}
+
+/**
+ * Garde de session.
+ *
+ * Redirige vers la connexion tant qu'il n'y a pas de session, et en sort dès
+ * qu'il y en a une. La règle vit ici plutôt que dans chaque écran : un oubli
+ * n'exposerait pas seulement une donnée, il ferait planter le premier appel
+ * authentifié de l'écran concerné.
+ *
+ * L'écran de démarrage reste affiché pendant la résolution — sans quoi on
+ * verrait la connexion s'afficher puis disparaître à chaque lancement.
+ */
+function GardeDeSession({ children }: { children: ReactNode }) {
+  const { data: session, isPending } = useSession();
+  const segments = useSegments();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isPending) return;
+    SplashScreen.hideAsync();
+
+    const dansLaConnexion = segments[0] === '(auth)';
+    if (!session && !dansLaConnexion) router.replace('/connexion');
+    else if (session && dansLaConnexion) router.replace('/');
+  }, [session, isPending, segments, router]);
+
+  return children;
 }
