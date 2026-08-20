@@ -29,6 +29,11 @@ ce que CIQUAL ne fournit pas. Les chiffres nutritionnels, eux, doivent venir de 
 
 ## Procédure d'import
 
+**En V0, ce fichier est la base** : il est semé tel quel dans `foods`
+(`source = 'ciqual'`, `reference_version = 'curation-v0'`), avec ses alias et ses
+portions. Les étapes ci-dessous décrivent le passage à CIQUAL, prévu en V0.1, qui
+remplace les valeurs sans toucher aux libellés.
+
 1. Importer le jeu CIQUAL complet dans `foods` (`source = 'ciqual'`), en enregistrant
    la version publiée dans `reference_version`.
 2. Pour chaque ligne de ce CSV, rapprocher le `libelle` d'un aliment CIQUAL —

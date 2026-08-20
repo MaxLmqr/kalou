@@ -116,7 +116,7 @@ brute par rapport à hier.
 │  Mangé        475               │
 │  Besoin     2 833  (dont 489 ⚡)│
 │  Apport cible 2 222             │
-│  Protéines  ≥ 42 / 136 g        │
+│  Protéines  ≥ 42 / 135 g        │
 │                                 │
 │  ── Aujourd'hui ──              │
 │  08:12  Café au lait      120   │

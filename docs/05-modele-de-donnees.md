@@ -303,14 +303,14 @@ tant que la journée est en cours).
 | `bmr` | integer | Figé |
 | `socle` | integer | Figé |
 | `eat_kcal` | integer | |
-| `depense_kcal` | integer | |
+| `besoin_journalier_kcal` | integer | Besoin énergétique journalier affiché |
 | `deficit_cible` | integer | Figé |
 | `apport_cible_kcal` | integer | Figé |
 | `apports_kcal` | integer | |
 | `proteines_g` | numeric(5,1) null | Somme du jour ; `null` si aucun composant n'en porte |
 | `proteines_partielles` | boolean | Vrai si une entrée libre rend la somme incomplète (borne inférieure) |
 | `plancher_proteines_g` | smallint | Figé : 1,6 × tendance de poids |
-| `balance_kcal` | integer | `apports − depense` |
+| `balance_kcal` | integer | `apports − dépense réelle` — le TEF y porte sur ce qui a été mangé, pas sur l'apport d'équilibre (doc 02 § 8) |
 | `entrees_en_attente` | smallint | |
 | `tendance_poids_kg` | numeric(5,2) null | |
 | `phase` | enum(`formule`,`transition`,`calibre`) | |

@@ -344,7 +344,7 @@ un repère affiché, pas une contrainte.
 plancher_proteines = 1,6 × poids(kg)        arrondi à 5 g près
 ```
 
-Avec la tendance lissée à 85 kg : **136 g par jour**.
+Avec la tendance lissée à 85 kg : 1,6 × 85 = 136, arrondi à **135 g par jour**.
 
 **Pourquoi cette grandeur et pas les autres.** Dans un déficit, le corps puise dans le
 tissu adipeux *et* dans le muscle. Or le muscle consomme de l'énergie au repos :

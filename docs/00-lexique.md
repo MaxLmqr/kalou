@@ -45,7 +45,7 @@ devrait pas exister.
 | **Fenêtre** | `fenetre_jours` | Les 14 derniers jours servant à la calibration. Au moins 11 jours saisis et 6 pesées pour qu'elle s'active | 14 jours |
 | **Poids de la mesure** | `w`, `poids_w` | De 0 à 1, la part du socle mesuré face au socle formulé. 0 au jour 10, 1 au jour 28 | 0,44 |
 | **Plancher d'apport** | `plancher_kcal` | Minimum de sécurité sous lequel l'apport cible ne descend pas, quel que soit le rythme visé | 1 500 kcal |
-| **Plancher protéique** | `plancher_proteines_g` | `1,6 × poids`. Un minimum affiché, jamais une cible à ne pas dépasser | 136 g |
+| **Plancher protéique** | `plancher_proteines_g` | `1,6 × poids`. Un minimum affiché, jamais une cible à ne pas dépasser | 135 g |
 
 ## Alimentation
 

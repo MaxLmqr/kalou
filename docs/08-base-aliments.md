@@ -95,6 +95,24 @@ l'historique.
 de l'ANSES, et n'importer que les colonnes utiles (énergie kcal, protéines, glucides,
 lipides, fibres) — la table complète en compte plus de soixante.
 
+### Semis en deux temps
+
+CIQUAL n'est **pas** sur le chemin critique du V0, alors que la base d'aliments l'est.
+La résolution tient en deux étapes :
+
+1. **V0** — la base est semée depuis le jeu de curation
+   ([`data/aliments-premier-jet.csv`](data/aliments-premier-jet.csv)) : 203 aliments,
+   libellés déjà réécrits, alias et portions inclus, `source = 'ciqual'` avec
+   `reference_version = 'curation-v0'`. Les valeurs caloriques sont **indicatives**
+   (±15 %) et il n'y a aucune valeur protéique.
+2. **V0.1** — l'import ANSES remplace les valeurs sur les mêmes lignes, par
+   rapprochement puis relecture manuelle, et apporte les macronutriments.
+
+Ce qui rend l'étape 2 sans risque : les composants figent `kcal_ref_utilise` à
+l'écriture (§ 9), donc corriger un aliment ne réécrit jamais une entrée passée. Et ce
+qui la rend nécessaire : le plancher protéique du § 9 de
+[02](02-modele-calorique.md) n'a aucune donnée avant elle.
+
 ## 5. Le vrai risque : la recherche
 
 Le risque de ce chantier n'est pas technique, il est ergonomique. CIQUAL est une base

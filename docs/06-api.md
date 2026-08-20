@@ -89,7 +89,7 @@ les colonnes `apple_sub` et `google_sub`, retirées du doc 05.
 GET   /me                          → { user, profile, goal, calibration_state }
 PATCH /me/profile                  { sexe?, date_naissance?, taille_cm? }
 PUT   /me/goal                     { rythme_kg_semaine, poids_cible_kg? }
-                                   → { goal, rythme_applique, plafond_applique?, apport_cible_estime }
+                                   → { goal, rythme_applique, plafonds_appliques, apport_cible_estime }
 ```
 
 `PUT /me/goal` applique les plafonds du § 6 de [02](02-modele-calorique.md) et renvoie
@@ -108,7 +108,7 @@ type DayView = {
   local_date: string;
   apport_cible_kcal: number;
   apports_kcal: number;
-  depense_kcal: number;          // socle + EAT (+ TEF avant calibration)
+  besoin_journalier_kcal: number; // socle + EAT, corrigé du TEF (doc 02 § 3.4)
   restant_kcal: number;          // apport cible − apports, peut être négatif
   balance_kcal: number;
   detail: {
