@@ -1,4 +1,4 @@
-import { db, schema } from '@kalou/db'
+import { db, profiles, schema } from '@kalou/db'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { emailOTP } from 'better-auth/plugins'
@@ -30,6 +30,17 @@ export const auth = betterAuth({
   },
   // Doc 06 : pas de mot de passe, un code à usage unique par e-mail.
   emailAndPassword: { enabled: false },
+  databaseHooks: {
+    user: {
+      create: {
+        // Le profil naît avec le compte, vide : l'onboarding le remplit écran
+        // par écran. Sans cette ligne, chaque route devrait gérer son absence.
+        after: async (utilisateur) => {
+          await db.insert(profiles).values({ userId: utilisateur.id }).onConflictDoNothing()
+        },
+      },
+    },
+  },
   plugins: [
     emailOTP({
       otpLength: 6,
