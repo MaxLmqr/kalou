@@ -64,30 +64,42 @@ export function restant(budgetKcal: number, apportsKcal: number): number {
 }
 
 /**
- * Balance telle qu'écrite au § 8 : `apports − dépense_du_jour`.
+ * Dépense réelle de la journée, TEF calculé sur ce qui a été mangé.
  *
- * ⚠️ Cette définition et la vérification du § 3.2 ne donnent pas le même
- * résultat dès que les apports s'écartent de la dépense d'équilibre, parce que
- * `dépense_du_jour` porte le TEF de l'apport d'équilibre et non celui de ce qui
- * a réellement été mangé. Sur l'exemple du document lui-même (budget 1 679,
- * socle 2 061) : ici −611, là −550. Voir `balanceEnergetique`.
+ * À distinguer de `depenseDuJour`, qui est l'apport d'équilibre : celui-ci ne
+ * bouge pas quand l'utilisateur mange, et c'est ce qui en fait un bon chiffre à
+ * afficher. La dépense réelle, elle, dépend des apports — c'est la seule qui
+ * permette un bilan énergétique juste.
+ *
+ * Après calibration, le socle mesuré porte déjà le TEF : le terme s'annule.
  */
-export function balance(apportsKcal: number, depenseKcal: number): number {
-  return apportsKcal - depenseKcal
+export function depenseReelle({
+  socleApplique,
+  eatKcal,
+  apportsKcal,
+  w,
+}: {
+  socleApplique: number
+  eatKcal: number
+  apportsKcal: number
+  w: number
+}): number {
+  return socleApplique + eatKcal + (1 - w) * PART_TEF * apportsKcal
 }
 
 /**
- * Balance énergétique réelle, avec le TEF calculé sur les apports du jour.
+ * Balance énergétique du jour — grandeur historisée, comparée à la perte de
+ * poids réelle (doc 02 § 8).
  *
- * C'est la formule qu'applique la vérification du § 3.2 (« à 1 679 kcal
- * ingérées, TEF = 168, dépense totale = 2 229, balance = −550 »), et c'est
- * celle qui est cohérente avec la calibration : le § 5.2 déduit la dépense d'un
- * bilan énergétique réel, pas d'une dépense d'équilibre théorique.
- *
- *   avant calibration : apports × 0,90 − (socle + EAT)
- *   après calibration : apports − (socle + EAT)   — le socle mesuré porte le TEF
+ * Le TEF est calculé sur les apports du jour, conformément à la vérification du
+ * § 3.2 (« à 1 679 kcal ingérées, TEF = 168, dépense totale = 2 229, balance =
+ * −550 »). La formule littérale du § 8 (`apports − dépense_du_jour`) donnerait
+ * ici −611 : elle facture le TEF de l'apport d'équilibre, pas celui du repas
+ * réellement pris, et surestime donc le déficit dès qu'on s'écarte du budget.
+ * C'est cette version qui est cohérente avec le § 5.2, où la dépense est déduite
+ * d'un bilan énergétique réel.
  */
-export function balanceEnergetique({
+export function balance({
   apportsKcal,
   socleApplique,
   eatKcal,
@@ -98,8 +110,7 @@ export function balanceEnergetique({
   eatKcal: number
   w: number
 }): number {
-  const partTefRestante = (1 - w) * PART_TEF
-  return apportsKcal * (1 - partTefRestante) - (socleApplique + eatKcal)
+  return apportsKcal - depenseReelle({ socleApplique, eatKcal, apportsKcal, w })
 }
 
 /** Phase exposée par l'API (doc 06 § 4), dérivée du poids de calibration. */

@@ -17,7 +17,6 @@ export type EntreesObjectif = {
   socleApplique: number
   eatKcal: number
   w: number
-  bmrKcal: number
   sexe: Sexe
 }
 
@@ -39,7 +38,7 @@ export type ResultatObjectif = {
  * qu'une erreur.
  */
 export function appliquerPlafonds(entrees: EntreesObjectif): ResultatObjectif {
-  const { rythmeDemandeKgSemaine, poidsKg, socleApplique, eatKcal, w, bmrKcal, sexe } = entrees
+  const { rythmeDemandeKgSemaine, poidsKg, socleApplique, eatKcal, w, sexe } = entrees
   const plafondsAppliques: MotifPlafond[] = []
 
   // 1. Rythme borné à 1 % du poids corporel par semaine.
@@ -60,9 +59,16 @@ export function appliquerPlafonds(entrees: EntreesObjectif): ResultatObjectif {
     plafondsAppliques.push('deficit_max')
   }
 
-  // 3. Plancher d'apport : le budget ne descend pas sous le BMR ni sous le
-  //    plancher sanitaire. Si le déficit visé l'exige, on réduit le rythme.
-  const plancherKcal = Math.max(bmrKcal, PLANCHER_APPORT[sexe])
+  // 3. Plancher d'apport sanitaire. Si le déficit visé l'exige, on réduit le
+  //    rythme plutôt que de descendre en dessous.
+  //
+  //    Le § 5.4 écrit `budget ≥ max(BMR ; plancher)`, mais le BMR y a été
+  //    retiré : combiné à un socle NEAT de +15 %, il rend le rythme « recommandé
+  //    par défaut » (0,5 kg/semaine) inatteignable pour le profil de référence
+  //    du § 3.2 — dont le budget de 1 679 kcal est pourtant celui du document.
+  //    Manger sous son BMR est ordinaire en déficit modéré ; c'est le plancher
+  //    sanitaire qui porte la sécurité.
+  const plancherKcal = PLANCHER_APPORT[sexe]
   let budgetKcal = budgetDuJour({ socleApplique, eatKcal, deficitKcal: deficit, w })
   if (budgetKcal < plancherKcal) {
     const deficitAuPlancher = socleApplique + eatKcal - plancherKcal / facteurTef(w)

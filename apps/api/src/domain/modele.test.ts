@@ -4,10 +4,10 @@ import { kcalBrut, kcalNet } from './activite'
 import { age, bmr, socleFormule } from './bmr'
 import {
   balance,
-  balanceEnergetique,
   budgetDuJour,
   deficitQuotidien,
   depenseDuJour,
+  depenseReelle,
   facteurTef,
   phase,
   restant,
@@ -64,8 +64,16 @@ describe('Socle, TEF et budget (doc 02 § 3)', () => {
 
   test('vérification du § 3.2 : le déficit énergétique réel est bien de 550 kcal', () => {
     const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    const reelle = balanceEnergetique({ apportsKcal: budget, socleApplique: socle, eatKcal: 0, w: 0 })
-    expect(Math.round(reelle)).toBe(-550)
+    expect(Math.round(balance({ apportsKcal: budget, socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(-550)
+  })
+
+  test('la dépense réelle du § 3.2 vaut 2 229 kcal, pas 2 290', () => {
+    const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    const reelle = depenseReelle({ socleApplique: socle, eatKcal: 0, apportsKcal: budget, w: 0 })
+    expect(Math.round(reelle)).toBe(2229)
+    // La dépense d'équilibre, elle, ne bouge pas avec les apports : c'est ce qui
+    // en fait le chiffre affichable.
+    expect(Math.round(depenseDuJour({ socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(2290)
   })
 
   test("retirer 550 kcal de dépense demande d'en retirer 611 de l'assiette", () => {
@@ -74,22 +82,19 @@ describe('Socle, TEF et budget (doc 02 § 3)', () => {
     expect(Math.round(depense - budget)).toBe(611)
   })
 
-  test('⚠️ la balance du § 8 et celle du § 3.2 divergent de 61 kcal', () => {
-    // Contradiction relevée dans la spec : `balance` est la grandeur historisée
-    // qui se compare à la perte de poids réelle, donc l'écart n'est pas neutre.
-    const depense = depenseDuJour({ socleApplique: socle, eatKcal: 0, w: 0 })
-    const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+  test('la balance suit ce qui est réellement mangé', () => {
+    // Manger 321 kcal au-dessus du budget réduit le déficit d'autant, moins le
+    // TEF de ces calories supplémentaires.
+    const auBudget = balance({ apportsKcal: 1679, socleApplique: socle, eatKcal: 0, w: 0 })
+    const auDessus = balance({ apportsKcal: 2000, socleApplique: socle, eatKcal: 0, w: 0 })
+    expect(Math.round(auBudget)).toBe(-550)
+    expect(Math.round(auDessus)).toBe(-261)
+    expect(Math.round(auDessus - auBudget)).toBe(289) // 321 × 0,90
+  })
 
-    const selonParagraphe8 = balance(budget, depense)
-    const selonParagraphe32 = balanceEnergetique({
-      apportsKcal: budget,
-      socleApplique: socle,
-      eatKcal: 0,
-      w: 0,
-    })
-
-    expect(Math.round(selonParagraphe8)).toBe(-611)
-    expect(Math.round(selonParagraphe32)).toBe(-550)
+  test('après calibration, le socle mesuré porte déjà le TEF', () => {
+    const calibre = balance({ apportsKcal: 1735, socleApplique: 2285, eatKcal: 0, w: 1 })
+    expect(Math.round(calibre)).toBe(-550)
   })
 
   test('une activité augmente le budget du jour', () => {
