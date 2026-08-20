@@ -47,8 +47,8 @@ Ce qui est délibérément absent, et qu'il faudrait ajouter pour distribuer un 
 
 | Absent | Ce qu'il faudrait faire |
 |---|---|
-| Authentification | Un jeton statique en configuration suffit. Sinon : Apple/Google, e-mail à code, rotation, infrastructure d'envoi de mails |
-| Inscription, comptes multiples | Une seule ligne `users`, pré-créée par migration |
+| ~~Authentification~~ | **Finalement présente** : Better Auth avec code par e-mail, implémenté avant que ce recadrage n'existe. Voir la question ouverte plus bas |
+| Inscription, comptes multiples | Pas d'écran d'inscription : la première connexion crée le compte |
 | Synchronisation multi-appareil | Un seul appareil, donc un seul écrivain : une file d'envoi locale remplace tout moteur de synchronisation et sa résolution de conflits |
 | Suppression logique (`deleted_at`) | Sans synchronisation, la suppression physique suffit |
 | RGPD, portabilité, purge | Les données sont sur une base personnelle |
@@ -97,6 +97,11 @@ Il n'en reste que deux, et ce sont les seules qui ne soient pas techniques :
   toi-même : à confirmer ou à ajuster.
 - **Rythme de perte maximal** — plafonné à 1 % du poids corporel par semaine.
   Autoriser au-delà, en connaissance de cause ?
+- **Garder Better Auth, ou revenir à un jeton statique ?** Le recadrage en usage
+  personnel concluait qu'un jeton en configuration suffisait ; l'authentification par
+  code e-mail a été implémentée entre-temps. La garder coûte une dépendance à un
+  fournisseur d'envoi d'e-mails ; la retirer coûte de jeter du code qui marche. La
+  spécification décrit pour l'instant ce qui existe (cf. [06](06-api.md) § 2).
 
 Tranchées depuis, pour mémoire : les photos de repas gardent une vignette locale
 (plus de débat RGPD) ; les notifications restent dans le périmètre parce qu'elles sont

@@ -113,6 +113,26 @@ L'incohérence résiduelle (le TEF mesuré l'a été au niveau d'apport de la fe
 d'observation, pas à celui du jour) est de second ordre : environ ±20 kcal pour une
 variation d'apport de 200 kcal. Elle est ignorée sciemment.
 
+### 3.4 Transition entre les deux régimes
+
+Les § 3.2 et § 3.3 décrivent deux régimes, mais le socle transite progressivement
+de l'un à l'autre (§ 5.3). Basculer brutalement du diviseur 0,90 au régime calibré
+dès que `w > 0` ferait tomber le budget de l'exemple ci-dessus de 1 679 à
+1 511 kcal — précisément le saut que § 5.3 cherche à éviter.
+
+La correction de TEF est donc interpolée en même temps que le socle :
+
+```
+facteur_tef = w + (1 − w) / 0,90
+
+dépense_du_jour = (socle_appliqué + EAT) × facteur_tef
+budget          = (socle_appliqué + EAT − déficit) × facteur_tef
+```
+
+`w = 0` redonne le § 3.2 à l'identique, `w = 1` le § 3.3. C'est cohérent
+physiquement : la part de TEF à ajouter décroît à mesure que le socle mesuré —
+qui la contient déjà — prend le pas sur le socle formulé.
+
 ## 4. Tendance de poids
 
 Une pesée brute contient 0,5 à 2 kg de bruit (hydratation, contenu digestif, cycle
@@ -143,8 +163,9 @@ dépense réelle. C'est une mesure, pas une estimation.
 ### 5.1 Fenêtre et conditions
 
 - Fenêtre glissante de **14 jours** (`N = 14`).
-- Conditions d'activation : au moins **11 jours sur 14 avec apports saisis** (≥ 80 %)
-  et au moins **6 pesées** dans la fenêtre.
+- Conditions d'activation : au moins **11 jours sur 14 avec apports saisis** et au
+  moins **6 pesées** dans la fenêtre. Le nombre de jours fait foi : 11/14 vaut
+  78,6 %, un seuil exprimé en « 80 % » en donnerait 12.
 - Première calibration possible au **jour 10** ; poids plein accordé au **jour 28**.
 - Si les conditions ne sont plus réunies, la dernière valeur calibrée est **gelée**
   (jamais recalculée à la baisse sur des données trouées) et l'état est affiché.
@@ -170,11 +191,16 @@ socle, une fois à la saisie du jour.
 ### 5.3 Transition progressive
 
 ```
-w = clamp((jours_valides − 10) / 18 ; 0 ; 1)
+w = clamp((jours_valides_cumulés − 10) / 18 ; 0 ; 1)
 socle_appliqué = w × socle_mesuré + (1 − w) × socle_formule
 ```
 
 `w` passe de 0 (jour 10) à 1 (jour 28). Pas de saut visible dans le budget.
+
+`jours_valides_cumulés` compte les jours avec apports saisis **depuis le début du
+suivi**, à ne pas confondre avec les jours valides *de la fenêtre* du § 5.1 (qui
+conditionnent l'activation). Avec ces derniers, `w` plafonnerait à
+(14 − 10) / 18 ≈ 0,22 et la mesure ne prendrait jamais le pas sur la formule.
 
 ### 5.4 Garde-fous
 
@@ -184,8 +210,8 @@ Non négociables — ils protègent d'une spirale documentée.
 |---|---|---|
 | Vitesse de variation | `socle_appliqué` ne bouge pas de plus de **±5 % par semaine** | Absorbe un artefact de fenêtre |
 | Bornes absolues | `socle_appliqué ∈ [BMR × 1,00 ; BMR × 2,20]` | Une valeur hors de cet intervalle est un bug de données, pas une physiologie |
-| Sous-déclaration | Calibration suspendue sous 80 % de jours saisis | **La spirale** : sous-déclarer les apports fait mesurer une dépense trop basse, donc rétrécit le budget, donc aggrave la faim et la sous-déclaration |
-| Plancher d'apport | `budget ≥ max(BMR ; plancher)` — plancher 1 500 (H) / 1 200 (F) | Sécurité sanitaire ; si le déficit visé l'exige, on réduit le rythme et on le dit |
+| Sous-déclaration | Calibration suspendue sous **11 jours saisis sur 14** | **La spirale** : sous-déclarer les apports fait mesurer une dépense trop basse, donc rétrécit le budget, donc aggrave la faim et la sous-déclaration |
+| Plancher d'apport | `budget ≥ plancher` — 1 500 (H) / 1 200 (F) | Sécurité sanitaire ; si le déficit visé l'exige, on réduit le rythme et on le dit. Le BMR **n'est pas** un plancher : combiné au socle NEAT de +15 %, il rendrait le rythme recommandé par défaut inatteignable pour le profil du § 3.2, dont le budget de 1 679 kcal est pourtant celui de ce document |
 
 ### 5.5 Ce que l'utilisateur voit
 
@@ -194,7 +220,7 @@ Un écran de calibration, consultable, jamais imposé :
 > **Kalou a mesuré ta dépense**
 > 2 285 kcal par jour — au lieu de 2 061 estimés.
 > Mesuré sur tes 14 derniers jours : 27 300 kcal saisies, −0,65 kg de tendance.
-> Ton budget augmente de 224 kcal.
+> Ton budget augmente de 56 kcal.
 
 Cette transparence est fonctionnelle : elle explique pourquoi le budget a changé, ce
 qui évite l'interprétation « l'appli déraille ».
@@ -279,16 +305,24 @@ La table est servie par l'API (cf. 06) et mise en cache par le client, pour pouv
 ```
 apports_du_jour  = Σ kcal des entrées alimentaires de la journée locale
 EAT_du_jour      = Σ kcal_net des activités de la journée locale
-dépense_du_jour  = socle_appliqué + EAT_du_jour        (+ /0,90 avant calibration)
-budget           = dépense_du_jour − déficit
+dépense_du_jour  = (socle_appliqué + EAT_du_jour) × facteur_tef      (cf. § 3.4)
+budget           = (socle_appliqué + EAT_du_jour − déficit) × facteur_tef
 restant          = budget − apports_du_jour
-balance          = apports_du_jour − dépense_du_jour
+dépense_réelle   = socle_appliqué + EAT_du_jour + (1 − w) × 0,10 × apports_du_jour
+balance          = apports_du_jour − dépense_réelle
 ```
 
 - **`restant`** est le chiffre unique de l'écran d'accueil. Il peut être négatif ;
   il s'affiche alors en neutre, sans alarme.
 - **`balance`** est la grandeur historisée et cumulée : c'est elle qui se compare à
-  la perte de poids réelle.
+  la perte de poids réelle. Son TEF porte sur ce qui a **réellement** été mangé, et
+  non sur l'apport d'équilibre — d'où `dépense_réelle`, distincte de
+  `dépense_du_jour`. Facturer le TEF de l'apport d'équilibre surestimerait le
+  déficit dès que l'utilisateur s'écarte de son budget : sur l'exemple du § 3.2,
+  −611 au lieu de −550. C'est cette définition qui est cohérente avec le § 5.2, où
+  la dépense est déduite d'un bilan énergétique réel.
+- **`dépense_du_jour`** reste l'apport d'équilibre `A` : c'est le chiffre affiché,
+  et il a l'avantage de ne pas bouger au fil des saisies de la journée.
 - Une activité saisie **augmente** le budget du jour. C'est cohérent avec le modèle
   (le socle ne contient pas le sport) et c'est le comportement attendu ; le risque de
   surestimation est contenu par l'usage du MET net et par la calibration, qui

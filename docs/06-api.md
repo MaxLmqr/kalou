@@ -20,19 +20,42 @@ Le type est le contrat : aucune duplication de schéma entre client et serveur.
 
 ## 2. Accès
 
-Pas d'authentification. Un **jeton statique** en variable d'environnement, partagé entre
-l'API et l'application, envoyé en `Authorization: Bearer <token>` sur chaque requête.
-Toute requête sans le bon jeton reçoit un `401`.
+> **Décision à confirmer.** Le recadrage en usage personnel prévoyait de supprimer
+> toute authentification au profit d'un jeton statique en configuration. Better Auth
+> ayant été implémenté entre-temps, la spécification décrit ici le code qui existe
+> plutôt qu'une intention contredite. Ce qu'il en coûte : un fournisseur d'envoi
+> d'e-mails est nécessaire pour délivrer les codes — c'est la seule dépendance externe
+> de l'application en dehors du modèle d'estimation. Voir la question ouverte dans le
+> [README](README.md).
 
-C'est suffisant et proportionné : un seul utilisateur, un seul appareil. Les providers
-tiers, les codes par e-mail et la rotation de jetons demanderaient une infrastructure
-d'envoi de mails et des entitlements Apple pour protéger des données qui n'intéressent
-personne d'autre.
+Assurée par **Better Auth**, monté sous `/auth`. Les routes ci-dessous sont celles
+de la bibliothèque : les réécrire derrière des alias maison ferait perdre le
+client typé et la rotation de session qu'elle fournit.
 
-> Corollaire : l'API ne doit pas être exposée publiquement sans TLS, et le jeton doit
-> être long (32 octets aléatoires). C'est la seule mesure de sécurité du système, elle
-> mérite d'être correcte.
+```
+POST /auth/email-otp/send-verification-otp
+     { email, type: "sign-in" }                  → { success }   (code à 6 chiffres)
+POST /auth/sign-in/email-otp   { email, otp }    → { token, user }
+GET  /auth/get-session                            → { session, user } | null
+POST /auth/sign-out                               → { success }
+```
 
+Pas de mot de passe : un code à usage unique valable 10 minutes, conformément au
+cadrage. La première connexion à une adresse **crée le compte** — il n'y a pas
+d'inscription distincte.
+
+**Session par cookie signé**, pas de JWT porté à la main. Côté mobile, le plugin
+Expo de Better Auth range le cookie dans le `SecureStore` et le rejoue
+automatiquement ; le client (`createAuthClient`) expose `signIn`, `signOut` et
+`useSession` sans qu'aucune route ne soit écrite à la main.
+
+Les routes protégées se déclarent avec la macro `auth` d'Elysia, qui résout
+`utilisateur` et `session` et répond `401` en leur absence — la vérification ne
+peut pas être oubliée sur une route.
+
+**Apple et Google** arrivent plus tard via `POST /auth/sign-in/social` : Better
+Auth range les identités externes dans la table `accounts`, ce qui rend inutiles
+les colonnes `apple_sub` et `google_sub` prévues au doc 05.
 ## 3. Profil et objectif
 
 ```

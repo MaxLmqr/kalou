@@ -1,7 +1,8 @@
 import { cors } from '@elysiajs/cors'
 import { openapi } from '@elysiajs/openapi'
 import { Elysia } from 'elysia'
-import { usersRoutes } from './routes/users'
+
+import { authentification } from './plugins/auth'
 
 export const app = new Elysia()
   .use(cors())
@@ -9,10 +10,11 @@ export const app = new Elysia()
   .onError(({ code, error, status }) => {
     if (code === 'VALIDATION' || code === 'NOT_FOUND') return
     console.error(error)
-    return status(500, { message: 'Erreur interne' })
+    return status(500, { erreur: { code: 'erreur_interne', message: 'Erreur interne.' } })
   })
   .get('/health', () => ({ status: 'ok' as const }))
-  .group('/api', (api) => api.use(usersRoutes))
+  .use(authentification)
+  .get('/me', ({ utilisateur }) => ({ user: utilisateur }), { auth: true })
 
 // Consommé par apps/mobile via Eden Treaty (import type uniquement).
 export type App = typeof app

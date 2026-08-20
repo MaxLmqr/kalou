@@ -27,13 +27,15 @@ Identité et authentification.
 | Colonne | Type | Notes |
 |---|---|---|
 | `id` | uuid PK | |
+| `email` | text unique | |
 | `created_at`, `updated_at` | timestamptz | |
 
-> **Une seule ligne**, insérée par migration. Pas d'e-mail, pas d'identité tierce, pas
-> d'inscription : l'accès à l'API se fait par un jeton statique en configuration (cf.
-> [06](06-api.md) § 2). La table existe uniquement pour que les `user_id` des autres
-> tables aient une cible — la retirer coûterait plus cher en réécritures qu'elle ne
-> rapporte.
+> **Une seule ligne en pratique**, créée à la première connexion. Le schéma de cette
+> table, ainsi que `sessions`, `accounts` et `verifications`, est **géré par Better
+> Auth** — ne pas l'écrire à la main, ne pas y ajouter de colonnes d'identité
+> (`apple_sub`, `google_sub` sont inutiles : la bibliothèque range les identités
+> externes dans `accounts`). Cf. [06](06-api.md) § 2, y compris la décision à confirmer
+> qui s'y trouve.
 
 ### `profiles`
 Morphologie et préférences. Une ligne par utilisateur.
