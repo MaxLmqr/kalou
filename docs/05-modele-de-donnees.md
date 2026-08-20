@@ -143,7 +143,7 @@ Base d'aliments : jeu de référence CIQUAL + aliments personnels. Cf.
 | `kcal_100g` | numeric(6,1) | Unité de référence |
 | `proteines_100g`, `glucides_100g`, `lipides_100g`, `fibres_100g` | numeric(5,1) null | |
 | `unite_base` | enum(`g`,`ml`) | `ml` pour les liquides |
-| `promu` | boolean | Appartient au sous-ensemble curé (~150 aliments) |
+| `promu` | boolean | Appartient au sous-ensemble curé (~200 aliments) |
 | `reference_version` | text null | Version du jeu CIQUAL qui a fourni la ligne, pour la traçabilité de l'import |
 | `actif` | boolean | Retrait sans suppression |
 

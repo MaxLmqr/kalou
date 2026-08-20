@@ -114,7 +114,7 @@ Taper « pois chiche » et recevoir onze lignes indiscernables est un échec pro
 c'est exactement la friction que Kalou existe pour supprimer. Quatre mesures, à
 implémenter ensemble :
 
-1. **Sous-ensemble curé** — environ 150 aliments courants marqués `promu`, remontés en
+1. **Sous-ensemble curé** — environ 200 aliments courants marqués `promu`, remontés en
    tête et seuls affichés par défaut. Le reste de CIQUAL n'apparaît que sur demande
    explicite (« voir toutes les variantes »). 150 suffisent pour une cuisine
    personnelle : le premier jet est dans

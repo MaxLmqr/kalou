@@ -31,6 +31,8 @@ pas sur ce chemin.
 - Recherche d'aliments côté serveur (`GET /foods`), classement du § 5 de
   [08](08-base-aliments.md), portions domestiques.
 - Pesées + tendance lissée.
+- Plancher protéique : somme du jour, borne inférieure si un composant libre est
+  présent, ligne discrète sur l'accueil (§ 9 de [02](02-modele-calorique.md)).
 - Menu d'action rapide dans sa forme finale.
 
 Ce jalon vaut d'être atteint sans IA : il valide le modèle calorique, le fuseau
@@ -39,7 +41,7 @@ l'estimation. C'est aussi ce qui permet de tester la boucle sur soi pendant que
 l'estimation se construit. Il livre en outre un chemin de saisie **complet et
 autonome** : si l'estimation IA déçoit au jalon 2, l'application reste utilisable.
 
-**Le sous-ensemble curé** (~150 aliments réécrits, promus, avec alias et portions) est
+**Le sous-ensemble curé** (~200 aliments réécrits, promus, avec alias et portions) est
 un travail de contenu à mener en parallèle de ce jalon. Sans lui, la recherche renvoie
 onze variantes de pois chiches et le composeur est inutilisable. Premier jet dans
 [`data/aliments-premier-jet.csv`](data/aliments-premier-jet.csv), à rapprocher des

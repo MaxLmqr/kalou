@@ -108,14 +108,14 @@ brute par rapport à hier.
 ┌─────────────────────────────────┐
 │  Mercredi 20 août               │
 │                                 │
-│           1 204                 │
+│           1 747                 │
 │      calories restantes         │
 │                                 │
 │    ●━━━━━━━━━━━━━━○━━━━━━━      │
 │                                 │
 │  Mangé        475               │
-│  Besoin     2 168  (dont 489 ⚡)│
-│  Apport cible 1 679             │
+│  Besoin     2 833  (dont 489 ⚡)│
+│  Apport cible 2 222             │
 │  Protéines  ≥ 42 / 136 g        │
 │                                 │
 │  ── Aujourd'hui ──              │
@@ -126,6 +126,11 @@ brute par rapport à hier.
 │                          ( + )  │
 └─────────────────────────────────┘
 ```
+
+Les chiffres de cet écran sont ceux du § 3.2 de [02](02-modele-calorique.md) — socle
+2 061, déficit 550 — avec 489 kcal de sport et 475 kcal mangés : besoin
+(2 061 + 489) / 0,90 = 2 833, apport cible (2 061 + 489 − 550) / 0,90 = 2 222,
+restant 2 222 − 475 = 1 747.
 
 **Un seul grand chiffre** : les calories restantes. Les protéines sont la seule autre
 grandeur suivie (§ 9 de [02](02-modele-calorique.md)) : une ligne discrète, un plancher

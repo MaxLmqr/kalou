@@ -9,6 +9,13 @@ Un terme qui change se corrige ici d'abord, et se propage ensuite. Un terme abse
 cette liste et présent dans le code est un signal : soit il manque ici, soit il ne
 devrait pas exister.
 
+> **Les exemples chiffrés** viennent tous du même profil de référence — celui du § 3.2
+> de [02](02-modele-calorique.md) : homme, 35 ans, 85 kg, 178 cm, 0,5 kg/semaine, **jour
+> sans sport**, 475 kcal saisies à l'instant considéré. Seule la ligne EAT illustre une
+> séance isolée (45 min de course), hors de ce jour. L'écran d'accueil du
+> [03](03-parcours-utilisateur.md) prend le même profil **avec** sport, d'où des valeurs
+> différentes et explicitement dérivées sur place.
+
 ## Énergie
 
 | Terme | Identifiant | Définition | Exemple |
@@ -47,7 +54,7 @@ devrait pas exister.
 | **Entrée alimentaire** | `food_entry` | Un repas, une boisson, un en-cas. **Toujours** une liste de composants, quelle que soit son origine |
 | **Composant** | `food_entry_item` | Une ligne d'une entrée : un aliment et sa quantité, ou un libellé et ses calories. Trois types — `reference`, `libre`, `ia` |
 | **Aliment** | `food` | Une entrée de la base : soit issue de CIQUAL, soit créée par l'utilisateur (`perso`) |
-| **Aliment promu** | `promu` | Appartient au sous-ensemble curé (~150 aliments), seul affiché par défaut dans la recherche |
+| **Aliment promu** | `promu` | Appartient au sous-ensemble curé (~200 aliments), seul affiché par défaut dans la recherche |
 | **Portion** | `food_portion` | Une quantité domestique rattachée à un aliment — « 1 cuillère à soupe = 10 g » |
 | **Estimation** | `estimation` | Un appel au modèle pour convertir une photo ou une description en composants. Pré-remplit le composeur, ne le remplace pas |
 | **Repas enregistré** | `favorite` (type `repas`) | Une composition sauvegardée sous un nom, réutilisable en un tap et redimensionnable par un facteur |

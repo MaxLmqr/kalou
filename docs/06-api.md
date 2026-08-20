@@ -82,7 +82,7 @@ sort jamais du réseau local, ce qui est le cas d'usage actuel.
 
 **Apple et Google** arrivent plus tard via `POST /auth/sign-in/social` : Better
 Auth range les identités externes dans la table `accounts`, ce qui rend inutiles
-les colonnes `apple_sub` et `google_sub` prévues au doc 05.
+les colonnes `apple_sub` et `google_sub`, retirées du doc 05.
 ## 3. Profil et objectif
 
 ```

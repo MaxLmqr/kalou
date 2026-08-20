@@ -58,8 +58,8 @@ socle_formule = BMR × 1,15
 
 Le facteur 1,15 correspond à une vie de bureau avec des déplacements ordinaires. Il
 est volontairement **prudent** : mieux vaut un apport cible légèrement bas qui se
-corrige vers le haut (« Kalou t'a rendu 200 kcal ») qu'un apport cible optimiste qui
-ne produit aucune perte. Aucune question n'est posée à l'utilisateur — cette valeur est
+corrige vers le haut (« Kalou t'a rendu 200 kcal ») qu'un apport trop optimiste qui ne
+produit aucune perte. Aucune question n'est posée à l'utilisateur — cette valeur est
 transitoire par construction.
 
 ### 3.2 TEF {#tef}
@@ -224,6 +224,11 @@ Un écran de calibration, consultable, jamais imposé :
 > Mesuré sur tes 14 derniers jours : 27 300 kcal saisies, −0,65 kg de tendance.
 > Ton apport cible augmente de 56 kcal.
 
+Le socle gagne 224 kcal mais l'apport cible n'en gagne que 56 : la mesure **contient
+déjà** le coût de la digestion, que la formule ajoutait par-dessus (§ 3.4). Sans une
+phrase pour le dire, l'écart entre les deux chiffres se lit comme une erreur de
+calcul — l'écran doit l'expliquer, pas seulement l'afficher.
+
 Cette transparence est fonctionnelle : elle explique pourquoi l'apport cible a changé, ce
 qui évite l'interprétation « l'appli déraille ».
 
@@ -244,7 +249,7 @@ déficit_quotidien = rythme_kg_semaine × 7 700 / 7
 **Plafonds** appliqués silencieusement puis expliqués :
 
 - rythme ≤ **1 % du poids corporel par semaine** (à 85 kg : 0,85 kg/sem) ;
-- déficit ≤ **25 % de la besoin énergétique journalier** ;
+- déficit ≤ **25 % du besoin énergétique journalier** ;
 - apport cible ≥ plancher de sécurité (§ 5.4).
 
 Si l'objectif choisi viole une contrainte, Kalou propose le rythme le plus proche

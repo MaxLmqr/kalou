@@ -54,7 +54,7 @@ et l'invariant tient.
 
 **Hors ligne** : l'entrée reste en `en_attente`, la photo est stockée localement, la
 requête est rejouée au retour du réseau (idempotence par `Idempotency-Key`, cf. [06](06-api.md)).
-Le journal affiche l'entrée sans calories ; l'apport cible du jour l'ignore jusqu'à
+Le journal affiche l'entrée sans calories ; les totaux du jour l'ignorent jusqu'à
 résolution, avec une mention « 1 repas en attente d'estimation » pour que le chiffre
 restant ne soit pas lu comme faux.
 
