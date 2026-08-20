@@ -14,8 +14,9 @@
     "db:studio": "bun --env-file=../../.env drizzle-kit studio",
     "typecheck": "tsc --noEmit",
     "db:seed": "bun --env-file=../../.env src/seed/index.ts",
-    "db:aliments": "bun --env-file=../../.env src/seed/aliments.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "db:reset": "bun --env-file=../../.env src/seed/reset.ts",
+    "db:aliments": "bun --env-file=../../.env src/seed/aliments.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.1",
