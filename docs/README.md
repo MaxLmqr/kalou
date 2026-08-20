@@ -15,6 +15,7 @@ structure technique de l'application, indépendamment de l'implémentation en co
 | 05 | [Modèle de données](05-modele-de-donnees.md) | Tables, invariants, fuseau horaire, historisation |
 | 06 | [API](06-api.md) | Endpoints, contrats, mode hors-ligne, idempotence |
 | 07 | [Roadmap](07-roadmap.md) | Découpage v1, jalons, ce qui attend |
+| 08 | [Base d'aliments](08-base-aliments.md) | Composition d'un repas, source CIQUAL, recherche, portions |
 
 ## Décisions verrouillées
 
@@ -23,12 +24,16 @@ Ces choix sont arbitrés et ne sont pas rediscutés dans les documents :
 1. **Dépense passive** — BMR par Mifflin-St Jeor + NEAT forfaitaire (15 % du BMR),
    puis **recalibration automatique** sur la tendance de poids réelle. Pas de
    sélecteur de niveau d'activité, pas de facteur d'activité figé.
-2. **Saisie des repas** — **estimation IA uniquement** (photo ou description
-   textuelle), avec correction manuelle systématiquement possible. Pas de base
-   d'aliments externe, pas de code-barres en v1.
-3. **Saisie des dépenses** — **durée + type d'activité**, converti en calories via
+2. **Saisie des repas** — deux chemins qui convergent vers une **même structure**
+   (un repas est une liste de composants) : **estimation IA** (photo ou description
+   textuelle) et **composition manuelle** depuis une base d'aliments ou en calories
+   directes. L'estimation IA est un pré-remplissage du composeur, pas un mode
+   parallèle. Cf. [08](08-base-aliments.md).
+3. **Base d'aliments** — **CIQUAL (ANSES)**, importée et embarquée, donc utilisable
+   hors ligne. Pas d'Open Food Facts ni de code-barres en v1.
+4. **Saisie des dépenses** — **durée + type d'activité**, converti en calories via
    une table MET et le poids courant. Pas de saisie directe en kcal en v1.
-4. **Suivi** — calories **et poids** (pesées + objectif de perte). Le poids n'est pas
+5. **Suivi** — calories **et poids** (pesées + objectif de perte). Le poids n'est pas
    une option : c'est lui qui alimente la recalibration.
 
 ## Hypothèses prises par défaut
@@ -53,11 +58,16 @@ Ces choix sont arbitrés et ne sont pas rediscutés dans les documents :
   2 290 kcal. L'omettre reviendrait à donner un budget ~230 kcal trop bas, soit un
   déficit involontaire de 40 % supérieur à l'objectif affiché. Le détail du calcul
   est en [02](02-modele-calorique.md#tef).
-- **La saisie libre en kcal reste nécessaire**, non pas comme mode de saisie
-  concurrent, mais comme chemin de correction de l'estimation IA : tout champ
-  calorique produit par le modèle est éditable, et une estimation validée devient
-  réutilisable en un tap. Le catalogue personnel émerge de cet usage sans être une
-  fonctionnalité distincte (cf. 04).
+- **La saisie manuelle est un chemin de premier rang, pas un filet de sécurité.**
+  Le cadrage initial ne retenait que l'estimation IA ; savoir précisément ce qu'on
+  mange (cuisine maison, ingrédients connus) est un cas fréquent où l'addition bat
+  l'estimation visuelle. D'où la base d'aliments et le composeur de repas décrits en
+  [08](08-base-aliments.md).
+- **Un repas est une liste de composants, quelle qu'en soit l'origine.** Cette
+  unification remplace le champ `detail_aliments` (jsonb) initialement prévu par une
+  vraie table fille : c'est ce qui permet de corriger une ligne d'estimation sans
+  réécrire le total, et de mélanger dans un même repas une ligne issue de la base et
+  une ligne saisie à la main.
 
 ## Questions ouvertes
 
@@ -67,6 +77,10 @@ Listées ici plutôt que tranchées seul, car elles engagent le produit :
   la valeur retenue par défaut. À confirmer, avec le message d'avertissement associé.
 - **Rythme de perte maximal proposé** — plafonné à 1 % du poids corporel par semaine.
   Faut-il autoriser au-delà en assumant un avertissement explicite ?
+- **Version CIQUAL à importer** — à figer sur la publication ANSES la plus récente au
+  moment de l'import, et à citer dans l'écran « Sources » (Licence Ouverte 2.0).
+- **Étendue du sous-ensemble curé** — ~300 aliments réécrits et promus est l'ordre de
+  grandeur retenu. C'est un travail manuel : à confirmer avant de le lancer.
 - **Conservation des photos de repas** — vignette conservée pour l'historique, ou
   suppression immédiate après estimation ? Enjeu RGPD et confiance.
 - **Notifications** — rappel de pesée matinal et récapitulatif du soir sont-ils dans

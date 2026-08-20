@@ -1,7 +1,15 @@
 # 04 — Estimation IA des repas
 
-L'estimation est le seul chemin de saisie alimentaire de Kalou. Sa fiabilité, sa
-latence et son coût sont donc des contraintes produit, pas des détails techniques.
+L'estimation est l'un des deux chemins de saisie alimentaire de Kalou, l'autre étant
+la composition manuelle depuis la base d'aliments ([08](08-base-aliments.md)). Sa
+fiabilité, sa latence et son coût sont des contraintes produit, pas des détails
+techniques.
+
+**Rôle exact de l'estimation** : elle **pré-remplit le composeur de repas**, elle ne
+produit pas un objet à part. Ce que le modèle renvoie est une liste de composants, du
+même type que ceux ajoutés à la main. Toute la suite du parcours (correction,
+ajout d'une ligne depuis la base, enregistrement comme repas réutilisable) est
+identique quelle que soit l'origine.
 
 ## 1. Contrat fonctionnel
 
@@ -12,13 +20,16 @@ textuelle du type « la portion était petite »).
 calories, des macronutriments et un niveau de confiance ; plus une fourchette
 basse/haute sur le total.
 
-**Invariant** : le résultat est toujours **modifiable**. Les calories totales, la
-quantité de chaque aliment, son libellé : tout est éditable. Une valeur corrigée par
-l'utilisateur est marquée comme telle et ne sera jamais réécrite.
+**Invariant** : le résultat est toujours **modifiable, ligne par ligne**. La quantité
+d'un aliment, son libellé, ses calories : tout est éditable, et le verrou
+`edited_by_user` s'applique au composant, pas au repas — corriger les frites ne gèle
+pas le burger. Un composant peut aussi être supprimé, ou remplacé par un composant issu
+de la base d'aliments.
 
-Ce point porte la décision de ne pas avoir de saisie libre séparée : corriger une
-estimation *est* la saisie libre. Si l'utilisateur efface tout et tape « 600 », c'est
-une entrée valide.
+Le total ne s'édite pas directement : il est toujours la somme des composants
+(cf. [08](08-base-aliments.md) § 9). Un utilisateur qui veut simplement inscrire « 600 »
+supprime les lignes et saisit un composant libre — le résultat est une entrée valide,
+et l'invariant tient.
 
 ## 2. Flux
 
@@ -31,11 +42,14 @@ une entrée valide.
         ├──► Requête d'estimation (côté API, jamais depuis le mobile)
         │    2-6 s
         │
-        ├──► Entrée complétée (état: estime, kcal renseignées, source: ia_photo)
+        ├──► Entrée complétée : composants créés (type: ia), kcal = Σ composants
         │
-        └──► Correction éventuelle (état: corrige, edited_by_user: true)
+        ├──► Rapprochement best-effort de chaque composant avec la base d'aliments
+        │    (§ 10 de 08) — silencieux en cas d'échec
+        │
+        └──► Correction éventuelle, ligne à ligne (edited_by_user au composant)
                     │
-                    └──► « Réutiliser plus tard » → devient un favori
+                    └──► « Enregistrer et réutiliser » → repas nommé réutilisable
 ```
 
 **Hors ligne** : l'entrée reste en `en_attente`, la photo est stockée localement, la
@@ -44,8 +58,10 @@ Le journal affiche l'entrée sans calories ; le budget du jour l'ignore jusqu'à
 résolution, avec une mention « 1 repas en attente d'estimation » pour que le chiffre
 restant ne soit pas lu comme faux.
 
-**Échec définitif** (3 tentatives) : l'entrée bascule en `echec` et propose la saisie
-manuelle des calories. Jamais de suppression silencieuse.
+**Échec définitif** (3 tentatives) : l'entrée bascule en `echec` et **ouvre le
+composeur** — recherche dans la base ou saisie libre. C'est le point où les deux chemins
+se rejoignent : une panne du modèle ne bloque pas la saisie, elle la déplace. Jamais de
+suppression silencieuse.
 
 ## 3. Modèle et paramètres
 
@@ -85,6 +101,10 @@ const EstimationSchema = z.object({
   hors_sujet: z.boolean(),          // true si l'image ne contient pas de nourriture
 });
 ```
+
+Chaque élément d'`aliments` devient un composant de l'entrée (type `ia`), enregistré
+dans `food_entry_items` — la structure est celle du § 3 de
+[08](08-base-aliments.md), commune aux trois chemins de saisie.
 
 Les macronutriments sont **collectés et stockés dès la v1** bien qu'ils ne soient pas
 affichés (cf. [01](01-vision-et-perimetre.md)) : le modèle les produit sans surcoût, et
@@ -145,9 +165,11 @@ réels avant toute décision d'échelle.
 
 **Leviers, dans l'ordre d'efficacité :**
 
-1. **Les favoris.** En régime établi, réutiliser une entrée existante coûte zéro. Si
-   60 % des saisies sont des réutilisations, la facture baisse de 60 % — c'est le
-   levier le plus fort, et il améliore l'expérience au lieu de la dégrader.
+1. **Les réutilisations et la composition manuelle.** Réutiliser un repas enregistré
+   ou composer depuis la base coûte zéro appel au modèle. Si 60 % des saisies passent
+   par l'un de ces deux chemins, la facture baisse de 60 % — c'est le levier le plus
+   fort, et il améliore l'expérience au lieu de la dégrader. L'ajout de la base
+   d'aliments renforce mécaniquement cet effet.
 2. **Cache de prompt** sur le système + la table de portions (~90 % d'économie sur
    cette fraction, dès que le volume garde le cache chaud ; marginal à faible trafic).
 3. **Effort `low`**, déjà retenu.

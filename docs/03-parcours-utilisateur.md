@@ -18,7 +18,7 @@ récentes**.
 │  └───────┘ └───────┘ └───────┘  │
 │                                 │
 │  📷  Photographier un repas     │
-│  ✍️  Décrire un repas           │
+│  🍽  Chercher ou décrire        │
 │  🏃  Ajouter une activité       │
 │  ⚖️  Me peser                   │
 └─────────────────────────────────┘
@@ -27,6 +27,14 @@ récentes**.
 **Ordre délibéré.** La photo est en premier parce que c'est le geste le plus fréquent
 et le plus rapide. La pesée est en dernier parce qu'elle est quotidienne mais unique.
 
+**Quatre actions, pas cinq.** L'ajout de la composition manuelle (cf.
+[08](08-base-aliments.md)) aurait pu créer une cinquième entrée « Composer un repas »,
+à côté de « Décrire un repas ». Les deux commencent par le même geste — taper du
+texte — et sont donc fusionnées en une seule action, « Chercher ou décrire » : un champ
+de saisie unique qui cherche dans la base d'aliments à la frappe et propose
+l'estimation IA sur la phrase entière. Le chemin découle de ce que l'utilisateur tape,
+il n'a pas à être choisi avant (§ 1.2).
+
 **Les réutilisations sont au-dessus des actions**, pas en dessous : en régime établi,
 la majorité des saisies sont des répétitions (le même petit-déjeuner, la même séance).
 Un tap suffit, sans passer par l'IA — c'est ce qui tient la promesse des 15 secondes
@@ -34,32 +42,61 @@ et ce qui contient le coût d'estimation.
 
 Les vignettes de réutilisation sont classées par un score combinant fréquence et
 récence, filtré par moment de la journée : le café au lait remonte le matin, pas à
-21 h.
+21 h. Elles couvrent les aliments simples, les repas enregistrés composés et les
+activités.
 
 ### 1.1 Photographier un repas
 
 1. Tap → la caméra s'ouvre **immédiatement** (pas d'écran intermédiaire).
 2. Déclenchement → l'entrée est créée aussitôt en état `en_attente`, avec la vignette.
-3. L'estimation arrive en 2 à 6 secondes et remplit les calories.
-4. L'utilisateur peut ajuster, ou ne rien faire.
+3. L'estimation arrive en 2 à 6 secondes et **remplit les composants** du repas.
+4. L'utilisateur peut ajuster ligne par ligne, ajouter un composant depuis la base, ou
+   ne rien faire.
 
 L'entrée existe **avant** le résultat de l'IA. C'est ce qui rend l'action non
 bloquante, utilisable en mode avion, et ce qui évite l'écran d'attente.
 
-### 1.2 Décrire un repas
+### 1.2 Chercher ou décrire
 
-Un champ de texte libre, clavier ouvert d'emblée : *« deux tartines beurre confiture
-et un jus d'orange »*. Même flux que la photo. Utile quand photographier est
-socialement inconfortable ou que le repas est déjà fini.
+Un champ de texte unique, clavier ouvert d'emblée, qui sert deux intentions sans
+demander laquelle :
 
-### 1.3 Ajouter une activité
+- **à la frappe**, les résultats de la base d'aliments apparaissent — « pois chi… » →
+  *Pois chiches cuits, 139 kcal/100 g*. Tap, sélecteur de quantité, le composant
+  s'ajoute au repas en cours. Instantané, hors ligne, aucun appel au modèle.
+- **sur la phrase entière**, un bouton « Estimer avec l'IA » traite le texte comme une
+  description : *« deux tartines beurre confiture et un jus d'orange »*. Utile quand
+  photographier est socialement inconfortable ou que le repas est déjà fini.
+
+Règle d'affichage : un résultat d'aliment qui correspond bien passe devant ; si rien ne
+correspond après trois mots saisis, l'estimation IA est mise en avant. Un mot ou deux
+sont presque toujours une recherche, une phrase longue presque toujours une
+description.
+
+### 1.3 Composer un repas
+
+L'écran de composition est le même quel que soit le point d'entrée — photo,
+description ou recherche. Il affiche les composants, leurs quantités, leurs calories,
+et **le total qui s'additionne en direct**. Chaque ligne est modifiable et supprimable ;
+une ligne peut venir de la base ou être saisie à la main (libellé + calories) quand la
+valeur est déjà connue.
+
+Détails de conception, cf. [08](08-base-aliments.md) § 6 et § 7 :
+
+- la quantité proposée par défaut est **la dernière utilisée pour cet aliment** ;
+- les portions domestiques (« 1 cuillère à soupe ») précèdent la saisie en grammes,
+  avec l'équivalent en grammes affiché pour rester vérifiable ;
+- « Enregistrer et réutiliser » sauvegarde la composition comme repas nommé,
+  redimensionnable ensuite par un facteur.
+
+### 1.4 Ajouter une activité
 
 Liste des activités MET, triée par usage personnel puis alphabétique, avec recherche.
 Sélection → sélecteur de durée pré-rempli sur la dernière durée utilisée pour cette
 activité. Les calories nettes s'affichent en direct pendant le réglage de la durée,
 pour que le lien entre effort et budget soit lisible.
 
-### 1.4 Me peser
+### 1.5 Me peser
 
 Un sélecteur numérique pré-positionné sur la dernière pesée. Un tap pour valider.
 Après validation, la variation de **tendance** est affichée — jamais la variation

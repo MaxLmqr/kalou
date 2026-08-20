@@ -15,31 +15,46 @@ pas sur ce chemin.
   (Drizzle + Postgres).
 - Migrations, seed du référentiel `activities` depuis la table MET.
 - Authentification (Apple, Google, e-mail à code).
+- **Import CIQUAL** : script d'import du jeu ANSES vers `foods` (+ `food_portions`),
+  version figée et enregistrée, extensions `pg_trgm` et `unaccent`. Indépendant du
+  reste, donc parallélisable dès maintenant.
 
 ## Jalon 1 — La boucle nue
 
-**Critère de sortie : je peux saisir un repas en calories et voir mon budget du jour.**
+**Critère de sortie : je peux composer un repas et voir mon budget du jour.**
 
 - Onboarding (5 écrans), calcul du BMR et du socle par formule, objectif et déficit.
 - `GET /days/:date` et l'écran d'accueil avec son chiffre unique.
-- Saisie alimentaire **manuelle** (libellé + kcal) — pas d'IA encore.
+- **Composeur de repas** : entrée + composants, total qui s'additionne, composants
+  `libre` (libellé + kcal) et `reference` (recherche dans `foods` + quantité).
+- Recherche d'aliments côté serveur (`GET /foods`), classement du § 5 de
+  [08](08-base-aliments.md), portions domestiques.
 - Pesées + tendance lissée.
 - Menu d'action rapide dans sa forme finale.
 
 Ce jalon vaut d'être atteint sans IA : il valide le modèle calorique, le fuseau
-horaire, la clôture de journée et l'ergonomie de saisie, tous indépendants de
+horaire, la clôture de journée et la structure d'un repas — tous indépendants de
 l'estimation. C'est aussi ce qui permet de tester la boucle sur soi pendant que
-l'estimation se construit.
+l'estimation se construit. Il livre en outre un chemin de saisie **complet et
+autonome** : si l'estimation IA déçoit au jalon 2, l'application reste utilisable.
+
+**Le sous-ensemble curé** (~300 aliments réécrits, promus, avec alias et portions) est
+un travail manuel à mener en parallèle de ce jalon. Sans lui, la recherche renvoie onze
+variantes de pois chiches et le composeur est inutilisable — c'est la tâche la plus
+sous-estimée de la roadmap.
 
 ## Jalon 2 — Estimation IA
 
-**Critère de sortie : je photographie une assiette et les calories se remplissent.**
+**Critère de sortie : je photographie une assiette et les composants se remplissent.**
 
 - `POST /estimations`, prompt système et table de portions de référence, sortie
   structurée validée.
 - Flux non bloquant : entrée créée avant le résultat.
-- Correction et verrou `edited_by_user`.
-- Chemin texte libre.
+- L'estimation **pré-remplit le composeur du jalon 1** — aucune interface nouvelle,
+  seulement une source de composants supplémentaire.
+- Correction ligne à ligne et verrou `edited_by_user` au composant.
+- Rapprochement best-effort des composants avec `foods`.
+- Chemin texte libre, fusionné avec la recherche dans un champ unique.
 - Journalisation des estimations (coût, latence, taux de correction).
 
 ## Jalon 3 — Activités
@@ -70,9 +85,12 @@ et l'historisation.
 **Critère de sortie : l'application est utilisable dans le métro et en avion.**
 
 - Base locale SQLite, file d'écritures, `GET/POST /sync`.
+- **Jeu CIQUAL embarqué** (`GET /foods/reference`) avec index FTS5 : la recherche
+  d'aliments devient instantanée et disponible hors ligne.
 - File d'estimations différées.
-- Favoris et réutilisations en un tap (dépend d'un historique réel — donc après les
-  jalons 2 et 3).
+- Repas enregistrés et réutilisations en un tap, avec redimensionnement (dépend d'un
+  historique réel — donc après les jalons 2 et 3).
+- Aliments personnels.
 - Notifications.
 
 ## Après la v1
@@ -83,9 +101,11 @@ Par ordre d'intérêt décroissant, sans engagement de calendrier :
    affichage.
 2. **Pas via Apple Health / Google Fit** — remplace le NEAT forfaitaire par une mesure
    quotidienne. Le gain est réel mais borné par la calibration.
-3. **Code-barres** pour les produits emballés, là où l'IA est la moins pertinente et
-   où une base structurée est exacte.
-4. **Recettes composées** — un plat maison enregistré une fois avec ses portions.
+3. **Code-barres et Open Food Facts** pour les produits emballés, là où ni l'IA ni
+   CIQUAL ne sont pertinents.
+4. **Recettes structurées** — rendement, portions produites, échelle d'ingrédients. Les
+   repas enregistrés redimensionnables du jalon 5 couvrent l'essentiel du besoin ; le
+   reste ne se justifie que si l'usage le demande.
 5. **Export des données** (obligation de portabilité RGPD à traiter avant une
    distribution publique).
 6. **Widget et raccourci Siri** — « ajouter un repas » sans ouvrir l'application. Très
@@ -98,5 +118,6 @@ Par ordre d'intérêt décroissant, sans engagement de calendrier :
 | L'estimation IA est trop imprécise sur les portions | Le produit perd sa promesse | Mesurer le taux de correction dès le jalon 2 ; la fourchette et les hypothèses affichées rendent l'imprécision gérable plutôt que trompeuse |
 | Sous-déclaration systématique des apports | Calibration faussée vers le bas, spirale de restriction | Garde-fou de suspension, biais du prompt vers la borne haute, plancher d'apport |
 | Abandon de la pesée | Plus de calibration possible | Rappel matinal, tendance lissée pour désamorcer l'angoisse de la balance, gel plutôt que dégradation de la mesure |
-| Coût des estimations | Modèle économique | Favoris (le levier principal), cache de prompt, limite quotidienne |
+| Coût des estimations | Modèle économique | Composition manuelle et repas enregistrés (les leviers principaux, à coût nul), cache de prompt, limite quotidienne |
+| Recherche d'aliments inutilisable (variantes CIQUAL, libellés cliniques) | Le composeur est abandonné et il ne reste que l'IA | Sous-ensemble curé, libellés réécrits, alias, classement personnel — cf. § 5 de [08](08-base-aliments.md) |
 | Fuseaux et clôture de journée | Bugs silencieux d'attribution des entrées | `local_date` figé à l'écriture, tests explicites sur changement d'heure et voyage |

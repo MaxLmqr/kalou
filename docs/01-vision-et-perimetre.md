@@ -14,8 +14,9 @@ est construit contre ces deux-là :
    que le suivi ne marche pas.
 
 Kalou répond à (1) par l'estimation IA d'un repas photographié ou décrit en une
-phrase, et à (2) par une recalibration automatique du budget sur la perte de poids
-réellement observée.
+phrase — et, quand l'utilisateur connaît déjà ses ingrédients, par une composition
+manuelle rapide adossée à une base d'aliments française. Il répond à (2) par une
+recalibration automatique du budget sur la perte de poids réellement observée.
 
 ## L'utilisateur
 
@@ -25,8 +26,10 @@ régulièrement ; elle n'acceptera pas de peser ses aliments ni de renseigner de
 fiches nutritionnelles. Elle n'est pas athlète : le sport est occasionnel, pas
 structurant.
 
-Conséquence : la précision au gramme n'a aucune valeur pour elle. La cohérence dans
-le temps, elle, en a toute.
+Conséquence : la précision au gramme n'a aucune valeur pour elle **quand elle ne la
+connaît pas**. Mais quand elle cuisine et connaît ses ingrédients, lui imposer une
+estimation visuelle serait perdre de l'information qu'elle possède déjà. Les deux
+chemins de saisie répondent à ces deux moments, pas à deux profils d'utilisateurs.
 
 ## Principes de conception
 
@@ -53,6 +56,9 @@ découle de ce principe.
 
 - Un budget calorique quotidien, estimé au départ puis mesuré.
 - L'enregistrement d'un repas ou d'une boisson par photo ou par description.
+- La composition manuelle d'un repas à partir d'une base d'aliments (CIQUAL) ou de
+  calories saisies directement — pour les repas dont on connaît les ingrédients.
+- Les repas enregistrés, réutilisables en un tap et redimensionnables.
 - L'enregistrement d'une activité par type et durée.
 - Le suivi du poids, avec courbe de tendance lissée.
 - Un objectif de perte exprimé en kg/semaine, qui pilote le déficit.
@@ -65,7 +71,8 @@ Explicitement hors périmètre v1, pour que la v1 existe :
 | Écarté | Pourquoi |
 |---|---|
 | Macros affichées (protéines / glucides / lipides) | Alourdit l'accueil et la saisie. Les valeurs sont **stockées** dès la v1 (l'IA les produit gratuitement), donc l'affichage sera une évolution sans migration. |
-| Base d'aliments, code-barres | L'estimation IA couvre le besoin. Une base externe ajoute une dépendance de qualité inégale. |
+| Code-barres et produits de marque (Open Food Facts) | CIQUAL couvre les ingrédients et les plats maison, qui sont le besoin réel. Une base contributive de 3 millions de produits ajoute une dépendance de qualité inégale, un réseau obligatoire, et n'est utile qu'avec le scan. |
+| Recettes structurées (rendement, portions produites, échelle d'ingrédients) | Un repas enregistré redimensionnable couvre 90 % du besoin pour 10 % du modèle. |
 | Apple Health / Google Fit | Coût natif élevé, et le dédoublonnage avec la saisie manuelle et le NEAT est un piège. La calibration rend le gain marginal. |
 | Hydratation | Les boissons comptent pour leurs calories ; le suivi du volume est un autre produit. |
 | Social, défis, séries, gamification | Contraire au principe « sans jugement ». |
