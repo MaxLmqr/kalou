@@ -1,14 +1,16 @@
 import type { Sexe } from '@kalou/api/domain';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
 import { Button, Chip, Input, MessageErreur, Sheet, Text } from '@/components/ui';
 import { useTheme } from '@/design';
 import { useEnregistrerProfil, useMoi } from '@/hooks/use-moi';
+import { jourIso } from '@/lib/api';
 
 /** `1988-03-14` → `14/03/1988`. Vide si la date est absente. */
-function versSaisie(iso: string | null | undefined): string {
+function versSaisie(valeur: string | Date | null | undefined): string {
+  const iso = jourIso(valeur);
   if (!iso) return '';
   const [annee, mois, jour] = iso.split('-');
   return `${jour}/${mois}/${annee}`;
@@ -45,16 +47,43 @@ function formaterALaFrappe(saisie: string): string {
   return morceaux.filter(Boolean).join('/');
 }
 
+type ProfilExistant = {
+  sexe: string | null;
+  /** `string` selon le type d'Eden, `Date` à l'exécution — cf. `jourIso`. */
+  dateNaissance: string | Date | null;
+  tailleCm: number | null;
+};
+
 /**
  * Morphologie : les trois valeurs qui alimentent le métabolisme de base
  * (doc 02 § 2). Rien d'autre n'a sa place ici.
+ *
+ * L'attente du profil est un état à part entière, et non un formulaire vide
+ * qu'on remplirait après coup : un initialiseur `useState` ne se rejoue pas
+ * quand la requête arrive. Rendre le formulaire avant, c'était le condamner à
+ * rester vide chaque fois que le cache était froid — à l'ouverture de
+ * l'application, précisément.
  */
 export default function MorphologieScreen() {
+  const { data: moi, isPending } = useMoi();
+
+  if (isPending) {
+    return (
+      <Sheet title="Morphologie">
+        <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+          <ActivityIndicator />
+        </View>
+      </Sheet>
+    );
+  }
+
+  return <Formulaire profile={moi?.profile ?? null} />;
+}
+
+function Formulaire({ profile }: { profile: ProfilExistant | null }) {
   const theme = useTheme();
-  const { data: moi } = useMoi();
   const enregistrer = useEnregistrerProfil();
 
-  const profile = moi?.profile;
   const [sexe, setSexe] = useState<Sexe | null>((profile?.sexe as Sexe | null) ?? null);
   const [naissance, setNaissance] = useState(versSaisie(profile?.dateNaissance));
   const [taille, setTaille] = useState(profile?.tailleCm ? String(profile.tailleCm) : '');

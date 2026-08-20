@@ -21,7 +21,7 @@ const POIDS_PAR_DEFAUT = 75;
  * isolée ne dit rien, et la présenter comme un résultat serait malhonnête.
  *
  * C'est aussi la porte d'entrée du modèle : sans une première pesée, il n'y a
- * pas de tendance, donc pas de budget et pas d'objectif enregistrable.
+ * pas de tendance, donc pas d'apport cible et pas d'objectif enregistrable.
  */
 export default function PeseeScreen() {
   const { data: historique, isPending } = usePesees();

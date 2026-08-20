@@ -1,7 +1,7 @@
 import { deficitQuotidien } from '@kalou/api/domain';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { ActivityIndicator, View } from 'react-native';
 
 import {
   Badge,
@@ -27,7 +27,7 @@ const RECOMMANDE = 0.5;
 const RAISON_DU_PLAFOND: Record<string, string> = {
   part_du_poids:
     'Au-delà de 1 % de ton poids par semaine, la perte se fait surtout sur le muscle.',
-  deficit_max: 'Le déficit ne dépasse jamais un quart de ta dépense du jour.',
+  deficit_max: 'Le déficit ne dépasse jamais un quart de ton besoin journalier.',
   plancher_apport: 'Descendre plus bas te ferait passer sous le plancher de sécurité.',
 };
 
@@ -38,17 +38,38 @@ const RAISON_DU_PLAFOND: Record<string, string> = {
  * n'a pas, et pousse à optimiser une valeur dont l'écart réel se mesure en
  * centaines de calories.
  *
- * Les plafonds — 1 % du poids par semaine, 25 % de la dépense, plancher
+ * Les plafonds — 1 % du poids par semaine, 25 % du besoin journalier, plancher
  * d'apport — sont appliqués **par le serveur**, qui renvoie le rythme retenu.
  * Les recalculer ici pour griser des cartes ferait diverger les deux règles à la
  * première évolution.
  */
+type ObjectifExistant = { rythmeDemande: number; poidsCibleKg: number | null };
+
 export default function ObjectifScreen() {
+  const { data: moi, isPending } = useMoi();
+
+  if (isPending) {
+    return (
+      <Sheet title="Ton objectif">
+        <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+          <ActivityIndicator />
+        </View>
+      </Sheet>
+    );
+  }
+
+  return <Formulaire objectif={moi?.goal ?? null} />;
+}
+
+/**
+ * Séparé de l'écran pour que `useState` reçoive l'objectif courant dès son
+ * premier rendu : un initialiseur ne se rejoue pas quand la requête arrive, et
+ * la feuille resterait sur ses valeurs par défaut.
+ */
+function Formulaire({ objectif }: { objectif: ObjectifExistant | null }) {
   const theme = useTheme();
-  const { data: moi } = useMoi();
   const enregistrer = useEnregistrerObjectif();
 
-  const objectif = moi?.goal;
   const [rythme, setRythme] = useState<number>(objectif?.rythmeDemande ?? RECOMMANDE);
   const [poidsCible, setPoidsCible] = useState(
     objectif?.poidsCibleKg ? String(objectif.poidsCibleKg).replace('.', ',') : '',
@@ -103,8 +124,11 @@ export default function ObjectifScreen() {
         </Surface>
 
         <Surface variant="accent" style={{ gap: theme.spacing.xs }}>
-          <StatLine label="Ton budget" value={formatKcal(ajuste.budget_estime)} />
-          <StatLine label="Ta dépense estimée" value={formatKcal(ajuste.depense_estimee)} />
+          <StatLine label="Ton apport cible" value={formatKcal(ajuste.apport_cible_estime)} />
+          <StatLine
+            label="Ton besoin journalier"
+            value={formatKcal(ajuste.besoin_journalier_estime)}
+          />
         </Surface>
       </Sheet>
     );
@@ -161,8 +185,8 @@ export default function ObjectifScreen() {
       <Surface variant="sunken" style={{ flexDirection: 'row', gap: theme.spacing.md }}>
         <Icon name="info" size={20} color="textMuted" />
         <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
-          Changer d&apos;objectif ne réécrit pas le passé : le budget des journées déjà closes
-          reste celui qui était le tien ce jour-là.
+          Changer d&apos;objectif ne réécrit pas le passé : l&apos;apport cible des journées
+          déjà closes reste celui qui était le tien ce jour-là.
         </Text>
       </Surface>
     </Sheet>

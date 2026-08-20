@@ -6,6 +6,7 @@ import { Button, Icon, List, Row, Screen, Section, StatLine, Surface, Text } fro
 import { useTheme } from '@/design';
 import { formatKcal, formatRythme, formatWeight } from '@/design/format';
 import { useMoi } from '@/hooks/use-moi';
+import { jourIso } from '@/lib/api';
 import { signOut } from '@/lib/auth';
 
 const A_RENSEIGNER = 'À renseigner';
@@ -68,9 +69,8 @@ export default function ProfilScreen() {
   }
 
   const { profile, goal, user } = moi;
-  const ageAns = profile?.dateNaissance
-    ? age(new Date(profile.dateNaissance), new Date())
-    : null;
+  const naissance = jourIso(profile?.dateNaissance);
+  const ageAns = naissance ? age(new Date(naissance), new Date()) : null;
 
   const morphologie = [
     profile?.sexe ? (profile.sexe === 'homme' ? 'Homme' : 'Femme') : null,
@@ -85,7 +85,7 @@ export default function ProfilScreen() {
       {!moi.onboarding.complet ? (
         <Surface variant="accent" style={{ gap: theme.spacing.md }}>
           <Text variant="body" color="accent">
-            Kalou ne peut pas encore calculer ton budget.
+            Kalou ne peut pas encore calculer ton apport cible.
           </Text>
           <Text variant="caption" color="accent">
             Il manque {enumerer(moi.onboarding.manque.map((quoi) => LIBELLE_MANQUE[quoi] ?? quoi))}.
