@@ -38,3 +38,20 @@ export function erreurApi(rejet: unknown): ErreurApi | null {
   const valeur = (rejet as { value?: { erreur?: ErreurApi } } | null)?.value?.erreur
   return valeur?.code ? valeur : null
 }
+
+/**
+ * Ramène une date d'API à sa journée `AAAA-MM-JJ`.
+ *
+ * Eden réhydrate les chaînes de date en objets `Date` (`parseStringifiedDate`)
+ * alors que le type qu'il annonce reste `string`. Le compilateur ne voit donc
+ * rien, et un `.split('-')` sur la valeur explose à l'exécution — écran blanc,
+ * sans message. C'est arrivé sur la feuille de morphologie.
+ *
+ * On normalise ici plutôt que de faire confiance au type : la frontière est le
+ * seul endroit où l'écart entre le type et la valeur est connu.
+ */
+export function jourIso(valeur: string | Date | null | undefined): string | null {
+  if (!valeur) return null
+  if (valeur instanceof Date) return valeur.toISOString().slice(0, 10)
+  return typeof valeur === 'string' ? valeur.slice(0, 10) : null
+}
