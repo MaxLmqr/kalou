@@ -1,6 +1,7 @@
 import { db, profiles, schema } from '@kalou/db'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { createAuthMiddleware } from 'better-auth/api'
 import { emailOTP } from 'better-auth/plugins'
 
 import { env } from './env'
@@ -16,8 +17,35 @@ async function envoyerCode(email: string, code: string): Promise<void> {
   if (env.isProduction) {
     throw new Error("Aucun transport d'e-mail configuré pour l'envoi des codes.")
   }
+  // Avec le raccourci actif, le code est déjà connu de qui l'a configuré.
+  if (env.devOtp) return
   console.log(`\n📧  Code de connexion pour ${email} : ${code}\n`)
 }
+
+/**
+ * Raccourci de développement. Doc 06 § 2.
+ *
+ * Tant qu'aucun fournisseur d'e-mails n'est branché, `AUTH_DEV_OTP` connecte
+ * n'importe quelle adresse. Le raccourci n'existe que si la variable est
+ * renseignée, et `env.ts` empêche l'API de démarrer si elle l'est en production.
+ *
+ * L'implémentation ne court-circuite pas la vérification : elle fait générer par
+ * Better Auth un code pour l'adresse visée — `generateOTP` le fixe alors à la
+ * valeur de développement — puis laisse la requête suivre son cours normal.
+ * Expiration, tentatives et limitation de débit restent donc ceux de la
+ * bibliothèque, plutôt qu'un chemin parallèle à maintenir.
+ */
+const raccourciDeDeveloppement = createAuthMiddleware(async (ctx) => {
+  if (!env.devOtp || ctx.path !== '/sign-in/email-otp') return
+
+  const corps = ctx.body as { email?: string; otp?: string } | undefined
+  if (!corps?.email || corps.otp !== env.devOtp) return
+
+  // Garde-fou 3 : chaque usage laisse une trace, avec l'adresse utilisée.
+  console.warn(`⚠️  Connexion par le code de développement : ${corps.email}`)
+
+  await auth.api.sendVerificationOTP({ body: { email: corps.email, type: 'sign-in' } })
+})
 
 export const auth = betterAuth({
   baseURL: env.baseUrl,
@@ -30,6 +58,7 @@ export const auth = betterAuth({
   },
   // Doc 06 : pas de mot de passe, un code à usage unique par e-mail.
   emailAndPassword: { enabled: false },
+  hooks: { before: raccourciDeDeveloppement },
   databaseHooks: {
     user: {
       create: {
@@ -45,6 +74,9 @@ export const auth = betterAuth({
     emailOTP({
       otpLength: 6,
       expiresIn: 10 * 60,
+      // Garde-fou 1 : sans la variable, on retombe sur le tirage de la
+      // bibliothèque et le raccourci n'existe pas.
+      generateOTP: () => env.devOtp,
       sendVerificationOTP: async ({ email, otp }) => envoyerCode(email, otp),
     }),
   ],
