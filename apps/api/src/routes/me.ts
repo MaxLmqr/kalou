@@ -123,8 +123,8 @@ export const meRoutes = new Elysia()
       }
 
       const goal = await db.transaction(async (tx) => {
-        // Historisé : on clôt l'objectif courant au lieu de l'écraser, sinon le
-        // budget des journées passées bougerait rétroactivement.
+        // Historisé : on clôt l'objectif courant au lieu de l'écraser, sinon
+        // l'apport cible des journées passées bougerait rétroactivement.
         await tx
           .update(goals)
           .set({ finLe: aujourdhui })
@@ -149,8 +149,8 @@ export const meRoutes = new Elysia()
         goal,
         rythme_applique: goal.rythmeKgSemaine,
         plafonds_appliques: resultat.plafondsAppliques,
-        budget_estime: Math.round(resultat.budgetKcal),
-        depense_estimee: Math.round(resultat.depenseKcal),
+        apport_cible_estime: Math.round(resultat.apportCibleKcal),
+        besoin_journalier_estime: Math.round(resultat.besoinJournalierKcal),
       }
     },
     {

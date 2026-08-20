@@ -154,7 +154,7 @@ export default function ProfilScreen() {
           />
           <Row
             title="Revoir l'onboarding"
-            detail="Refaire les quatre écrans et recalculer le budget estimé"
+            detail="Refaire les quatre écrans et recalculer l'apport cible estimé"
             trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
             onPress={() => router.push('/toi')}
           />

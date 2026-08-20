@@ -104,7 +104,7 @@ export function calibrer(entrees: EntreesCalibration): ResultatCalibration {
 
   // Conditions d'activation (§ 5.1). La sous-déclaration est la spirale que le
   // garde-fou empêche : sous-déclarer fait mesurer une dépense trop basse, donc
-  // rétrécit le budget, donc aggrave la faim et la sous-déclaration.
+  // rétrécit l'apport cible, donc aggrave la faim et la sous-déclaration.
   // ⚠️ Le § 5.1 annonce « au moins 11 jours sur 14 (≥ 80 %) », mais 11/14 vaut
   // 78,6 % : les deux critères ne désignent pas le même seuil. On retient le
   // nombre explicite (arrondi au plus proche), pas le ratio.
@@ -130,7 +130,7 @@ export function calibrer(entrees: EntreesCalibration): ResultatCalibration {
     }
   }
 
-  // Transition progressive (§ 5.3) : pas de saut visible dans le budget.
+  // Transition progressive (§ 5.3) : pas de saut visible dans l'apport cible.
   let socleAppliqueKcal = w * socleMesureKcal + (1 - w) * socleFormuleKcal
 
   // Garde-fou de vitesse (§ 5.4) : absorbe un artefact de fenêtre.

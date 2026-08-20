@@ -8,9 +8,9 @@
  *  — « un seul chiffre » : une échelle typographique avec un vrai display isolé,
  *    très au-dessus du reste, pour que la hiérarchie soit non ambiguë ;
  *  — « sans jugement » : pas de rouge ni de vert de statut dans la palette.
- *    Un dépassement de budget est une information, il se dit avec du texte ;
+ *    Dépasser son apport cible est une information, ça se dit avec du texte ;
  *  — « honnête sur l'incertitude » : une teinte discrète dédiée aux états
- *    provisoires (estimation en attente, budget non calibré).
+ *    provisoires (estimation en attente, apport cible non calibré).
  */
 import { Platform } from 'react-native';
 
@@ -105,7 +105,7 @@ export const hitSize = {
 export const typography = {
   /** Le chiffre unique de l'accueil, et lui seul. */
   display: { fontSize: 64, lineHeight: 68, fontWeight: '300', letterSpacing: -2 },
-  /** Chiffre secondaire mis en avant (poids, budget dans l'onboarding). */
+  /** Chiffre secondaire mis en avant (poids, apport cible dans l'onboarding). */
   numberLarge: { fontSize: 34, lineHeight: 40, fontWeight: '400', letterSpacing: -0.8 },
   /** Titre d'écran. */
   title: { fontSize: 26, lineHeight: 32, fontWeight: '600', letterSpacing: -0.4 },

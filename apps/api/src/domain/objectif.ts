@@ -1,6 +1,6 @@
-import { budgetDuJour, deficitQuotidien, depenseDuJour, facteurTef } from './budget'
+import { apportCible, besoinJournalier, deficitQuotidien, facteurTef } from './apport-cible'
 import {
-  DEFICIT_MAX_PART_DEPENSE,
+  DEFICIT_MAX_PART_BESOIN,
   KCAL_PAR_KG_SEMAINE,
   PLANCHER_APPORT,
   RYTHME_MAX_PART_DU_POIDS,
@@ -24,8 +24,8 @@ export type ResultatObjectif = {
   rythmeDemandeKgSemaine: number
   rythmeAppliqueKgSemaine: number
   deficitKcal: number
-  budgetKcal: number
-  depenseKcal: number
+  apportCibleKcal: number
+  besoinJournalierKcal: number
   plancherKcal: number
   plafondsAppliques: MotifPlafond[]
 }
@@ -50,10 +50,10 @@ export function appliquerPlafonds(entrees: EntreesObjectif): ResultatObjectif {
   }
 
   let deficit = deficitQuotidien(rythme)
-  const depenseKcal = depenseDuJour({ socleApplique, eatKcal, w })
+  const besoinJournalierKcal = besoinJournalier({ socleApplique, eatKcal, w })
 
-  // 2. Déficit borné à 25 % de la dépense du jour.
-  const deficitMax = depenseKcal * DEFICIT_MAX_PART_DEPENSE
+  // 2. Déficit borné à 25 % du besoin énergétique journalier.
+  const deficitMax = besoinJournalierKcal * DEFICIT_MAX_PART_BESOIN
   if (deficit > deficitMax) {
     deficit = deficitMax
     plafondsAppliques.push('deficit_max')
@@ -62,18 +62,18 @@ export function appliquerPlafonds(entrees: EntreesObjectif): ResultatObjectif {
   // 3. Plancher d'apport sanitaire. Si le déficit visé l'exige, on réduit le
   //    rythme plutôt que de descendre en dessous.
   //
-  //    Le § 5.4 écrit `budget ≥ max(BMR ; plancher)`, mais le BMR y a été
+  //    Le § 5.4 écrit `apport cible ≥ max(BMR ; plancher)`, mais le BMR y a été
   //    retiré : combiné à un socle NEAT de +15 %, il rend le rythme « recommandé
   //    par défaut » (0,5 kg/semaine) inatteignable pour le profil de référence
-  //    du § 3.2 — dont le budget de 1 679 kcal est pourtant celui du document.
-  //    Manger sous son BMR est ordinaire en déficit modéré ; c'est le plancher
-  //    sanitaire qui porte la sécurité.
+  //    du § 3.2 — dont l'apport cible de 1 679 kcal est pourtant celui du
+  //    document. Manger sous son BMR est ordinaire en déficit modéré ; c'est le
+  //    plancher sanitaire qui porte la sécurité.
   const plancherKcal = PLANCHER_APPORT[sexe]
-  let budgetKcal = budgetDuJour({ socleApplique, eatKcal, deficitKcal: deficit, w })
-  if (budgetKcal < plancherKcal) {
+  let apportCibleKcal = apportCible({ socleApplique, eatKcal, deficitKcal: deficit, w })
+  if (apportCibleKcal < plancherKcal) {
     const deficitAuPlancher = socleApplique + eatKcal - plancherKcal / facteurTef(w)
     deficit = Math.max(0, deficitAuPlancher)
-    budgetKcal = budgetDuJour({ socleApplique, eatKcal, deficitKcal: deficit, w })
+    apportCibleKcal = apportCible({ socleApplique, eatKcal, deficitKcal: deficit, w })
     plafondsAppliques.push('plancher_apport')
   }
 
@@ -81,8 +81,8 @@ export function appliquerPlafonds(entrees: EntreesObjectif): ResultatObjectif {
     rythmeDemandeKgSemaine,
     rythmeAppliqueKgSemaine: deficit / KCAL_PAR_KG_SEMAINE,
     deficitKcal: deficit,
-    budgetKcal,
-    depenseKcal,
+    apportCibleKcal,
+    besoinJournalierKcal,
     plancherKcal,
     plafondsAppliques,
   }

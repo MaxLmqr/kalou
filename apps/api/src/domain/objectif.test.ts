@@ -22,10 +22,10 @@ describe("Plafonds de l'objectif (doc 02 § 6)", () => {
     expect(base.poidsKg * 0.01).toBe(0.85)
   })
 
-  test('le déficit est borné à 25 % de la dépense du jour', () => {
+  test('le déficit est borné à 25 % du besoin énergétique journalier', () => {
     const r = appliquerPlafonds({ ...base, rythmeDemandeKgSemaine: 1.5 })
     expect(r.plafondsAppliques).toContain('deficit_max')
-    expect(r.deficitKcal).toBeLessThanOrEqual(r.depenseKcal * 0.25 + 1e-9)
+    expect(r.deficitKcal).toBeLessThanOrEqual(r.besoinJournalierKcal * 0.25 + 1e-9)
   })
 
   test('Kalou ne refuse pas : il renvoie le rythme atteignable le plus proche', () => {
@@ -35,18 +35,18 @@ describe("Plafonds de l'objectif (doc 02 § 6)", () => {
   })
 
   test('le profil de référence atteint le rythme recommandé par défaut', () => {
-    // Le § 5.4 écrivait `budget ≥ max(BMR ; plancher)`, ce qui aurait ramené ce
-    // profil à 0,41 kg/semaine et rendu inatteignable le défaut recommandé du
-    // § 6 — alors même que 1 679 kcal est le budget donné par le § 3.2. Le
-    // plancher ne retient plus que la borne sanitaire.
+    // Le § 5.4 écrivait `apport cible ≥ max(BMR ; plancher)`, ce qui aurait
+    // ramené ce profil à 0,41 kg/semaine et rendu inatteignable le défaut
+    // recommandé du § 6 — alors même que 1 679 kcal est l'apport cible donné
+    // par le § 3.2. Le plancher ne retient plus que la borne sanitaire.
     const r = appliquerPlafonds({ ...base, rythmeDemandeKgSemaine: 0.5 })
     expect(r.plafondsAppliques).toEqual([])
-    expect(Math.round(r.budgetKcal)).toBe(1679)
+    expect(Math.round(r.apportCibleKcal)).toBe(1679)
     expect(r.rythmeAppliqueKgSemaine).toBeCloseTo(0.5, 10)
     expect(r.plancherKcal).toBe(1500)
   })
 
-  test('le budget reste au-dessus du plancher sanitaire masculin', () => {
+  test("l'apport cible reste au-dessus du plancher sanitaire masculin", () => {
     const r = appliquerPlafonds({
       ...base,
       poidsKg: 62,
@@ -54,7 +54,7 @@ describe("Plafonds de l'objectif (doc 02 § 6)", () => {
       rythmeDemandeKgSemaine: 0.6,
     })
     expect(r.plafondsAppliques).toContain('plancher_apport')
-    expect(Math.round(r.budgetKcal)).toBe(1500)
+    expect(Math.round(r.apportCibleKcal)).toBe(1500)
   })
 
   test('le plancher sanitaire féminin est respecté', () => {
@@ -68,7 +68,7 @@ describe("Plafonds de l'objectif (doc 02 § 6)", () => {
       sexe: 'femme',
     })
     expect(r.plancherKcal).toBe(1200)
-    expect(Math.round(r.budgetKcal)).toBe(1200)
+    expect(Math.round(r.apportCibleKcal)).toBe(1200)
     expect(r.plafondsAppliques).toContain('plancher_apport')
   })
 

@@ -15,6 +15,13 @@
       "when": 1787260919764,
       "tag": "0001_reflective_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787263671758,
+      "tag": "0002_pink_mac_gargan",
+      "breakpoints": true
     }
   ]
 }

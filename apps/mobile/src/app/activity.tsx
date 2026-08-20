@@ -23,8 +23,8 @@ const PAS_MIN = 5;
  * Ajouter une activité (docs/03 § 1.4).
  *
  * Les calories nettes s'affichent **en direct** pendant le réglage de la durée :
- * c'est ce qui rend lisible le lien entre l'effort et le budget, et c'est aussi
- * pour ça que la valeur occupe la place du chiffre unique de l'écran.
+ * c'est ce qui rend lisible le lien entre l'effort et l'apport cible, et c'est
+ * aussi pour ça que la valeur occupe la place du chiffre unique de l'écran.
  */
 export default function ActiviteScreen() {
   const theme = useTheme();
@@ -40,13 +40,13 @@ export default function ActiviteScreen() {
       footer={<Button label="Enregistrer" onPress={() => router.back()} />}>
       {/*
         Le chiffre est positif et le libellé dit ce qu'il fait : une activité
-        *augmente* le budget. L'entrée correspondante s'affichera en négatif
+        *augmente* l'apport cible. L'entrée correspondante s'affichera en négatif
         dans le journal, où elle est une dépense — ce sont deux points de vue,
         pas deux valeurs.
       */}
       <BigNumber
         value={formatKcal(kcal)}
-        label="calories ajoutées à ton budget"
+        label="calories ajoutées à ton apport cible"
         note={`${activite.libelle} · MET ${activite.met.toLocaleString('fr-FR')}`}
       />
 

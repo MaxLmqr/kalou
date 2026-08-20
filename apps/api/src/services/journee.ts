@@ -2,6 +2,7 @@ import {
   activityEntries,
   db,
   foodEntries,
+  foodEntryItems,
   goals,
   profiles,
   weighIns,
@@ -12,20 +13,23 @@ import { and, asc, eq, isNull, lte, ne, sql } from 'drizzle-orm'
 
 import {
   age,
+  apportCible,
   balance,
+  besoinJournalier,
   bmr,
-  budgetDuJour,
   deficitQuotidien,
-  depenseDuJour,
   phase,
+  plancherProteines,
   restant,
   socleFormule,
+  sommeProteines,
   tendanceCourante,
+  type ComposantProteique,
   type Phase,
   type Sexe,
 } from '../domain'
 
-/** Ce qui manque avant de pouvoir calculer un budget. */
+/** Ce qui manque avant de pouvoir calculer un apport cible. */
 export type ManqueOnboarding = 'sexe' | 'date_naissance' | 'taille' | 'pesee' | 'objectif'
 
 export type EtatDuProfil =
@@ -34,9 +38,9 @@ export type EtatDuProfil =
 
 export type VueDuJour = {
   local_date: string
-  budget_kcal: number
+  apport_cible_kcal: number
   apports_kcal: number
-  depense_kcal: number
+  besoin_journalier_kcal: number
   restant_kcal: number
   balance_kcal: number
   detail: {
@@ -45,6 +49,13 @@ export type VueDuJour = {
     eat_kcal: number
     deficit_cible: number
     phase: Phase
+  }
+  proteines: {
+    /** `null` si aucun composant du jour ne porte de valeur protéique. */
+    total_g: number | null
+    plancher_g: number
+    /** Vrai si une entrée libre rend la somme incomplète (borne inférieure). */
+    partiel: boolean
   }
   entrees_en_attente: number
   tendance_poids_kg: number | null
@@ -68,7 +79,7 @@ export async function tendanceAuJour(userId: string, localDate: string): Promise
   return tendanceCourante(pesees)
 }
 
-/** Vérifie que le profil permet un calcul de budget, et dit ce qui manque sinon. */
+/** Vérifie que le profil permet un calcul d'apport cible, et dit ce qui manque sinon. */
 export async function etatDuProfil(userId: string, localDate: string): Promise<EtatDuProfil> {
   const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId))
   const [goal] = await db
@@ -115,6 +126,29 @@ async function apportsDuJour(
   return { apports: ligne?.apports ?? 0, enAttente: ligne?.enAttente ?? 0 }
 }
 
+/**
+ * Composants alimentaires du jour, réduits à ce qui porte les protéines.
+ *
+ * Les entrées en attente d'estimation n'ont aucun composant (doc 05 § 5,
+ * invariant 1) : elles sortent d'elles-mêmes de la somme.
+ */
+async function composantsDuJour(
+  userId: string,
+  localDate: string,
+): Promise<ComposantProteique[]> {
+  return await db
+    .select({ type: foodEntryItems.type, proteinesG: foodEntryItems.proteinesG })
+    .from(foodEntryItems)
+    .innerJoin(foodEntries, eq(foodEntryItems.foodEntryId, foodEntries.id))
+    .where(
+      and(
+        eq(foodEntries.userId, userId),
+        eq(foodEntries.localDate, localDate),
+        isNull(foodEntries.deletedAt),
+      ),
+    )
+}
+
 /** Somme des dépenses sportives nettes du jour. */
 async function eatDuJour(userId: string, localDate: string): Promise<number> {
   const [ligne] = await db
@@ -145,9 +179,10 @@ export async function calculerJournee(
 ): Promise<VueDuJour> {
   const { profile, goal, tendanceKg } = etat
 
-  const [{ apports, enAttente }, eatKcal] = await Promise.all([
+  const [{ apports, enAttente }, eatKcal, composants] = await Promise.all([
     apportsDuJour(userId, localDate),
     eatDuJour(userId, localDate),
+    composantsDuJour(userId, localDate),
   ])
 
   const bmrKcal = bmr({
@@ -161,15 +196,16 @@ export async function calculerJournee(
   const w = 0
   const deficitKcal = deficitQuotidien(goal.rythmeKgSemaine)
 
-  const depense = depenseDuJour({ socleApplique, eatKcal, w })
-  const budget = budgetDuJour({ socleApplique, eatKcal, deficitKcal, w })
+  const besoin = besoinJournalier({ socleApplique, eatKcal, w })
+  const cible = apportCible({ socleApplique, eatKcal, deficitKcal, w })
+  const proteines = sommeProteines(composants)
 
   return {
     local_date: localDate,
-    budget_kcal: Math.round(budget),
+    apport_cible_kcal: Math.round(cible),
     apports_kcal: apports,
-    depense_kcal: Math.round(depense),
-    restant_kcal: Math.round(restant(budget, apports)),
+    besoin_journalier_kcal: Math.round(besoin),
+    restant_kcal: Math.round(restant(cible, apports)),
     balance_kcal: Math.round(
       balance({ apportsKcal: apports, socleApplique, eatKcal, w }),
     ),
@@ -179,6 +215,11 @@ export async function calculerJournee(
       eat_kcal: eatKcal,
       deficit_cible: Math.round(deficitKcal),
       phase: phase(w),
+    },
+    proteines: {
+      total_g: proteines.totalG,
+      plancher_g: plancherProteines(tendanceKg),
+      partiel: proteines.partielle,
     },
     entrees_en_attente: enAttente,
     tendance_poids_kg: Math.round(tendanceKg * 100) / 100,

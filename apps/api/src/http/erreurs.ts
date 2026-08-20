@@ -25,7 +25,7 @@ export function erreur(
 export function profilIncomplet(manque: readonly string[]): CorpsErreur {
   return erreur(
     'profil_incomplet',
-    "Ton profil n'est pas encore complet : impossible de calculer un budget.",
+    "Ton profil n'est pas encore complet : impossible de calculer un apport cible.",
     { manque },
   )
 }

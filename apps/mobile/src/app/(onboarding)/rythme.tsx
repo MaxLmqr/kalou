@@ -26,7 +26,7 @@ export default function RythmeScreen() {
       intro="Plus le rythme est lent, plus il tient dans la durée. Tu pourras en changer."
       onBack={() => router.back()}
       actionLabel="Continuer"
-      onAction={() => router.push('/(onboarding)/budget')}>
+      onAction={() => router.push('/(onboarding)/apport-cible')}>
       <View style={{ gap: theme.spacing.md }}>
         {rythmes.map((option) => {
           const selectionne = option.rythmeKgSemaine === choisi;

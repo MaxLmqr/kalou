@@ -15,15 +15,13 @@ export function deficitQuotidien(rythmeKgSemaine: number): number {
  *  — § 3.3, après calibration : le socle est déduit d'un bilan énergétique réel
  *    et contient déjà le TEF, la division ne s'applique plus.
  *
- * Le document ne dit pas ce qui se passe entre les deux, alors que § 5.3 fait
- * précisément transiter le socle progressivement (w de 0 à 1). Basculer d'un
- * régime à l'autre dès que w > 0 produirait, sur l'exemple du § 3.2, un saut de
- * 1 679 à 1 511 kcal — soit exactement le « saut visible dans le budget » que
+ * Entre les deux, le § 3.4 interpole la correction en même temps que le socle
+ * (§ 5.3). Basculer d'un régime à l'autre dès que w > 0 ferait tomber l'apport
+ * cible de l'exemple du § 3.2 de 1 679 à 1 511 kcal — précisément le saut que
  * § 5.3 cherche à éviter.
  *
- * On interpole donc la correction en même temps que le socle. C'est cohérent
- * physiquement : la part de TEF manquante décroît à mesure que le socle mesuré
- * — qui la contient — prend le pas sur le socle formulé.
+ * C'est cohérent physiquement : la part de TEF manquante décroît à mesure que le
+ * socle mesuré — qui la contient — prend le pas sur le socle formulé.
  *
  *   w = 0 → 1 / 0,90   (§ 3.2 à l'identique)
  *   w = 1 → 1          (§ 3.3 à l'identique)
@@ -43,30 +41,37 @@ export type EntreesJournee = {
 }
 
 /**
- * Dépense du jour : ce que l'utilisateur peut manger sans ni perdre ni prendre.
+ * Besoin énergétique journalier : l'apport pour lequel la balance est nulle —
+ * ce que l'utilisateur peut manger sans ni perdre ni prendre.
  * Doc 02 § 3.2 et § 3.3.
  */
-export function depenseDuJour({ socleApplique, eatKcal, w }: Omit<EntreesJournee, 'deficitKcal'>): number {
+export function besoinJournalier({
+  socleApplique,
+  eatKcal,
+  w,
+}: Omit<EntreesJournee, 'deficitKcal'>): number {
   return (socleApplique + eatKcal) * facteurTef(w)
 }
 
 /**
- * Budget du jour. Doc 02 § 3.2 : le déficit est lui aussi corrigé du TEF, et
- * c'est voulu — manger moins réduit aussi le coût de la digestion.
+ * Apport cible : le besoin énergétique journalier moins le déficit visé.
+ *
+ * Doc 02 § 3.2 : le déficit est lui aussi corrigé du TEF, et c'est voulu —
+ * manger moins réduit aussi le coût de la digestion.
  */
-export function budgetDuJour({ socleApplique, eatKcal, deficitKcal, w }: EntreesJournee): number {
+export function apportCible({ socleApplique, eatKcal, deficitKcal, w }: EntreesJournee): number {
   return (socleApplique + eatKcal - deficitKcal) * facteurTef(w)
 }
 
 /** Le chiffre unique de l'écran d'accueil. Peut être négatif. Doc 02 § 8. */
-export function restant(budgetKcal: number, apportsKcal: number): number {
-  return budgetKcal - apportsKcal
+export function restant(apportCibleKcal: number, apportsKcal: number): number {
+  return apportCibleKcal - apportsKcal
 }
 
 /**
  * Dépense réelle de la journée, TEF calculé sur ce qui a été mangé.
  *
- * À distinguer de `depenseDuJour`, qui est l'apport d'équilibre : celui-ci ne
+ * À distinguer de `besoinJournalier`, qui est l'apport d'équilibre : celui-ci ne
  * bouge pas quand l'utilisateur mange, et c'est ce qui en fait un bon chiffre à
  * afficher. La dépense réelle, elle, dépend des apports — c'est la seule qui
  * permette un bilan énergétique juste.
@@ -93,9 +98,10 @@ export function depenseReelle({
  *
  * Le TEF est calculé sur les apports du jour, conformément à la vérification du
  * § 3.2 (« à 1 679 kcal ingérées, TEF = 168, dépense totale = 2 229, balance =
- * −550 »). La formule littérale du § 8 (`apports − dépense_du_jour`) donnerait
+ * −550 »). La formule littérale du § 8 (`apports − besoin_journalier`) donnerait
  * ici −611 : elle facture le TEF de l'apport d'équilibre, pas celui du repas
- * réellement pris, et surestime donc le déficit dès qu'on s'écarte du budget.
+ * réellement pris, et surestime donc le déficit dès qu'on s'écarte de l'apport
+ * cible.
  * C'est cette version qui est cohérente avec le § 5.2, où la dépense est déduite
  * d'un bilan énergétique réel.
  */

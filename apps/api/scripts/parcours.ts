@@ -4,9 +4,9 @@
  *   bun run parcours
  *
  * Déroule le parcours complet sur un compte jetable : connexion par code,
- * onboarding, budget du jour, saisie et suppression d'un repas. Le code à usage
- * unique est lu directement en base — c'est un script de développement, pas un
- * client.
+ * onboarding, apport cible du jour, saisie et suppression d'un repas. Le code à
+ * usage unique est lu directement en base — c'est un script de développement,
+ * pas un client.
  *
  * Ce n'est pas un remplaçant des tests unitaires du domaine : il vérifie le
  * câblage (routes, session, transactions, fuseau), pas les formules.
@@ -86,7 +86,7 @@ verifier('POST /weigh-ins', 200, pesee.statut, { tendance_kg: pesee.donnees.tend
 const objectif = await appel('PUT', '/me/goal', { rythme_kg_semaine: 0.5, poids_cible_kg: 78 })
 verifier('PUT /me/goal', 200, objectif.statut, {
   rythme: objectif.donnees.rythme_applique,
-  budget: objectif.donnees.budget_estime,
+  apport_cible: objectif.donnees.apport_cible_estime,
 })
 
 const excessif = await appel('PUT', '/me/goal', { rythme_kg_semaine: 2 })
@@ -98,15 +98,18 @@ await appel('PUT', '/me/goal', { rythme_kg_semaine: 0.5 })
 
 const jour = await appel('GET', '/days/today')
 verifier('GET /days/today', 200, jour.statut, {
-  budget: jour.donnees.budget_kcal,
-  depense: jour.donnees.depense_kcal,
+  apport_cible: jour.donnees.apport_cible_kcal,
+  besoin_journalier: jour.donnees.besoin_journalier_kcal,
   detail: jour.donnees.detail,
+  proteines: jour.donnees.proteines,
 })
 
 // Les chiffres du § 3.2 du doc 02, à l'arrondi près.
-verifier('budget conforme au doc 02', 1679, jour.donnees.budget_kcal)
-verifier('dépense conforme au doc 02', 2290, jour.donnees.depense_kcal)
+verifier('apport cible conforme au doc 02', 1679, jour.donnees.apport_cible_kcal)
+verifier('besoin journalier conforme au doc 02', 2290, jour.donnees.besoin_journalier_kcal)
 verifier('socle conforme au doc 02', 2061, jour.donnees.detail.socle)
+// 1,6 × 85 kg = 136 g, arrondi à 5 g près (doc 02 § 9).
+verifier('plancher protéique conforme au doc 02', 135, jour.donnees.proteines.plancher_g)
 
 const repas = await appel('POST', '/food-entries', {
   items: [
@@ -123,6 +126,12 @@ verifier('total = somme des composants', 725, repas.donnees.kcal)
 
 const apres = await appel('GET', '/days/today')
 verifier('les apports comptent dans le reste', 954, apres.donnees.restant_kcal)
+// Trois composants libres sans protéines : la somme est vide, et partielle.
+verifier(
+  'une entrée libre rend la somme protéique partielle',
+  1,
+  apres.donnees.proteines.partiel === true && apres.donnees.proteines.total_g === null ? 1 : 0,
+)
 
 verifier('DELETE /food-entries/:id', 204, (await appel('DELETE', `/food-entries/${repas.donnees.id}`)).statut)
 const nettoye = await appel('GET', '/days/today')
