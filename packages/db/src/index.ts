@@ -12,5 +12,6 @@ export const db = drizzle(connectionString, { schema, casing: 'snake_case' })
 
 export type Db = typeof db
 
+export * from './texte'
 export { schema }
 export * from './schema'

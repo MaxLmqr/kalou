@@ -6,6 +6,7 @@ import { erreur } from './http/erreurs'
 import { authRoutes } from './plugins/auth'
 import { dayRoutes } from './routes/days'
 import { foodEntryRoutes } from './routes/food-entries'
+import { foodRoutes } from './routes/foods'
 import { meRoutes } from './routes/me'
 import { weighInRoutes } from './routes/weigh-ins'
 
@@ -22,6 +23,7 @@ export const app = new Elysia()
   .use(dayRoutes)
   .use(weighInRoutes)
   .use(foodEntryRoutes)
+  .use(foodRoutes)
   // En dernier : le montage de Better Auth installe un `ALL /*` qui capterait
   // toutes les routes déclarées après lui.
   .use(authRoutes)

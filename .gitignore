@@ -1,5 +1,6 @@
 node_modules/
 dist/
+.ciqual/
 .turbo/
 .expo/
 *.tsbuildinfo

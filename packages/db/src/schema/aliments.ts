@@ -8,6 +8,7 @@ import {
   pgTable,
   primaryKey,
   text,
+  uniqueIndex,
   timestamp,
   uuid,
 } from 'drizzle-orm/pg-core'
@@ -55,8 +56,15 @@ export const foods = pgTable(
       'foods_proprietaire_coherent',
       sql`(${table.userId} is null) = (${table.source} = 'ciqual')`,
     ),
-    index('foods_recherche_idx').on(table.libelleNormalise),
+    // Index trigramme : c'est lui qui rend `similarity()` utilisable sur les
+    // 2 300 lignes de CIQUAL sans balayage complet.
+    index('foods_recherche_idx')
+      .using('gin', sql`${table.libelleNormalise} gin_trgm_ops`),
     index('foods_proprietaire_idx').on(table.userId),
+    // Rend l'import CIQUAL rejouable : un aliment de référence est identifié par
+    // son code source. Les aliments personnels ont `code_source` à null, et deux
+    // nulls ne se heurtent pas dans un index unique Postgres.
+    uniqueIndex('foods_source_code_unique').on(table.source, table.codeSource),
   ],
 )
 
