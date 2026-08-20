@@ -1,0 +1,204 @@
+categorie;libelle;alias;kcal_100g_indicatif;unite_base;portion_1;grammes_1;portion_2;grammes_2
+Féculents;Riz blanc cuit;riz;130;g;1 bol;200;1 portion;150
+Féculents;Riz complet cuit;riz complet;120;g;1 bol;200;1 portion;150
+Féculents;Pâtes cuites;pates|spaghetti|penne;130;g;1 assiette;250;1 portion;180
+Féculents;Pâtes complètes cuites;pates completes;124;g;1 assiette;250;;
+Féculents;Semoule cuite;couscous|semoule;112;g;1 portion;150;;
+Féculents;Quinoa cuit;quinoa;120;g;1 portion;150;;
+Féculents;Boulgour cuit;boulgour|bulgur;110;g;1 portion;150;;
+Féculents;Pomme de terre cuite;patate|pommes de terre;85;g;1 moyenne;150;1 portion;200
+Féculents;Purée de pomme de terre;puree;90;g;1 portion;200;;
+Féculents;Frites;frites|pommes frites;300;g;1 petite portion;100;1 grande portion;200
+Féculents;Patate douce cuite;patate douce;90;g;1 moyenne;150;;
+Féculents;Nouilles de riz cuites;nouilles|pad thai;110;g;1 portion;180;;
+Féculents;Polenta cuite;polenta;85;g;1 portion;200;;
+Légumineuses;Lentilles cuites;lentilles;116;g;1 portion;180;1 louche;100
+Légumineuses;Pois chiches cuits;pois chiche|chickpea;139;g;1 portion;150;1 cuillère à soupe;30
+Légumineuses;Haricots rouges cuits;haricots rouges;127;g;1 portion;150;;
+Légumineuses;Haricots blancs cuits;haricots blancs|coco;130;g;1 portion;150;;
+Légumineuses;Pois cassés cuits;pois casses;118;g;1 portion;150;;
+Légumineuses;Fèves cuites;feves;110;g;1 portion;150;;
+Légumineuses;Tofu ferme;tofu;120;g;1 portion;125;;
+Légumineuses;Tempeh;tempeh;190;g;1 portion;100;;
+Légumineuses;Houmous;houmous|hummus;307;g;1 cuillère à soupe;25;1 portion;80
+Légumes;Courgette cuite;courgette;20;g;1 moyenne;200;;
+Légumes;Aubergine cuite;aubergine;25;g;1 moyenne;250;;
+Légumes;Tomate;tomate;18;g;1 moyenne;120;1 cerise;10
+Légumes;Carotte crue;carotte;36;g;1 moyenne;80;;
+Légumes;Carotte cuite;carottes cuites;30;g;1 portion;150;;
+Légumes;Brocoli cuit;brocoli;30;g;1 portion;150;;
+Légumes;Chou-fleur cuit;chou fleur;25;g;1 portion;150;;
+Légumes;Haricots verts cuits;haricots verts;30;g;1 portion;150;;
+Légumes;Épinards cuits;epinards;25;g;1 portion;200;;
+Légumes;Poireau cuit;poireau;25;g;1 moyen;150;;
+Légumes;Poivron;poivron;26;g;1 moyen;150;;
+Légumes;Concombre;concombre;12;g;1 moyen;300;;
+Légumes;Salade verte;salade|laitue|mache;15;g;1 bol;80;;
+Légumes;Champignons de Paris;champignons;22;g;1 portion;120;;
+Légumes;Oignon;oignon;40;g;1 moyen;110;;
+Légumes;Petits pois cuits;petits pois;80;g;1 portion;150;;
+Légumes;Betterave cuite;betterave;45;g;1 portion;100;;
+Légumes;Avocat;avocat;160;g;1 moyen;150;1 demi;75
+Légumes;Maïs doux;mais;95;g;1 portion;100;;
+Légumes;Endive;endive;17;g;1 moyenne;100;;
+Légumes;Ratatouille;ratatouille;60;g;1 portion;250;;
+Fruits;Pomme;pomme;52;g;1 moyenne;150;;
+Fruits;Banane;banane;90;g;1 moyenne;120;;
+Fruits;Orange;orange;47;g;1 moyenne;180;;
+Fruits;Clémentine;clementine|mandarine;47;g;1 unité;70;;
+Fruits;Poire;poire;57;g;1 moyenne;160;;
+Fruits;Fraise;fraises;33;g;1 barquette;250;1 portion;150
+Fruits;Framboise;framboises;52;g;1 portion;125;;
+Fruits;Myrtille;myrtilles;57;g;1 portion;125;;
+Fruits;Raisin;raisin;70;g;1 grappe;150;;
+Fruits;Pêche;peche;40;g;1 moyenne;150;;
+Fruits;Abricot;abricot;48;g;1 unité;50;;
+Fruits;Kiwi;kiwi;60;g;1 unité;80;;
+Fruits;Ananas;ananas;50;g;1 tranche;100;;
+Fruits;Mangue;mangue;60;g;1 moyenne;250;;
+Fruits;Melon;melon;34;g;1 tranche;150;;
+Fruits;Pastèque;pasteque;30;g;1 tranche;200;;
+Fruits;Cerise;cerises;63;g;1 portion;150;;
+Fruits;Compote sans sucre ajouté;compote;50;g;1 gourde;90;;
+Fruits;Datte séchée;dattes;280;g;1 unité;8;;
+Fruits;Abricot sec;abricots secs;240;g;1 unité;10;;
+Fruits;Raisin sec;raisins secs;300;g;1 cuillère à soupe;15;;
+Fruits;Pruneau;pruneaux;240;g;1 unité;10;;
+Viandes;Blanc de poulet cuit;poulet|escalope de poulet;165;g;1 filet;150;;
+Viandes;Cuisse de poulet cuite;cuisse de poulet;190;g;1 cuisse;150;;
+Viandes;Escalope de dinde;dinde;135;g;1 escalope;130;;
+Viandes;Steak haché 5% cuit;steak hache|viande hachee;150;g;1 steak;125;;
+Viandes;Steak haché 15% cuit;steak hache 15;220;g;1 steak;125;;
+Viandes;Bavette de bœuf;boeuf|bavette|entrecote;200;g;1 portion;150;;
+Viandes;Filet mignon de porc;porc|filet de porc;160;g;1 portion;150;;
+Viandes;Côte de porc;cote de porc;240;g;1 côte;180;;
+Viandes;Jambon blanc;jambon;110;g;1 tranche;40;;
+Viandes;Jambon cru;jambon cru|serrano|parme;240;g;1 tranche;25;;
+Viandes;Lardons;lardons|bacon;300;g;1 portion;50;;
+Viandes;Saucisse de Toulouse;saucisse;300;g;1 unité;100;;
+Viandes;Merguez;merguez;320;g;1 unité;70;;
+Viandes;Magret de canard;canard|magret;200;g;1 portion;150;;
+Viandes;Côtelette d'agneau;agneau;250;g;1 côtelette;90;;
+Viandes;Chorizo;chorizo;450;g;1 tranche;10;;
+Viandes;Saucisson sec;saucisson;450;g;1 tranche;10;;
+Viandes;Pâté de campagne;pate|terrine;320;g;1 portion;50;;
+Poissons;Saumon cuit;saumon;200;g;1 pavé;140;;
+Poissons;Saumon fumé;saumon fume;180;g;1 tranche;30;;
+Poissons;Thon au naturel;thon;115;g;1 boîte égouttée;110;;
+Poissons;Thon à l'huile égoutté;thon huile;190;g;1 boîte égouttée;110;;
+Poissons;Cabillaud cuit;cabillaud|morue;90;g;1 pavé;150;;
+Poissons;Colin cuit;colin|lieu|merlu;90;g;1 pavé;150;;
+Poissons;Sardines à l'huile;sardines;220;g;1 boîte égouttée;90;;
+Poissons;Maquereau;maquereau;200;g;1 filet;100;;
+Poissons;Truite;truite;140;g;1 filet;140;;
+Poissons;Crevettes cuites;crevettes;100;g;1 portion;120;;
+Poissons;Moules cuites;moules;90;g;1 portion;250;;
+Poissons;Surimi;surimi|batonnet de surimi;100;g;1 bâtonnet;17;;
+Poissons;Poisson pané;poisson pane;220;g;1 unité;70;;
+Œufs et laitiers;Œuf entier;oeuf|oeufs;145;g;1 unité;55;;
+Œufs et laitiers;Blanc d'œuf;blanc d oeuf;50;g;1 unité;33;;
+Œufs et laitiers;Lait demi-écrémé;lait;47;ml;1 verre;200;1 bol;250
+Œufs et laitiers;Lait entier;lait entier;65;ml;1 verre;200;;
+Œufs et laitiers;Yaourt nature;yaourt;60;g;1 pot;125;;
+Œufs et laitiers;Yaourt grec;yaourt grec;120;g;1 pot;150;;
+Œufs et laitiers;Skyr;skyr;60;g;1 pot;150;;
+Œufs et laitiers;Fromage blanc 0%;fromage blanc;45;g;1 portion;100;;
+Œufs et laitiers;Fromage blanc 3%;fromage blanc 3;65;g;1 portion;100;;
+Œufs et laitiers;Crème fraîche épaisse;creme fraiche;300;g;1 cuillère à soupe;25;;
+Œufs et laitiers;Crème légère 15%;creme legere;160;g;1 cuillère à soupe;25;;
+Œufs et laitiers;Beurre;beurre;750;g;1 noisette;10;1 plaquette;250
+Œufs et laitiers;Emmental;emmental|gruyere|rape;380;g;1 portion;30;1 cuillère à soupe râpé;10
+Œufs et laitiers;Comté;comte;410;g;1 portion;30;;
+Œufs et laitiers;Camembert;camembert;300;g;1 portion;30;;
+Œufs et laitiers;Chèvre frais;chevre;200;g;1 portion;30;;
+Œufs et laitiers;Roquefort;roquefort|bleu;370;g;1 portion;25;;
+Œufs et laitiers;Mozzarella;mozzarella;250;g;1 boule;125;;
+Œufs et laitiers;Parmesan;parmesan;400;g;1 cuillère à soupe;10;;
+Œufs et laitiers;Feta;feta;260;g;1 portion;40;;
+Œufs et laitiers;Ricotta;ricotta;150;g;1 portion;100;;
+Matières grasses;Huile d'olive;huile olive|huile;900;ml;1 cuillère à soupe;10;1 cuillère à café;5
+Matières grasses;Huile de colza;huile de colza;900;ml;1 cuillère à soupe;10;;
+Matières grasses;Huile de tournesol;huile de tournesol;900;ml;1 cuillère à soupe;10;;
+Matières grasses;Mayonnaise;mayonnaise|mayo;700;g;1 cuillère à soupe;15;;
+Matières grasses;Vinaigrette;vinaigrette;450;ml;1 cuillère à soupe;15;;
+Matières grasses;Pesto;pesto;450;g;1 cuillère à soupe;20;;
+Condiments;Ketchup;ketchup;100;g;1 cuillère à soupe;15;;
+Condiments;Moutarde;moutarde;150;g;1 cuillère à café;5;;
+Condiments;Sauce soja;sauce soja|soja;60;ml;1 cuillère à soupe;15;;
+Condiments;Sauce tomate;sauce tomate|coulis;40;g;1 portion;120;;
+Condiments;Vinaigre balsamique;vinaigre|balsamique;90;ml;1 cuillère à soupe;15;;
+Oléagineux;Amandes;amandes;600;g;1 poignée;25;1 unité;1.2
+Oléagineux;Noix;noix;690;g;1 poignée;25;1 cerneau;5
+Oléagineux;Noisettes;noisettes;630;g;1 poignée;25;;
+Oléagineux;Pignons de pin;pignons|pignon de pin;675;g;1 cuillère à soupe;10;;
+Oléagineux;Noix de cajou;cajou;580;g;1 poignée;25;;
+Oléagineux;Pistaches;pistaches;570;g;1 poignée;25;;
+Oléagineux;Cacahuètes;cacahuetes|arachide;590;g;1 poignée;25;;
+Oléagineux;Beurre de cacahuète;beurre de cacahuete;600;g;1 cuillère à soupe;20;;
+Oléagineux;Graines de courge;graines de courge;560;g;1 cuillère à soupe;10;;
+Oléagineux;Graines de tournesol;graines de tournesol;580;g;1 cuillère à soupe;10;;
+Oléagineux;Graines de chia;chia;490;g;1 cuillère à soupe;12;;
+Oléagineux;Graines de sésame;sesame;570;g;1 cuillère à soupe;10;;
+Pains et petit-déjeuner;Baguette;baguette|pain;270;g;1 quart de baguette;60;1 tranche;30
+Pains et petit-déjeuner;Pain complet;pain complet;250;g;1 tranche;35;;
+Pains et petit-déjeuner;Pain de mie;pain de mie;270;g;1 tranche;25;;
+Pains et petit-déjeuner;Biscotte;biscotte;400;g;1 unité;8;;
+Pains et petit-déjeuner;Croissant;croissant;400;g;1 unité;60;;
+Pains et petit-déjeuner;Pain au chocolat;pain au chocolat|chocolatine;420;g;1 unité;70;;
+Pains et petit-déjeuner;Flocons d'avoine;avoine|porridge;370;g;1 portion;50;;
+Pains et petit-déjeuner;Muesli;muesli;380;g;1 portion;50;;
+Pains et petit-déjeuner;Granola;granola;450;g;1 portion;50;;
+Pains et petit-déjeuner;Confiture;confiture;250;g;1 cuillère à café;15;;
+Pains et petit-déjeuner;Miel;miel;300;g;1 cuillère à café;10;;
+Pains et petit-déjeuner;Pâte à tartiner;nutella|pate a tartiner;540;g;1 cuillère à soupe;20;;
+Boissons;Café noir;cafe|expresso;2;ml;1 tasse;100;;
+Boissons;Café au lait;cafe au lait|latte;40;ml;1 tasse;200;;
+Boissons;Thé;the|infusion;1;ml;1 tasse;200;;
+Boissons;Jus d'orange;jus orange|jus de fruit;45;ml;1 verre;200;;
+Boissons;Coca-Cola;coca|soda;42;ml;1 verre;250;1 canette;330
+Boissons;Coca-Cola zéro;coca zero|soda light;0;ml;1 canette;330;;
+Boissons;Bière blonde;biere;43;ml;1 demi;250;1 pinte;500
+Boissons;Bière IPA;ipa|biere artisanale;60;ml;1 pinte;500;;
+Boissons;Vin rouge;vin|vin rouge;85;ml;1 verre;125;;
+Boissons;Vin blanc;vin blanc;80;ml;1 verre;125;;
+Boissons;Champagne;champagne|cremant;80;ml;1 coupe;100;;
+Boissons;Whisky;whisky|rhum|vodka|gin;250;ml;1 dose;40;;
+Boissons;Lait d'amande;lait amande;25;ml;1 verre;200;;
+Boissons;Lait de soja;lait soja;40;ml;1 verre;200;;
+Boissons;Sirop dilué;sirop|grenadine;40;ml;1 verre;250;;
+Plats;Pizza margherita;pizza;260;g;1 part;125;1 entière;350
+Plats;Quiche lorraine;quiche;280;g;1 part;150;;
+Plats;Lasagnes;lasagnes;150;g;1 portion;300;;
+Plats;Hachis parmentier;hachis parmentier;120;g;1 portion;300;;
+Plats;Curry de poulet;curry;130;g;1 portion;300;;
+Plats;Chili;chili|chili con carne;130;g;1 portion;300;;
+Plats;Soupe de légumes;soupe|potage;40;g;1 bol;300;;
+Plats;Velouté;veloute;60;g;1 bol;300;;
+Plats;Salade César;salade cesar;180;g;1 portion;250;;
+Plats;Taboulé;taboule;150;g;1 portion;150;;
+Plats;Gratin dauphinois;gratin;160;g;1 portion;200;;
+Plats;Omelette;omelette;160;g;1 portion;150;;
+Plats;Croque-monsieur;croque monsieur;280;g;1 unité;150;;
+Plats;Sandwich jambon-beurre;sandwich;250;g;1 unité;200;;
+Plats;Kebab;kebab|grec;250;g;1 unité;350;;
+Plats;Burger;burger|hamburger;250;g;1 unité;220;;
+Plats;Riz cantonais;riz cantonais;150;g;1 portion;250;;
+Plats;Nouilles sautées;nouilles sautees|wok;170;g;1 portion;250;;
+Plats;Sushi;sushi|maki;140;g;1 pièce;25;6 pièces;150
+Plats;Nuggets de poulet;nuggets;280;g;1 unité;20;;
+Sucré;Chocolat noir;chocolat noir;570;g;1 carré;5;1 tablette;100
+Sucré;Chocolat au lait;chocolat|chocolat au lait;550;g;1 carré;5;;
+Sucré;Biscuit sec;petit beurre|biscuit;450;g;1 unité;8;;
+Sucré;Cookie;cookie;480;g;1 unité;40;;
+Sucré;Chips;chips;540;g;1 poignée;25;1 sachet;120
+Sucré;Popcorn;popcorn;500;g;1 bol;30;;
+Sucré;Barre de céréales;barre de cereales;400;g;1 unité;25;;
+Sucré;Glace vanille;glace;200;g;1 boule;50;;
+Sucré;Sorbet;sorbet;130;g;1 boule;50;;
+Sucré;Mousse au chocolat;mousse au chocolat;220;g;1 pot;100;;
+Sucré;Tarte aux pommes;tarte aux pommes;240;g;1 part;120;;
+Sucré;Gâteau au chocolat;gateau au chocolat|fondant;400;g;1 part;80;;
+Sucré;Crêpe sucrée;crepe;250;g;1 unité;80;;
+Sucré;Riz au lait;riz au lait;130;g;1 pot;120;;
+Sucré;Flan;flan;120;g;1 pot;100;;
+Sucré;Sucre;sucre;400;g;1 morceau;5;1 cuillère à café;5
