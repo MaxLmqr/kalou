@@ -7,7 +7,7 @@ import { Text } from './text';
 type Tone =
   /** Information neutre. */
   | 'neutral'
-  /** Estimation en attente, budget non calibré. */
+  /** Estimation en attente, apport cible non calibré. */
   | 'pending'
   /** Valeur mesurée, calibrée. */
   | 'accent'

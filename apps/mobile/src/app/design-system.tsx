@@ -33,8 +33,8 @@ import {
  *
  * Catalogue des primitives, atteignable depuis le profil. Il sert de référence
  * visuelle et de banc d'essai : c'est ici qu'on vérifie qu'un état rare — un
- * budget dépassé, une estimation en attente, le plancher de sécurité — reste
- * lisible sans avoir à le provoquer dans l'application.
+ * apport cible dépassé, une estimation en attente, le plancher de sécurité —
+ * reste lisible sans avoir à le provoquer dans l'application.
  */
 export default function DesignSystemScreen() {
   const theme = useTheme();
@@ -56,7 +56,7 @@ export default function DesignSystemScreen() {
         <BigNumber
           value={remaining.value}
           label={remaining.label}
-          note="Budget estimé — mesuré dans 6 jours"
+          note="Apport cible estimé — mesuré dans 6 jours"
           style={{ marginVertical: theme.spacing.sm }}
         />
 
@@ -70,7 +70,7 @@ export default function DesignSystemScreen() {
             value={formatKcal(2168)}
             tone="expenditure"
           />
-          <StatLine label="Budget" value={formatKcal(1679)} />
+          <StatLine label="Apport cible" value={formatKcal(1679)} />
         </View>
 
         <Divider />
@@ -108,8 +108,8 @@ export default function DesignSystemScreen() {
           <Text variant="title">Titre d&apos;écran</Text>
           <Text variant="heading">Titre de section</Text>
           <Text variant="body">
-            Texte courant. Tutoiement, ton factuel : « tu es au-dessus de ton budget », jamais « tu
-            as dépassé ».
+            Texte courant. Tutoiement, ton factuel : « tu es au-dessus de ton apport cible »,
+            jamais « tu as dépassé ».
           </Text>
           <Text variant="label">Libellé de contrôle</Text>
           <Text variant="caption" color="textMuted">
@@ -190,7 +190,7 @@ export default function DesignSystemScreen() {
         </View>
         <View style={{ gap: theme.spacing.sm }}>
           <Text variant="caption" color="textMuted">
-            Barre neutre : au-delà du budget elle ne change pas de couleur.
+            Barre neutre : au-delà de l'apport cible elle ne change pas de couleur.
           </Text>
           <ProgressBar value={0.35} />
           <ProgressBar value={1} />

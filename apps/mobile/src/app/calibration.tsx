@@ -23,7 +23,7 @@ const DATE_COURTE = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'l
  *
  * Trois états, toujours explicites : en apprentissage, calibré, en pause. La
  * transparence est fonctionnelle et pas cosmétique : elle explique pourquoi le
- * budget a changé, ce qui évite l'interprétation « l'appli déraille ».
+ * l'apport cible a changé, ce qui évite l'interprétation « l'appli déraille ».
  *
  * Ce qui n'est **pas** montré : une décomposition du socle mesuré en
  * métabolisme + activité + digestion. La mesure vient d'un bilan énergétique
@@ -35,7 +35,7 @@ export default function CalibrationScreen() {
 
   const enApprentissage = calibration.statut === 'insuffisant';
   const enPause = calibration.statut === 'gele';
-  const delta = calibrationDetail.budgetApresKcal - calibrationDetail.budgetAvantKcal;
+  const delta = calibrationDetail.apportCibleApresKcal - calibrationDetail.apportCibleAvantKcal;
 
   return (
     <Screen>
@@ -44,7 +44,7 @@ export default function CalibrationScreen() {
       {enApprentissage ? (
         <>
           <BigNumber
-            value={formatKcal(calibrationDetail.budgetAvantKcal)}
+            value={formatKcal(calibrationDetail.apportCibleAvantKcal)}
             label="calories par jour"
             note="Estimation par formule — encore 6 jours de données"
           />
@@ -80,7 +80,7 @@ export default function CalibrationScreen() {
         <Text variant="body" color="accent">
           {enPause
             ? 'Trop de jours sans saisie complète pour recalculer. La mesure reprendra dès que tu auras repris tes saisies.'
-            : `${formatKcal(calibration.depenseMesureeKcal)} kcal par jour — au lieu de ${formatKcal(calibration.socleFormuleKcal)} estimés. Ton budget ${delta >= 0 ? 'augmente' : 'baisse'} de ${formatKcal(Math.abs(delta))} kcal.`}
+            : `${formatKcal(calibration.depenseMesureeKcal)} kcal par jour — au lieu de ${formatKcal(calibration.socleFormuleKcal)} estimés. Ton apport cible ${delta >= 0 ? 'augmente' : 'baisse'} de ${formatKcal(Math.abs(delta))} kcal.`}
         </Text>
       </Surface>
 
@@ -105,13 +105,13 @@ export default function CalibrationScreen() {
       <Section title="Ce que ça change">
         <Surface style={{ gap: theme.spacing.xs }}>
           <StatLine
-            label="Budget estimé par formule"
-            value={formatKcal(calibrationDetail.budgetAvantKcal)}
+            label="Apport cible estimé par formule"
+            value={formatKcal(calibrationDetail.apportCibleAvantKcal)}
             tone="textSecondary"
           />
           <StatLine
-            label="Budget mesuré"
-            value={formatKcal(calibrationDetail.budgetApresKcal)}
+            label="Apport cible mesuré"
+            value={formatKcal(calibrationDetail.apportCibleApresKcal)}
           />
           <StatLine label="Écart" value={formatSignedKcal(delta)} tone="intake" />
         </Surface>

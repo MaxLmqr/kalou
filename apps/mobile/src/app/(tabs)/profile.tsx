@@ -98,7 +98,8 @@ export default function ProfilScreen() {
             Plancher de sécurité : {formatKcal(PLANCHER_APPORT[profil.sexe])} kcal
           </Text>
           <Text variant="caption" color="caution">
-            Kalou ne descendra jamais ton budget en dessous, même si ton objectif l&apos;exigeait.
+            Kalou ne descendra jamais ton apport cible en dessous, même si ton objectif
+            l&apos;exigeait.
           </Text>
         </View>
       </Surface>
@@ -112,7 +113,7 @@ export default function ProfilScreen() {
           />
           <Row
             title="Revoir l'onboarding"
-            detail="Refaire les quatre écrans et recalculer le budget estimé"
+            detail="Refaire les quatre écrans et recalculer l'apport cible estimé"
             trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
             onPress={() => router.push('/toi')}
           />

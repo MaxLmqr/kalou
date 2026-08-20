@@ -3,7 +3,7 @@ import { View, type ViewProps } from 'react-native';
 import { useTheme } from '@/design';
 
 export type ProgressBarProps = ViewProps & {
-  /** Part consommée du budget. Peut dépasser 1 : la barre l'assume. */
+  /** Part consommée de l'apport cible. Peut dépasser 1 : la barre l'assume. */
   value: number;
   /** Repère optionnel sur la piste (0 → 1), ex. l'heure courante de la journée. */
   marker?: number;
@@ -57,8 +57,9 @@ export function ProgressBar({ value, marker, height = 6, style, ...rest }: Progr
             width: `${overflow * 100}%`,
             borderRadius: theme.radius.pill,
             backgroundColor: theme.colors.accentPressed,
-            // Une encoche de la couleur du fond marque le franchissement du
-            // budget. Le dépassement reste lisible sans virer à l'alarme.
+            // Une encoche de la couleur du fond marque le franchissement de
+            // l'apport cible. Le dépassement reste lisible sans virer à
+            // l'alarme.
             borderRightWidth: theme.borderWidth.thick,
             borderRightColor: theme.colors.background,
           }}

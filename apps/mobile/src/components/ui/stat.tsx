@@ -48,11 +48,14 @@ export type StatLineProps = {
   note?: string;
   tone?: 'text' | 'intake' | 'expenditure' | 'textSecondary';
   trailing?: ReactNode;
-  /** Rend la ligne tactile : « Dépensé » ouvre l'écran de calibration. */
+  /** Rend la ligne tactile : « Besoin » ouvre l'écran de calibration. */
   onPress?: () => void;
 };
 
-/** Les trois lignes de détail sous le chiffre unique : mangé, dépensé, budget. */
+/**
+ * Les lignes de détail sous le chiffre unique : mangé, besoin, apport cible,
+ * protéines.
+ */
 export function StatLine({ label, value, note, tone = 'text', trailing, onPress }: StatLineProps) {
   const theme = useTheme();
 

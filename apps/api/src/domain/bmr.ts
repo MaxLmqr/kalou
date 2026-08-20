@@ -26,7 +26,8 @@ export type EntreesBmr = {
  * BMR par Mifflin-St Jeor. Doc 02 § 2.
  *
  * Renvoie une valeur non arrondie : l'arrondi n'a lieu qu'à la frontière de
- * l'API. Arrondir ici propagerait l'erreur dans le socle puis dans le budget.
+ * l'API. Arrondir ici propagerait l'erreur dans le socle puis dans l'apport
+ * cible.
  */
 export function bmr({ sexe, poidsKg, tailleCm, ageAns }: EntreesBmr): number {
   const constante = sexe === 'homme' ? 5 : -161
@@ -35,7 +36,8 @@ export function bmr({ sexe, poidsKg, tailleCm, ageAns }: EntreesBmr): number {
 
 /**
  * Socle estimé par formule = BMR + NEAT forfaitaire. Doc 02 § 3.1.
- * Volontairement prudent : un budget qui se corrige vers le haut est préférable.
+ * Volontairement prudent : un apport cible qui se corrige vers le haut est
+ * préférable.
  */
 export function socleFormule(bmrKcal: number): number {
   return bmrKcal * FACTEUR_NEAT

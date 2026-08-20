@@ -34,7 +34,7 @@ export default function AujourdHuiScreen() {
   const theme = useTheme();
   const restant = formatRemaining(jour.restantKcal);
 
-  const consomme = jour.budgetKcal > 0 ? jour.apportsKcal / jour.budgetKcal : 0;
+  const consomme = jour.apportCibleKcal > 0 ? jour.apportsKcal / jour.apportCibleKcal : 0;
   /** Repère de l'heure courante sur la piste : « où j'en suis dans la journée ». */
   const heureDuJour = new Date().getHours() / 24;
 
@@ -58,8 +58,8 @@ export default function AujourdHuiScreen() {
         label={restant.label}
         note={
           estCalibre
-            ? 'Budget mesuré sur tes 14 derniers jours'
-            : 'Budget estimé — Kalou le mesurera dans 6 jours'
+            ? 'Apport cible mesuré sur tes 14 derniers jours'
+            : 'Apport cible estimé — Kalou le mesurera dans 6 jours'
         }
         style={{ marginVertical: theme.spacing.sm }}
       />
@@ -69,18 +69,18 @@ export default function AujourdHuiScreen() {
       <View style={{ gap: theme.spacing.xs }}>
         <StatLine label="Mangé" value={formatKcal(jour.apportsKcal)} tone="intake" />
         <StatLine
-          label="Dépensé"
+          label="Besoin"
           note={
             jour.eatKcal > 0
               ? `dont ${formatKcal(jour.eatKcal)} par l'activité`
               : 'aucune activité'
           }
-          value={formatKcal(jour.depenseKcal)}
+          value={formatKcal(jour.besoinJournalierKcal)}
           tone="expenditure"
           trailing={<Icon name="chevronRight" size={16} color="borderStrong" strokeWidth={2} />}
           onPress={() => router.push('/calibration')}
         />
-        <StatLine label="Budget" value={formatKcal(jour.budgetKcal)} />
+        <StatLine label="Apport cible" value={formatKcal(jour.apportCibleKcal)} />
       </View>
 
       <Divider />

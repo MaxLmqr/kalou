@@ -18,8 +18,8 @@ import { sexeEnum } from './enums'
  * Morphologie et préférences. Une ligne par utilisateur. Doc 05 § 2.
  *
  * Tous les champs morphologiques sont nullables : la ligne est créée en même
- * temps que le compte, et l'onboarding la remplit écran par écran. Le budget
- * n'est calculable qu'une fois `sexe`, `dateNaissance` et `tailleCm` renseignés.
+ * temps que le compte, et l'onboarding la remplit écran par écran. L'apport
+ * cible n'est calculable qu'une fois `sexe`, `dateNaissance` et `tailleCm` renseignés.
  */
 export const profiles = pgTable('profiles', {
   userId: uuid()
@@ -40,7 +40,7 @@ export const profiles = pgTable('profiles', {
 
 /**
  * Objectif de perte. Historisé : changer d'objectif ne réécrit pas le passé,
- * sinon le budget d'une journée close bougerait rétroactivement.
+ * sinon l'apport cible d'une journée close bougerait rétroactivement.
  */
 export const goals = pgTable(
   'goals',

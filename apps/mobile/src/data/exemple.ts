@@ -6,19 +6,19 @@
  * seule fois — quand l'API arrivera, c'est ce fichier qui disparaît, pas les
  * écrans.
  *
- * **Aucun chiffre dérivable n'est écrit en dur.** Budget, dépense, reste,
- * calories d'activité, dépense mesurée, dates d'atteinte : tout vient de
- * `@kalou/api/domain`, c'est-à-dire du doc 02. Les illustrations du doc 03 (un
- * budget de 1 679 kcal avec 489 kcal de course) ne satisfont pas le modèle du
- * doc 02, qui fait foi ; les poser à la main donnerait une interface qui ment
- * dès qu'on touche à un paramètre.
+ * **Aucun chiffre dérivable n'est écrit en dur.** Apport cible, besoin
+ * journalier, reste, calories d'activité, dépense mesurée, dates d'atteinte :
+ * tout vient de `@kalou/api/domain`, c'est-à-dire du doc 02.
+ * Les illustrations du doc 03 (un apport cible de 1 679 kcal avec 489 kcal de
+ * course) ne satisfont pas le modèle du doc 02, qui fait foi ; les poser à la
+ * main donnerait une interface qui ment dès qu'on touche à un paramètre.
  */
 import {
+  apportCible,
+  besoinJournalier,
   bmr,
-  budgetDuJour,
   calibrer,
   deficitQuotidien,
-  depenseDuJour,
   kcalNet,
   restant,
   semainesJusquAuPoidsCible,
@@ -84,14 +84,17 @@ export const calibrationDetail = {
   apportsTotauxKcal: 28700,
   joursComplets: 13,
   joursDansLaFenetre: 14,
-  /** Ce que devient le budget, avant et après. C'est ce que l'écran explique. */
-  budgetAvantKcal: budgetDuJour({
+  /**
+   * Ce que devient l'apport cible, avant et après. C'est ce que l'écran
+   * explique.
+   */
+  apportCibleAvantKcal: apportCible({
     socleApplique: SOCLE_FORMULE,
     eatKcal: 0,
     deficitKcal: DEFICIT,
     w: 0,
   }),
-  budgetApresKcal: budgetDuJour({
+  apportCibleApresKcal: apportCible({
     socleApplique: calibration.socleAppliqueKcal,
     eatKcal: 0,
     deficitKcal: DEFICIT,
@@ -104,19 +107,19 @@ export const socleEstime = {
   bmrKcal: BMR,
   neatKcal: SOCLE_FORMULE - BMR,
   deficitKcal: DEFICIT,
-  budgetKcal: budgetDuJour({
+  apportCibleKcal: apportCible({
     socleApplique: SOCLE_FORMULE,
     eatKcal: 0,
     deficitKcal: DEFICIT,
     w: 0,
   }),
   /**
-   * Part de la digestion dans le budget : le complément des trois autres lignes,
-   * et non `0,10 × socle` — c'est la division par 0,90 du doc 02 § 3.2 qui la
-   * produit, donc elle porte aussi sur le déficit.
+   * Part de la digestion dans l'apport cible : le complément des trois autres
+   * lignes, et non `0,10 × socle` — c'est la division par 0,90 du doc 02 § 3.2
+   * qui la produit, donc elle porte aussi sur le déficit.
    */
   get tefKcal() {
-    return this.budgetKcal - this.bmrKcal - this.neatKcal + this.deficitKcal;
+    return this.apportCibleKcal - this.bmrKcal - this.neatKcal + this.deficitKcal;
   },
 };
 
@@ -154,7 +157,7 @@ type JourBrut = {
   date: Date;
   entrees: Entree[];
   socleAppliqueKcal: number;
-  /** Poids de la calibration : 0 tant que le budget vient de la formule. */
+  /** Poids de la calibration : 0 tant que l'apport cible vient de la formule. */
   w: number;
 };
 
@@ -170,15 +173,15 @@ function composer(jour: JourBrut) {
     .filter((entree) => entree.type === 'activite' && entree.kcal !== null)
     .reduce((total, entree) => total - (entree.kcal ?? 0), 0);
 
-  const budgetKcal = budgetDuJour({ socleApplique, eatKcal, deficitKcal: DEFICIT, w });
+  const apportCibleKcal = apportCible({ socleApplique, eatKcal, deficitKcal: DEFICIT, w });
 
   return {
     ...jour,
     apportsKcal,
     eatKcal,
-    budgetKcal,
-    depenseKcal: depenseDuJour({ socleApplique, eatKcal, w }),
-    restantKcal: restant(budgetKcal, apportsKcal),
+    apportCibleKcal,
+    besoinJournalierKcal: besoinJournalier({ socleApplique, eatKcal, w }),
+    restantKcal: restant(apportCibleKcal, apportsKcal),
     /** Une entrée sans calories attend encore son estimation. */
     aUneEstimationEnCours: jour.entrees.some((entree) => entree.kcal === null),
   };
@@ -188,7 +191,7 @@ export type JourCompose = ReturnType<typeof composer>;
 
 const COURSE_45_MIN = kcalNet({ met: 8.3, poidsKg: profil.tendanceKg, dureeMin: 45 });
 
-/** Journée courante : budget encore estimé par formule, reste positif. */
+/** Journée courante : apport cible encore estimé par formule, reste positif. */
 export const jour: JourCompose = composer({
   date: AUJOURD_HUI,
   w: 0,
@@ -215,8 +218,9 @@ export const jour: JourCompose = composer({
 });
 
 /**
- * Journée au-dessus du budget, budget mesuré, une estimation en attente.
- * Sert à vérifier que l'écran d'accueil tient ses trois états sans virer au rouge.
+ * Journée au-dessus de l'apport cible, apport cible mesuré, une estimation en
+ * attente. Sert à vérifier que l'écran d'accueil tient ses trois états sans
+ * virer au rouge.
  */
 export const jourAuDessus: JourCompose = composer({
   date: new Date(2026, 7, 21),
@@ -333,8 +337,8 @@ export const historique = (() => {
   const balances: number[] = [];
 
   // Série déterministe : décroissance régulière, bruit de pesée, et deux jours
-  // au-dessus du budget. Rien d'aléatoire, pour que l'écran soit le même à
-  // chaque ouverture.
+  // au-dessus de l'apport cible. Rien d'aléatoire, pour que l'écran soit le
+  // même à chaque ouverture.
   for (let index = 0; index < jours; index++) {
     const tendance = 84.1 - (index / (jours - 1)) * (84.1 - profil.tendanceKg);
     trend.push(tendance);

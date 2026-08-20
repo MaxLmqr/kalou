@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 
 import { bmr, socleFormule } from './bmr'
-import { budgetDuJour, deficitQuotidien } from './budget'
+import { apportCible, deficitQuotidien } from './apport-cible'
 import { calibrer, poidsCalibration, type EntreesCalibration } from './calibration'
 
 const BMR = bmr({ sexe: 'homme', poidsKg: 85, tailleCm: 178, ageAns: 35 })
@@ -60,14 +60,15 @@ describe('Calibration — le cas du § 5.5', () => {
     expect(Math.round(resultat.socleAppliqueKcal - SOCLE_FORMULE)).toBe(224)
   })
 
-  test('⚠️ mais le budget, lui, n\'augmente que de 56 kcal', () => {
-    // Le § 5.5 annonce « ton budget augmente de 224 kcal ». C'est la hausse du
-    // socle, pas celle du budget : en passant du régime « /0,90 » au régime
-    // calibré, la correction de TEF disparaît et absorbe les trois quarts du
-    // gain. Le message affiché à l'utilisateur serait faux de 168 kcal.
+  test("⚠️ mais l'apport cible, lui, n'augmente que de 56 kcal", () => {
+    // Le § 5.5 annonce « ton apport cible augmente de 56 kcal », et c'est bien
+    // ce qu'on trouve. Le socle, lui, grimpe de 224 kcal : en passant du régime
+    // « /0,90 » au régime calibré, la correction de TEF disparaît et absorbe
+    // les trois quarts du gain. Annoncer la hausse du socle serait faux de
+    // 168 kcal.
     const deficit = deficitQuotidien(0.5)
-    const avant = budgetDuJour({ socleApplique: SOCLE_FORMULE, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    const apres = budgetDuJour({
+    const avant = apportCible({ socleApplique: SOCLE_FORMULE, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    const apres = apportCible({
       socleApplique: resultat.socleAppliqueKcal,
       eatKcal: 0,
       deficitKcal: deficit,

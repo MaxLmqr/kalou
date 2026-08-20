@@ -28,5 +28,5 @@ export const sourceAlimentEnum = pgEnum('source_aliment', ['ciqual', 'utilisateu
 /** Confiance de l'estimation IA sur un composant. */
 export const confianceEnum = pgEnum('confiance', ['haute', 'moyenne', 'basse'])
 
-/** Doc 06 § 4 : d'où vient le budget du jour. */
+/** Doc 06 § 4 : d'où vient l'apport cible du jour. */
 export const phaseEnum = pgEnum('phase', ['formule', 'transition', 'calibre'])

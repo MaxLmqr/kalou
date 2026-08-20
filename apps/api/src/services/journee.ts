@@ -12,11 +12,11 @@ import { and, asc, eq, isNull, lte, ne, sql } from 'drizzle-orm'
 
 import {
   age,
+  apportCible,
   balance,
+  besoinJournalier,
   bmr,
-  budgetDuJour,
   deficitQuotidien,
-  depenseDuJour,
   phase,
   restant,
   socleFormule,
@@ -25,7 +25,7 @@ import {
   type Sexe,
 } from '../domain'
 
-/** Ce qui manque avant de pouvoir calculer un budget. */
+/** Ce qui manque avant de pouvoir calculer un apport cible. */
 export type ManqueOnboarding = 'sexe' | 'date_naissance' | 'taille' | 'pesee' | 'objectif'
 
 export type EtatDuProfil =
@@ -34,9 +34,9 @@ export type EtatDuProfil =
 
 export type VueDuJour = {
   local_date: string
-  budget_kcal: number
+  apport_cible_kcal: number
   apports_kcal: number
-  depense_kcal: number
+  besoin_journalier_kcal: number
   restant_kcal: number
   balance_kcal: number
   detail: {
@@ -68,7 +68,7 @@ export async function tendanceAuJour(userId: string, localDate: string): Promise
   return tendanceCourante(pesees)
 }
 
-/** Vérifie que le profil permet un calcul de budget, et dit ce qui manque sinon. */
+/** Vérifie que le profil permet un calcul d'apport cible, et dit ce qui manque sinon. */
 export async function etatDuProfil(userId: string, localDate: string): Promise<EtatDuProfil> {
   const [profile] = await db.select().from(profiles).where(eq(profiles.userId, userId))
   const [goal] = await db
@@ -161,15 +161,15 @@ export async function calculerJournee(
   const w = 0
   const deficitKcal = deficitQuotidien(goal.rythmeKgSemaine)
 
-  const depense = depenseDuJour({ socleApplique, eatKcal, w })
-  const budget = budgetDuJour({ socleApplique, eatKcal, deficitKcal, w })
+  const besoin = besoinJournalier({ socleApplique, eatKcal, w })
+  const cible = apportCible({ socleApplique, eatKcal, deficitKcal, w })
 
   return {
     local_date: localDate,
-    budget_kcal: Math.round(budget),
+    apport_cible_kcal: Math.round(cible),
     apports_kcal: apports,
-    depense_kcal: Math.round(depense),
-    restant_kcal: Math.round(restant(budget, apports)),
+    besoin_journalier_kcal: Math.round(besoin),
+    restant_kcal: Math.round(restant(cible, apports)),
     balance_kcal: Math.round(
       balance({ apportsKcal: apports, socleApplique, eatKcal, w }),
     ),

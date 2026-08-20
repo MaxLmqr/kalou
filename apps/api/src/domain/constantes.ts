@@ -54,5 +54,5 @@ export const PLANCHER_APPORT = { homme: 1500, femme: 1200 } as const
 /** Rythme de perte maximal, en part du poids corporel par semaine. Doc 02 § 6. */
 export const RYTHME_MAX_PART_DU_POIDS = 0.01
 
-/** Déficit maximal, en part de la dépense du jour. Doc 02 § 6. */
-export const DEFICIT_MAX_PART_DEPENSE = 0.25
+/** Déficit maximal, en part du besoin énergétique journalier. Doc 02 § 6. */
+export const DEFICIT_MAX_PART_BESOIN = 0.25

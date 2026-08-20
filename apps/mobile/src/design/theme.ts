@@ -43,7 +43,7 @@ export type ThemeColors = {
   expenditure: string;
 
   /**
-   * État provisoire : estimation en attente, budget non encore calibré.
+   * État provisoire : estimation en attente, apport cible non encore calibré.
    * Volontairement proche du neutre — c'est un signal, pas une alerte.
    */
   pending: string;
@@ -51,7 +51,7 @@ export type ThemeColors = {
 
   /**
    * Le seul ton d'avertissement de la palette. Réservé au plancher calorique
-   * de sécurité (docs/02). Jamais pour un dépassement de budget.
+   * de sécurité (docs/02). Jamais pour un apport cible dépassé.
    */
   caution: string;
   cautionSurface: string;

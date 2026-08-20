@@ -3,15 +3,15 @@ import { describe, expect, test } from 'bun:test'
 import { kcalBrut, kcalNet } from './activite'
 import { age, bmr, socleFormule } from './bmr'
 import {
+  apportCible,
   balance,
-  budgetDuJour,
+  besoinJournalier,
   deficitQuotidien,
-  depenseDuJour,
   depenseReelle,
   facteurTef,
   phase,
   restant,
-} from './budget'
+} from './apport-cible'
 
 /**
  * Le profil de référence du doc 02 § 3.2 : homme, 35 ans, 85 kg, 178 cm,
@@ -40,7 +40,7 @@ describe('BMR — Mifflin-St Jeor (doc 02 § 2)', () => {
   })
 })
 
-describe('Socle, TEF et budget (doc 02 § 3)', () => {
+describe('Socle, TEF et apport cible (doc 02 § 3)', () => {
   const bmrKcal = bmr(PROFIL)
   const socle = socleFormule(bmrKcal)
   const deficit = deficitQuotidien(0.5)
@@ -49,47 +49,47 @@ describe('Socle, TEF et budget (doc 02 § 3)', () => {
     expect(Math.round(socle)).toBe(2061)
   })
 
-  test('la dépense du jour intègre le TEF', () => {
-    expect(Math.round(depenseDuJour({ socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(2290)
+  test('le besoin énergétique journalier intègre le TEF', () => {
+    expect(Math.round(besoinJournalier({ socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(2290)
   })
 
   test('le déficit de 0,5 kg/semaine vaut 550 kcal', () => {
     expect(deficit).toBe(550)
   })
 
-  test('le budget du document', () => {
-    const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    expect(Math.round(budget)).toBe(1679)
+  test("l'apport cible du document", () => {
+    const cible = apportCible({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    expect(Math.round(cible)).toBe(1679)
   })
 
   test('vérification du § 3.2 : le déficit énergétique réel est bien de 550 kcal', () => {
-    const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    expect(Math.round(balance({ apportsKcal: budget, socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(-550)
+    const cible = apportCible({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    expect(Math.round(balance({ apportsKcal: cible, socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(-550)
   })
 
   test('la dépense réelle du § 3.2 vaut 2 229 kcal, pas 2 290', () => {
-    const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    const reelle = depenseReelle({ socleApplique: socle, eatKcal: 0, apportsKcal: budget, w: 0 })
+    const cible = apportCible({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    const reelle = depenseReelle({ socleApplique: socle, eatKcal: 0, apportsKcal: cible, w: 0 })
     expect(Math.round(reelle)).toBe(2229)
-    // La dépense d'équilibre, elle, ne bouge pas avec les apports : c'est ce qui
-    // en fait le chiffre affichable.
-    expect(Math.round(depenseDuJour({ socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(2290)
+    // Le besoin énergétique journalier, lui, ne bouge pas avec les apports :
+    // c'est ce qui en fait le chiffre affichable.
+    expect(Math.round(besoinJournalier({ socleApplique: socle, eatKcal: 0, w: 0 }))).toBe(2290)
   })
 
   test("retirer 550 kcal de dépense demande d'en retirer 611 de l'assiette", () => {
-    const depense = depenseDuJour({ socleApplique: socle, eatKcal: 0, w: 0 })
-    const budget = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    expect(Math.round(depense - budget)).toBe(611)
+    const besoin = besoinJournalier({ socleApplique: socle, eatKcal: 0, w: 0 })
+    const cible = apportCible({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    expect(Math.round(besoin - cible)).toBe(611)
   })
 
   test('la balance suit ce qui est réellement mangé', () => {
-    // Manger 321 kcal au-dessus du budget réduit le déficit d'autant, moins le
-    // TEF de ces calories supplémentaires.
-    const auBudget = balance({ apportsKcal: 1679, socleApplique: socle, eatKcal: 0, w: 0 })
+    // Manger 321 kcal au-dessus de l'apport cible réduit le déficit d'autant,
+    // moins le TEF de ces calories supplémentaires.
+    const aLaCible = balance({ apportsKcal: 1679, socleApplique: socle, eatKcal: 0, w: 0 })
     const auDessus = balance({ apportsKcal: 2000, socleApplique: socle, eatKcal: 0, w: 0 })
-    expect(Math.round(auBudget)).toBe(-550)
+    expect(Math.round(aLaCible)).toBe(-550)
     expect(Math.round(auDessus)).toBe(-261)
-    expect(Math.round(auDessus - auBudget)).toBe(289) // 321 × 0,90
+    expect(Math.round(auDessus - aLaCible)).toBe(289) // 321 × 0,90
   })
 
   test('après calibration, le socle mesuré porte déjà le TEF', () => {
@@ -97,9 +97,9 @@ describe('Socle, TEF et budget (doc 02 § 3)', () => {
     expect(Math.round(calibre)).toBe(-550)
   })
 
-  test('une activité augmente le budget du jour', () => {
-    const sans = budgetDuJour({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
-    const avec = budgetDuJour({ socleApplique: socle, eatKcal: 489, deficitKcal: deficit, w: 0 })
+  test("une activité augmente l'apport cible du jour", () => {
+    const sans = apportCible({ socleApplique: socle, eatKcal: 0, deficitKcal: deficit, w: 0 })
+    const avec = apportCible({ socleApplique: socle, eatKcal: 489, deficitKcal: deficit, w: 0 })
     expect(avec).toBeGreaterThan(sans)
   })
 
@@ -114,13 +114,13 @@ describe('Transition du facteur TEF (§ 3.2 → § 3.3)', () => {
     expect(facteurTef(1)).toBe(1)
   })
 
-  test('le budget ne saute pas quand la calibration commence à peser', () => {
+  test("l'apport cible ne saute pas quand la calibration commence à peser", () => {
     const socle = socleFormule(bmr(PROFIL))
     const deficit = deficitQuotidien(0.5)
     const commun = { socleApplique: socle, eatKcal: 0, deficitKcal: deficit }
 
-    const aZero = budgetDuJour({ ...commun, w: 0 })
-    const justeApres = budgetDuJour({ ...commun, w: 0.001 })
+    const aZero = apportCible({ ...commun, w: 0 })
+    const justeApres = apportCible({ ...commun, w: 0.001 })
 
     // Un basculement brutal de régime coûterait 168 kcal ici.
     expect(Math.abs(justeApres - aZero)).toBeLessThan(1)

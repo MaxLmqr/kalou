@@ -1,6 +1,6 @@
 export * from './activite'
+export * from './apport-cible'
 export * from './bmr'
-export * from './budget'
 export * from './calibration'
 export * from './constantes'
 export * from './journee'

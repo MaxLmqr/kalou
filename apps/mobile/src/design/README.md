@@ -51,7 +51,7 @@ avertissement de la palette. L'utiliser ailleurs casse le principe « sans jugem
 | `Button`, `Fab` | Action principale / secondaire / tertiaire, et bouton d'action flottant |
 | `BigNumber`, `StatLine` | Le chiffre unique et les lignes de détail sous lui |
 | `Row` | Ligne du journal du jour : heure, libellé, valeur, pastille |
-| `ProgressBar` | Consommation du budget, dépassement inclus, sans changement de couleur |
+| `ProgressBar` | Consommation de l'apport cible, dépassement inclus, sans changement de couleur |
 | `Badge`, `PendingDot` | États : estimation, mesuré, en pause, plancher |
 | `Input` | Saisie texte ou numérique avec unité |
 | `Stepper` | Sélecteur à deux boutons : pesée, durée d'activité |
@@ -97,6 +97,6 @@ principe « sans jugement » :
 ## Aperçu
 
 `src/app/design-system.tsx`, atteignable depuis le profil, est le catalogue des
-primitives et le banc d'essai des états rares (budget dépassé, estimation en
+primitives et le banc d'essai des états rares (apport cible dépassé, estimation en
 attente, plancher de sécurité) — ceux qu'on ne veut pas avoir à provoquer dans
 l'application pour les relire.
