@@ -8,7 +8,7 @@ import { formatKcal, formatSignedKcal } from '@/design/format';
 import { socleEstime } from '@/data/exemple';
 
 /**
- * Écran 5 — le budget, et la phrase d'honnêteté qui va avec.
+ * Écran 4 — le budget, et la phrase d'honnêteté qui va avec.
  *
  * Le détail est affiché parce que le principe « honnête sur l'incertitude »
  * l'exige : présenter un chiffre nu sans dire d'où il sort, c'est présenter une
@@ -27,7 +27,7 @@ export default function BudgetScreen() {
 
   return (
     <OnboardingStep
-      etape={5}
+      etape={4}
       centre
       actionLabel="Enregistrer ma première saisie"
       onAction={terminer}>

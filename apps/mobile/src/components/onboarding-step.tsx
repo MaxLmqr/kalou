@@ -4,10 +4,10 @@ import { View } from 'react-native';
 import { Button, Screen, ScreenHeader, Text } from '@/components/ui';
 import { useTheme } from '@/design';
 
-export const NOMBRE_D_ETAPES = 5;
+export const NOMBRE_D_ETAPES = 4;
 
 export type OnboardingStepProps = {
-  /** Numéro d'étape, de 1 à 5. */
+  /** Numéro d'étape, de 1 à 4. */
   etape: number;
   titre?: string;
   /** Phrase d'introduction sous le titre. */
@@ -15,15 +15,17 @@ export type OnboardingStepProps = {
   onBack?: () => void;
   actionLabel: string;
   onAction: () => void;
-  /** Centre le contenu verticalement : écrans 1 et 5, qui n'ont qu'une idée. */
+  /** Centre le contenu verticalement : le dernier écran, qui n'a qu'une idée. */
   centre?: boolean;
   children: ReactNode;
 };
 
 /**
  * Une étape d'onboarding : une information par écran, aucun formulaire dense
- * (docs/03 § 3). L'objectif chiffré est une première saisie en moins de
- * soixante secondes, ce qui interdit d'empiler les questions.
+ * (docs/03 § 3).
+ *
+ * Il n'y a pas d'écran de bienvenue : il n'y a personne à convaincre. Et cet
+ * onboarding ne sera vu qu'une seule fois — il doit être juste, pas fini.
  */
 export function OnboardingStep({
   etape,
