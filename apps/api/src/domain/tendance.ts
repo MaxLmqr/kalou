@@ -3,6 +3,7 @@ import {
   ECART_PESEE_ABERRANTE_KG,
   JOURS_AVANT_REINITIALISATION_TENDANCE,
 } from './constantes'
+import { differenceEnJours } from './journee'
 
 /** Une pesée, rattachée à son jour local (doc 05). */
 export type Pesee = {
@@ -18,11 +19,6 @@ export type PointDeTendance = {
   estAberrante: boolean
   /** La série a été réinitialisée sur cette pesée (interruption > 14 jours). */
   reinitialisee: boolean
-}
-
-function ecartEnJours(de: string, a: string): number {
-  const MS_PAR_JOUR = 86_400_000
-  return Math.round((Date.parse(`${a}T00:00:00Z`) - Date.parse(`${de}T00:00:00Z`)) / MS_PAR_JOUR)
 }
 
 /**
@@ -42,7 +38,7 @@ export function calculerTendance(pesees: readonly Pesee[]): PointDeTendance[] {
   for (const pesee of triees) {
     const interrompue =
       dateLaPlusRecente !== null &&
-      ecartEnJours(dateLaPlusRecente, pesee.localDate) > JOURS_AVANT_REINITIALISATION_TENDANCE
+      differenceEnJours(dateLaPlusRecente, pesee.localDate) > JOURS_AVANT_REINITIALISATION_TENDANCE
 
     // Après une interruption longue, la valeur d'avant ne décrit plus le corps
     // actuel : on repart de la nouvelle pesée plutôt que de la traîner.
