@@ -97,6 +97,31 @@ bun run dev:mobile            # serveur Expo
   (`Constants.expoConfig.hostUri`), pour que l'app fonctionne sur un téléphone
   physique sans configuration. Surcharge possible via `EXPO_PUBLIC_API_URL`.
 
+## Convention de commit
+
+Le projet suit [Conventional Commits](https://www.conventionalcommits.org/).
+La règle est vérifiée automatiquement par un hook `commit-msg` (commitlint) ;
+`bun install` active le hook via `git config core.hooksPath .githooks`.
+
+```
+<type>(<portée>): <description>
+```
+
+| Élément | Valeurs |
+|---|---|
+| Types | `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `build`, `ci`, `style`, `revert` |
+| Portées | `api`, `mobile`, `db`, `config`, `deps`, `ci`, `docs`, `release` (facultatif) |
+| Description | en français, sans majuscule initiale ni point final, 72 caractères max |
+
+```
+feat(mobile): ajouter l'écran de saisie de repas
+fix(api): corriger le calcul du budget calorique restant
+chore(deps): passer Expo en SDK 57
+```
+
+Un changement cassant se signale par un `!` (`feat(api)!: ...`) ou une section
+`BREAKING CHANGE:` dans le corps du message.
+
 ## Reste à faire
 
 - Authentification (Better Auth s'intègre à Elysia et gère le cas mobile).

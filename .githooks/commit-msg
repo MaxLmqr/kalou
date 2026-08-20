@@ -1,0 +1,4 @@
+#!/bin/sh
+# Valide le message contre la convention Conventional Commits.
+# Actif automatiquement : le script `prepare` pointe core.hooksPath ici.
+exec bunx --bun commitlint --edit "$1"

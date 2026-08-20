@@ -2,8 +2,12 @@
   "name": "kalou",
   "private": true,
   "packageManager": "bun@1.4.0",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
     "dev": "turbo run dev",
     "dev:api": "turbo run dev --filter=@kalou/api",
     "dev:mobile": "turbo run dev --filter=@kalou/mobile",
@@ -15,6 +19,8 @@
     "db:studio": "turbo run db:studio"
   },
   "devDependencies": {
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
     "turbo": "^2.10.11",
     "typescript": "~6.0.3"
   },
