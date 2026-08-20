@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View, type ViewProps } from 'react-native';
+import { Pressable, View, type ViewProps } from 'react-native';
 
 import { useTheme } from '@/design';
 
@@ -48,14 +48,15 @@ export type StatLineProps = {
   note?: string;
   tone?: 'text' | 'intake' | 'expenditure' | 'textSecondary';
   trailing?: ReactNode;
+  /** Rend la ligne tactile : « Dépensé » ouvre l'écran de calibration. */
   onPress?: () => void;
 };
 
 /** Les trois lignes de détail sous le chiffre unique : mangé, dépensé, budget. */
-export function StatLine({ label, value, note, tone = 'text', trailing }: StatLineProps) {
+export function StatLine({ label, value, note, tone = 'text', trailing, onPress }: StatLineProps) {
   const theme = useTheme();
 
-  return (
+  const content = (
     <View
       style={{
         flexDirection: 'row',
@@ -76,5 +77,17 @@ export function StatLine({ label, value, note, tone = 'text', trailing }: StatLi
       </Text>
       {trailing}
     </View>
+  );
+
+  if (!onPress) return content;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${label} : ${value}`}
+      onPress={onPress}
+      style={({ pressed }) => ({ opacity: pressed ? theme.motion.pressedOpacity : 1 })}>
+      {content}
+    </Pressable>
   );
 }

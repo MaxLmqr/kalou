@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ScrollView, View, type ViewProps } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/design';
 
@@ -12,17 +12,42 @@ export type ScreenProps = ViewProps & {
   scroll?: boolean;
   /** Retire la gouttière horizontale, ex. pour une liste bord à bord. */
   bleed?: boolean;
-  /** Zone ancrée en bas (bouton principal, bouton d'action flottant). */
+  /** Zone ancrée en bas (bouton principal). */
   footer?: ReactNode;
+  /**
+   * L'écran est sous la barre d'onglets : le contenu réserve sa hauteur pour ne
+   * pas finir derrière elle, et `floatingAction` se pose au-dessus.
+   */
+  underTabBar?: boolean;
+  /** Bouton d'action flottant, ancré en bas à droite. */
+  floatingAction?: ReactNode;
 };
 
 /** Conteneur d'écran : fond, zone sûre, gouttière et largeur maximale. */
-export function Screen({ children, scroll = true, bleed, footer, style, ...rest }: ScreenProps) {
+export function Screen({
+  children,
+  scroll = true,
+  bleed,
+  footer,
+  underTabBar,
+  floatingAction,
+  style,
+  ...rest
+}: ScreenProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  // Le pied de page est ancré hors du défilement : sans réserver sa hauteur
+  // réelle, la fin du contenu passe dessous. On la mesure plutôt que de la
+  // deviner, parce qu'elle dépend du nombre de boutons.
+  const [footerHeight, setFooterHeight] = useState(0);
+
+  /** Hauteur occupée par la barre d'onglets, zone sûre comprise. */
+  const tabBarSpace = underTabBar ? theme.tabBarHeight + insets.bottom : 0;
 
   const contentStyle = {
     paddingHorizontal: bleed ? 0 : theme.spacing.lg,
-    paddingBottom: theme.spacing.xxl,
+    paddingBottom:
+      theme.spacing.xxl + tabBarSpace + footerHeight + (floatingAction ? theme.hitSize.fab : 0),
     gap: theme.spacing.xl,
     width: '100%' as const,
     maxWidth: theme.maxContentWidth,
@@ -44,6 +69,7 @@ export function Screen({ children, scroll = true, bleed, footer, style, ...rest 
         )}
         {footer ? (
           <View
+            onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
             style={{
               paddingHorizontal: theme.spacing.lg,
               paddingTop: theme.spacing.md,
@@ -56,6 +82,17 @@ export function Screen({ children, scroll = true, bleed, footer, style, ...rest 
           </View>
         ) : null}
       </SafeAreaView>
+
+      {floatingAction ? (
+        <View
+          style={{
+            position: 'absolute',
+            right: theme.spacing.lg,
+            bottom: tabBarSpace + theme.spacing.lg,
+          }}>
+          {floatingAction}
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -18,7 +18,8 @@ src/design/
   theme-provider.tsx <ThemeProvider> et useTheme()
   format.ts          Mise en forme des nombres (kcal, kg, durées, dates)
 
-src/components/ui/   Primitives, toutes réexportées par @/components/ui
+src/components/ui/     Primitives, toutes réexportées par @/components/ui
+src/components/charts/ Courbe de poids et balance quotidienne
 ```
 
 ## Règles d'usage
@@ -53,17 +54,49 @@ avertissement de la palette. L'utiliser ailleurs casse le principe « sans jugem
 | `ProgressBar` | Consommation du budget, dépassement inclus, sans changement de couleur |
 | `Badge`, `PendingDot` | États : estimation, mesuré, en pause, plancher |
 | `Input` | Saisie texte ou numérique avec unité |
+| `Stepper` | Sélecteur à deux boutons : pesée, durée d'activité |
+| `Chip` | Pastille tactile : portion, durée pré-réglée, quantité |
+| `Segmented` | Bascule entre deux vues d'un même contenu (30 j / 90 j) |
+| `Sheet` | Contenu d'une feuille modale (la feuille elle-même est native) |
+| `ScreenHeader` | En-tête d'écran poussé ou de modale |
+| `List` | Carte de lignes séparées d'un cheveu |
+| `Icon` | Jeu d'icônes au trait |
 | `Divider` | Séparateur d'un cheveu |
 
 ## Icônes
 
-Aucune bibliothèque d'icônes n'est installée. Les composants qui en ont besoin
-(`Button`, `Fab`, `Row`) exposent un emplacement (`icon`, `trailing`, `children`)
-plutôt que d'imposer un jeu d'icônes — le choix reste ouvert (`expo-symbols` côté
-iOS, ou un jeu vectoriel commun).
+`components/ui/icon.tsx` dessine le jeu au trait de Kalou, sur une grille de 24,
+avec `react-native-svg`. Il est **délibérément court** : une icône n'y entre que
+si un écran la demande. Les composants qui en ont besoin (`Button`, `Fab`, `Row`)
+exposent un emplacement (`icon`, `leading`, `trailing`) plutôt que d'imposer le
+jeu, pour qu'un écran puisse y mettre autre chose.
+
+La barre d'onglets fait exception : `NativeTabs` s'appuie sur des vues natives et
+ne sait pas afficher un composant React. Ses icônes sont donc des PNG, générés à
+partir **des mêmes tracés** par `scripts/build-tab-icons.mjs` :
+
+```
+bun run scripts/build-tab-icons.mjs
+```
+
+Ne pas les modifier à la main : ajouter le tracé au script, le relancer.
+
+## Charts
+
+`WeightChart` et `BalanceChart` (dans `components/charts/`) sont les deux seules
+visualisations de l'application. Deux règles les gouvernent, toutes deux issues du
+principe « sans jugement » :
+
+- la balance quotidienne n'a **qu'un seul aplat** : c'est la position par rapport
+  à la ligne de zéro qui porte le signe, pas la couleur. Colorer déficit et
+  excédent différemment serait un vert / rouge déguisé ;
+- la ligne d'objectif de la courbe de poids est une **pente sur la fenêtre
+  affichée**, pas une droite vers le poids souhaité — cette dernière écraserait
+  l'échelle et ferait passer une vraie perte pour un plateau.
 
 ## Aperçu
 
-`src/app/index.tsx` est, pour l'instant, l'aperçu du système : maquette fidèle de
-l'accueil, puis catalogue des primitives. Il sera remplacé par l'accueil réel au
-jalon 1 de [docs/07](../../../../docs/07-roadmap.md).
+`src/app/design-system.tsx`, atteignable depuis le profil, est le catalogue des
+primitives et le banc d'essai des états rares (budget dépassé, estimation en
+attente, plancher de sécurité) — ceux qu'on ne veut pas avoir à provoquer dans
+l'application pour les relire.
