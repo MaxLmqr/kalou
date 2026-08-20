@@ -29,6 +29,11 @@ export type SheetProps = ViewProps & {
  * Les claviers numériques aggravent le cas : ils n'ont pas de touche de retour,
  * donc aucun moyen de les refermer. D'où le `KeyboardAvoidingView` ici plutôt
  * que dans chaque écran, et le renvoi du clavier au défilement.
+ *
+ * Le `flex: 1` sur la zone défilante n'est pas cosmétique : sans lui, la vue
+ * prend la hauteur de son contenu, n'a donc rien à faire défiler, et tout ce
+ * qui dépasse sous le pied de page devient définitivement inatteignable — sans
+ * le moindre signe qu'il manque quelque chose.
  */
 export function Sheet({ title, children, scroll = false, footer, style, ...rest }: SheetProps) {
   const theme = useTheme();
@@ -56,6 +61,7 @@ export function Sheet({ title, children, scroll = false, footer, style, ...rest 
       {...rest}>
       {scroll ? (
         <ScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={{ ...gouttiere, gap: theme.spacing.xl }}
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode="on-drag"
@@ -65,6 +71,9 @@ export function Sheet({ title, children, scroll = false, footer, style, ...rest 
       ) : (
         <View style={gouttiere}>{content}</View>
       )}
+
+      {/* Pousse le pied de page en bas quand le contenu ne défile pas. */}
+      {scroll ? null : <View style={{ flex: 1 }} />}
 
       {footer ? (
         <View
