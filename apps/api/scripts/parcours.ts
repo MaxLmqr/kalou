@@ -80,6 +80,14 @@ verifier(
   })).statut,
 )
 
+// Le poids figé d'une dépense est la tendance du jour : sans pesée, il n'existe
+// pas, et inventer un poids par défaut produirait une dépense fausse en silence.
+verifier(
+  'une dépense sans pesée est refusée',
+  422,
+  (await appel('POST', '/activity-entries', { activity_code: 'yoga', duree_min: 30 })).statut,
+)
+
 const pesee = await appel('POST', '/weigh-ins', { poids_kg: 85 })
 verifier('POST /weigh-ins', 200, pesee.statut, { tendance_kg: pesee.donnees.tendance_kg })
 
@@ -136,6 +144,51 @@ verifier(
 verifier('DELETE /food-entries/:id', 204, (await appel('DELETE', `/food-entries/${repas.donnees.id}`)).statut)
 const nettoye = await appel('GET', '/days/today')
 verifier("la suppression retire l'entrée du total", 0, nettoye.donnees.apports_kcal)
+
+const referentiel = await appel('GET', '/activities')
+verifier('GET /activities', 200, referentiel.statut, { activites: referentiel.donnees.length })
+
+const inconnue = await appel('POST', '/activity-entries', {
+  activity_code: 'saut_a_la_perche',
+  duree_min: 30,
+})
+verifier('une activité hors référentiel est refusée', 404, inconnue.statut)
+
+// L'exemple chiffré du doc 02 § 7, sur le profil de référence : course à
+// 8 km/h (MET 8,3), 45 min, 85 kg → 489 kcal nettes.
+const activite = await appel('POST', '/activity-entries', {
+  activity_code: 'course_8kmh',
+  duree_min: 45,
+})
+verifier('POST /activity-entries', 200, activite.statut, {
+  met: activite.donnees.met,
+  poids: activite.donnees.poidsUtiliseKg,
+  kcal_net: activite.donnees.kcalNet,
+})
+verifier('dépense nette conforme au doc 02 § 7', 489, activite.donnees.kcalNet)
+verifier('le MET est figé depuis le référentiel', 8.3, activite.donnees.met)
+verifier('le poids figé est la tendance du jour', 85, activite.donnees.poidsUtiliseKg)
+
+const avecEat = await appel('GET', '/days/today')
+verifier("l'activité augmente l'apport cible", 489, avecEat.donnees.detail.eat_kcal)
+verifier(
+  "l'activité apparaît dans le journal",
+  1,
+  avecEat.donnees.journal.filter((ligne: any) => ligne.genre === 'activite').length,
+)
+
+const corrigee = await appel('PATCH', `/activity-entries/${activite.donnees.id}`, { duree_min: 30 })
+verifier('PATCH /activity-entries/:id', 200, corrigee.statut, { kcal_net: corrigee.donnees.kcalNet })
+// 7,3 × 3,5 × 85 / 200 × 30 = 326 kcal.
+verifier('la correction recalcule la dépense', 326, corrigee.donnees.kcalNet)
+
+verifier(
+  'DELETE /activity-entries/:id',
+  204,
+  (await appel('DELETE', `/activity-entries/${activite.donnees.id}`)).statut,
+)
+const sansEat = await appel('GET', '/days/today')
+verifier("la suppression retire l'activité de l'EAT", 0, sansEat.donnees.detail.eat_kcal)
 
 cookie = ''
 verifier('sans session, la journée est fermée', 401, (await appel('GET', '/days/today')).statut)
