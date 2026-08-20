@@ -12,7 +12,8 @@
     "start": "bun src/index.ts",
     "build": "bun build src/index.ts --target=bun --outdir=dist",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "parcours": "bun --env-file=../../.env scripts/parcours.ts"
   },
   "dependencies": {
     "@elysiajs/cors": "^1.4.2",
