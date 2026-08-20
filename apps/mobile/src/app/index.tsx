@@ -1,98 +1,208 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import {
+  Badge,
+  BigNumber,
+  Button,
+  Divider,
+  Fab,
+  Input,
+  PendingDot,
+  PressableSurface,
+  ProgressBar,
+  Row,
+  Screen,
+  Section,
+  StatLine,
+  Surface,
+  Text,
+} from '@/components/ui';
+import { useTheme } from '@/design';
+import {
+  formatDayHeading,
+  formatKcal,
+  formatRemaining,
+  formatSignedKcal,
+  formatWeight,
+} from '@/design/format';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+/**
+ * Aperçu du design system.
+ *
+ * Écran temporaire : il sert de référence visuelle pendant le développement et
+ * sera remplacé par l'accueil réel au jalon 1. La première section est une
+ * maquette fidèle de cet accueil — c'est elle qui valide le système.
+ */
+export default function DesignSystemScreen() {
+  const theme = useTheme();
+  const remaining = formatRemaining(1204);
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+    <Screen>
+      <View style={{ gap: theme.spacing.xs }}>
+        <Text variant="title">Design system</Text>
+        <Text variant="caption" color="textMuted">
+          Thème {theme.scheme === 'dark' ? 'sombre' : 'clair'}, suit le réglage système.
+        </Text>
+      </View>
+
+      {/* ---- Maquette de l'accueil (docs/03 § 2) ---- */}
+      <Surface style={{ gap: theme.spacing.xl }}>
+        <Text variant="caption" color="textMuted">
+          {formatDayHeading(new Date())}
+        </Text>
+
+        <BigNumber
+          value={remaining.value}
+          label={remaining.label}
+          note="Budget estimé — mesuré dans 6 jours"
+          style={{ marginVertical: theme.spacing.sm }}
+        />
+
+        <ProgressBar value={0.72} marker={0.6} />
+
+        <View style={{ gap: theme.spacing.xs }}>
+          <StatLine label="Mangé" value={formatKcal(475)} tone="intake" />
+          <StatLine
+            label="Dépensé"
+            note="dont 489 par l'activité"
+            value={formatKcal(2168)}
+            tone="expenditure"
+          />
+          <StatLine label="Budget" value={formatKcal(1679)} />
+        </View>
+
+        <Divider />
+
+        <View>
+          <Row time="08:12" title="Café au lait" value={formatKcal(120)} onPress={() => {}} />
+          <Row
+            time="12:40"
+            title="Salade César"
+            detail="estimation"
+            value={formatKcal(355)}
+            trailing={<PendingDot style={{ marginLeft: theme.spacing.sm }} />}
+            onPress={() => {}}
+          />
+          <Row
+            time="18:05"
+            title="Course"
+            detail="45 min"
+            value={formatSignedKcal(-489)}
+            valueTone="expenditure"
+            onPress={() => {}}
+          />
+        </View>
+
+        <View style={{ alignItems: 'flex-end' }}>
+          <Fab accessibilityLabel="Ajouter une entrée" />
+        </View>
+      </Surface>
+
+      {/* ---- Typographie ---- */}
+      <Section title="Typographie">
+        <Surface variant="sunken" style={{ gap: theme.spacing.md }}>
+          <Text variant="display">1 204</Text>
+          <Text variant="numberLarge">{formatWeight(72.4)}</Text>
+          <Text variant="title">Titre d&apos;écran</Text>
+          <Text variant="heading">Titre de section</Text>
+          <Text variant="body">
+            Texte courant. Tutoiement, ton factuel : « tu es au-dessus de ton budget », jamais « tu
+            as dépassé ».
+          </Text>
+          <Text variant="label">Libellé de contrôle</Text>
+          <Text variant="caption" color="textMuted">
+            Légende et mention d&apos;incertitude
+          </Text>
+          <Text variant="overline" color="textMuted">
+            En-tête de section
+          </Text>
+        </Surface>
+      </Section>
+
+      {/* ---- Couleurs ---- */}
+      <Section title="Couleurs">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+          {(
+            [
+              ['background', 'Fond'],
+              ['surface', 'Surface'],
+              ['surfaceSunken', 'Creusé'],
+              ['accent', 'Accent'],
+              ['accentSurface', 'Accent doux'],
+              ['intake', 'Apport'],
+              ['expenditure', 'Dépense'],
+              ['pending', 'En attente'],
+              ['caution', 'Plancher'],
+            ] as const
+          ).map(([key, label]) => (
+            <View key={key} style={{ alignItems: 'center', gap: theme.spacing.xs, width: 84 }}>
+              <View
+                style={{
+                  width: 84,
+                  height: 44,
+                  borderRadius: theme.radius.md,
+                  backgroundColor: theme.colors[key],
+                  borderWidth: theme.borderWidth.hairline,
+                  borderColor: theme.colors.border,
+                }}
+              />
+              <Text variant="caption" color="textMuted" align="center">
+                {label}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </Section>
+
+      {/* ---- Boutons ---- */}
+      <Section title="Boutons">
+        <Button label="Enregistrer" onPress={() => {}} />
+        <Button label="Photographier un repas" variant="secondary" onPress={() => {}} />
+        <Button label="Passer" variant="ghost" size="md" onPress={() => {}} />
+        <Button label="Estimation en cours" loading onPress={() => {}} />
+      </Section>
+
+      {/* ---- Cartes de choix (onboarding § 3, écran 4) ---- */}
+      <Section title="Cartes de choix">
+        <PressableSurface selected onPress={() => {}} style={{ gap: theme.spacing.xs }}>
+          <Text variant="heading">0,5 kg par semaine</Text>
+          <Text variant="caption" color="textMuted">
+            Objectif atteint le 12 novembre
+          </Text>
+        </PressableSurface>
+        <PressableSurface onPress={() => {}} style={{ gap: theme.spacing.xs }}>
+          <Text variant="heading">0,75 kg par semaine</Text>
+          <Text variant="caption" color="textMuted">
+            Objectif atteint le 3 octobre
+          </Text>
+        </PressableSurface>
+      </Section>
+
+      {/* ---- États ---- */}
+      <Section title="États">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+          <Badge label="Estimation" tone="pending" />
+          <Badge label="Mesuré" tone="accent" />
+          <Badge label="En pause" tone="neutral" />
+          <Badge label="Plancher de sécurité" tone="caution" />
+        </View>
+        <View style={{ gap: theme.spacing.sm }}>
+          <Text variant="caption" color="textMuted">
+            Barre neutre : au-delà du budget elle ne change pas de couleur.
+          </Text>
+          <ProgressBar value={0.35} />
+          <ProgressBar value={1} />
+          <ProgressBar value={1.3} />
+        </View>
+      </Section>
+
+      {/* ---- Saisie ---- */}
+      <Section title="Saisie">
+        <Input label="Décris ton repas" placeholder="deux tartines beurre confiture" multiline />
+        <Input label="Calories" placeholder="0" suffix="kcal" numeric />
+        <Input label="Poids" placeholder="72,4" suffix="kg" numeric />
+      </Section>
+    </Screen>
   );
 }
-
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
