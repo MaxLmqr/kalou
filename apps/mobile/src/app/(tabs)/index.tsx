@@ -18,6 +18,7 @@ import { useTheme } from '@/design';
 import {
   formatDayHeading,
   formatKcal,
+  formatProteines,
   formatRemaining,
   formatSignedKcal,
 } from '@/design/format';
@@ -27,8 +28,8 @@ import { jour } from '@/data/exemple';
  * Aujourd'hui — l'écran d'accueil (docs/03 § 2).
  *
  * Il répond à une seule question : qu'est-ce qu'il me reste ? D'où un unique
- * `BigNumber`, trois lignes de détail en typographie secondaire, et le journal
- * du jour directement dessous plutôt que dans un onglet.
+ * `BigNumber`, quelques lignes de détail en typographie secondaire, et le
+ * journal du jour directement dessous plutôt que dans un onglet.
  */
 export default function AujourdHuiScreen() {
   const theme = useTheme();
@@ -81,6 +82,20 @@ export default function AujourdHuiScreen() {
           onPress={() => router.push('/calibration')}
         />
         <StatLine label="Apport cible" value={formatKcal(jour.apportCibleKcal)} />
+        {/*
+          Un plancher, pas une cible : la ligne reste en typographie neutre même
+          en dessous du seuil. Aucune alerte, aucun ton d'avertissement — le
+          principe « sans jugement » de docs/01 s'applique ici comme ailleurs.
+          Le « ≥ » dit que la somme est incomplète (docs/02 § 9).
+        */}
+        <StatLine
+          label="Protéines"
+          value={formatProteines(
+            jour.proteines.totalG,
+            jour.proteines.plancherG,
+            jour.proteines.partielle,
+          )}
+        />
       </View>
 
       <Divider />

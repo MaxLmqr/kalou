@@ -37,6 +37,23 @@ export function formatRemaining(value: number): { value: string; label: string }
     : { value: group(rounded), label: 'calories restantes' };
 }
 
+/**
+ * Protéines du jour face à leur plancher : « 42 / 135 g ».
+ *
+ * Le total devient une **borne inférieure** dès qu'un composant libre ne porte
+ * pas de valeur protéique (docs/02 § 9) : on écrit alors « ≥ 42 / 135 g »
+ * plutôt qu'un chiffre faussement précis. Sans aucune valeur, on n'invente pas
+ * un zéro.
+ */
+export function formatProteines(
+  totalG: number | null,
+  plancherG: number,
+  partiel: boolean,
+): string {
+  const total = totalG === null ? '—' : `${partiel ? '≥ ' : ''}${Math.round(totalG)}`;
+  return `${total} / ${Math.round(plancherG)}${NARROW_NBSP}g`;
+}
+
 /** `72.34` → « 72,3 kg ». */
 export function formatWeight(kg: number, withUnit = true): string {
   const text = kg.toFixed(1).replace('.', ',');

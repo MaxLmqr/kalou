@@ -56,3 +56,7 @@ export const RYTHME_MAX_PART_DU_POIDS = 0.01
 
 /** Déficit maximal, en part du besoin énergétique journalier. Doc 02 § 6. */
 export const DEFICIT_MAX_PART_BESOIN = 0.25
+
+/** Plancher protéique : `1,6 × poids`, arrondi à 5 g près. Doc 02 § 9. */
+export const PLANCHER_PROTEINES_PAR_KG = 1.6
+export const PAS_ARRONDI_PLANCHER_PROTEINES_G = 5

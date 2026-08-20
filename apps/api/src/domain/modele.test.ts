@@ -12,6 +12,7 @@ import {
   phase,
   restant,
 } from './apport-cible'
+import { plancherProteines, sommeProteines } from './proteines'
 
 /**
  * Le profil de référence du doc 02 § 3.2 : homme, 35 ans, 85 kg, 178 cm,
@@ -130,6 +131,59 @@ describe('Transition du facteur TEF (§ 3.2 → § 3.3)', () => {
     expect(phase(0)).toBe('formule')
     expect(phase(0.5)).toBe('transition')
     expect(phase(1)).toBe('calibre')
+  })
+})
+
+describe('Plancher protéique (doc 02 § 9)', () => {
+  test("l'arrondi se fait à 5 g près", () => {
+    // ⚠️ Le § 9 et le lexique annoncent 136 g pour 85 kg, mais 1,6 × 85 = 136
+    // n'est pas un multiple de 5 : la règle d'arrondi du même paragraphe donne
+    // 135. C'est la règle qui fait foi, l'exemple qui est faux.
+    expect(plancherProteines(85)).toBe(135)
+    expect(plancherProteines(82.4)).toBe(130)
+    expect(plancherProteines(60)).toBe(95)
+  })
+
+  test('un plancher, jamais un plafond : il croît avec le poids', () => {
+    expect(plancherProteines(100)).toBeGreaterThan(plancherProteines(70))
+  })
+})
+
+describe('Somme protéique du jour (doc 02 § 9)', () => {
+  test('somme les composants qui portent une valeur', () => {
+    expect(
+      sommeProteines([
+        { type: 'reference', proteinesG: 28.4 },
+        { type: 'reference', proteinesG: 13.6 },
+      ]),
+    ).toEqual({ totalG: 42, partielle: false })
+  })
+
+  test("un composant libre sans protéines fait du total une borne inférieure", () => {
+    expect(
+      sommeProteines([
+        { type: 'reference', proteinesG: 42 },
+        { type: 'libre', proteinesG: null },
+      ]),
+    ).toEqual({ totalG: 42, partielle: true })
+  })
+
+  test('un composant libre renseigné ne rend pas la somme partielle', () => {
+    expect(
+      sommeProteines([
+        { type: 'reference', proteinesG: 42 },
+        { type: 'libre', proteinesG: 6 },
+      ]),
+    ).toEqual({ totalG: 48, partielle: false })
+  })
+
+  test('aucune valeur du tout : `null`, pas zéro', () => {
+    // Afficher « 0 g » laisserait croire à une mesure ; il n'y en a aucune.
+    expect(sommeProteines([{ type: 'libre', proteinesG: null }])).toEqual({
+      totalG: null,
+      partielle: true,
+    })
+    expect(sommeProteines([])).toEqual({ totalG: null, partielle: false })
   })
 })
 

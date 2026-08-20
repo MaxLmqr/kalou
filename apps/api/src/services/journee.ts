@@ -2,6 +2,7 @@ import {
   activityEntries,
   db,
   foodEntries,
+  foodEntryItems,
   goals,
   profiles,
   weighIns,
@@ -18,9 +19,12 @@ import {
   bmr,
   deficitQuotidien,
   phase,
+  plancherProteines,
   restant,
   socleFormule,
+  sommeProteines,
   tendanceCourante,
+  type ComposantProteique,
   type Phase,
   type Sexe,
 } from '../domain'
@@ -45,6 +49,13 @@ export type VueDuJour = {
     eat_kcal: number
     deficit_cible: number
     phase: Phase
+  }
+  proteines: {
+    /** `null` si aucun composant du jour ne porte de valeur protéique. */
+    total_g: number | null
+    plancher_g: number
+    /** Vrai si une entrée libre rend la somme incomplète (borne inférieure). */
+    partiel: boolean
   }
   entrees_en_attente: number
   tendance_poids_kg: number | null
@@ -115,6 +126,29 @@ async function apportsDuJour(
   return { apports: ligne?.apports ?? 0, enAttente: ligne?.enAttente ?? 0 }
 }
 
+/**
+ * Composants alimentaires du jour, réduits à ce qui porte les protéines.
+ *
+ * Les entrées en attente d'estimation n'ont aucun composant (doc 05 § 5,
+ * invariant 1) : elles sortent d'elles-mêmes de la somme.
+ */
+async function composantsDuJour(
+  userId: string,
+  localDate: string,
+): Promise<ComposantProteique[]> {
+  return await db
+    .select({ type: foodEntryItems.type, proteinesG: foodEntryItems.proteinesG })
+    .from(foodEntryItems)
+    .innerJoin(foodEntries, eq(foodEntryItems.foodEntryId, foodEntries.id))
+    .where(
+      and(
+        eq(foodEntries.userId, userId),
+        eq(foodEntries.localDate, localDate),
+        isNull(foodEntries.deletedAt),
+      ),
+    )
+}
+
 /** Somme des dépenses sportives nettes du jour. */
 async function eatDuJour(userId: string, localDate: string): Promise<number> {
   const [ligne] = await db
@@ -145,9 +179,10 @@ export async function calculerJournee(
 ): Promise<VueDuJour> {
   const { profile, goal, tendanceKg } = etat
 
-  const [{ apports, enAttente }, eatKcal] = await Promise.all([
+  const [{ apports, enAttente }, eatKcal, composants] = await Promise.all([
     apportsDuJour(userId, localDate),
     eatDuJour(userId, localDate),
+    composantsDuJour(userId, localDate),
   ])
 
   const bmrKcal = bmr({
@@ -163,6 +198,7 @@ export async function calculerJournee(
 
   const besoin = besoinJournalier({ socleApplique, eatKcal, w })
   const cible = apportCible({ socleApplique, eatKcal, deficitKcal, w })
+  const proteines = sommeProteines(composants)
 
   return {
     local_date: localDate,
@@ -179,6 +215,11 @@ export async function calculerJournee(
       eat_kcal: eatKcal,
       deficit_cible: Math.round(deficitKcal),
       phase: phase(w),
+    },
+    proteines: {
+      total_g: proteines.totalG,
+      plancher_g: plancherProteines(tendanceKg),
+      partiel: proteines.partielle,
     },
     entrees_en_attente: enAttente,
     tendance_poids_kg: Math.round(tendanceKg * 100) / 100,

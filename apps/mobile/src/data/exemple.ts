@@ -7,8 +7,8 @@
  * écrans.
  *
  * **Aucun chiffre dérivable n'est écrit en dur.** Apport cible, besoin
- * journalier, reste, calories d'activité, dépense mesurée, dates d'atteinte :
- * tout vient de `@kalou/api/domain`, c'est-à-dire du doc 02.
+ * journalier, reste, calories d'activité, dépense mesurée, plancher protéique,
+ * dates d'atteinte : tout vient de `@kalou/api/domain`, c'est-à-dire du doc 02.
  * Les illustrations du doc 03 (un apport cible de 1 679 kcal avec 489 kcal de
  * course) ne satisfont pas le modèle du doc 02, qui fait foi ; les poser à la
  * main donnerait une interface qui ment dès qu'on touche à un paramètre.
@@ -20,9 +20,12 @@ import {
   calibrer,
   deficitQuotidien,
   kcalNet,
+  plancherProteines,
   restant,
   semainesJusquAuPoidsCible,
   socleFormule,
+  sommeProteines,
+  type ComposantProteique,
   type Sexe,
 } from '@kalou/api/domain';
 
@@ -151,6 +154,11 @@ export type Entree = {
   /** Apport positif, dépense négative. `null` tant que l'estimation n'est pas là. */
   kcal: number | null;
   type: TypeEntree;
+  /**
+   * Composants de l'entrée, réduits à ce qui porte les protéines (doc 02 § 9).
+   * Un composant `libre` sans valeur rend la somme du jour partielle.
+   */
+  proteines?: ComposantProteique[];
 };
 
 type JourBrut = {
@@ -174,6 +182,7 @@ function composer(jour: JourBrut) {
     .reduce((total, entree) => total - (entree.kcal ?? 0), 0);
 
   const apportCibleKcal = apportCible({ socleApplique, eatKcal, deficitKcal: DEFICIT, w });
+  const proteines = sommeProteines(jour.entrees.flatMap((entree) => entree.proteines ?? []));
 
   return {
     ...jour,
@@ -182,6 +191,10 @@ function composer(jour: JourBrut) {
     apportCibleKcal,
     besoinJournalierKcal: besoinJournalier({ socleApplique, eatKcal, w }),
     restantKcal: restant(apportCibleKcal, apportsKcal),
+    proteines: {
+      ...proteines,
+      plancherG: plancherProteines(profil.tendanceKg),
+    },
     /** Une entrée sans calories attend encore son estimation. */
     aUneEstimationEnCours: jour.entrees.some((entree) => entree.kcal === null),
   };
@@ -197,7 +210,14 @@ export const jour: JourCompose = composer({
   w: 0,
   socleAppliqueKcal: SOCLE_FORMULE,
   entrees: [
-    { id: '1', heure: '08:12', titre: 'Café au lait', kcal: 120, type: 'repas' },
+    {
+      id: '1',
+      heure: '08:12',
+      titre: 'Café au lait',
+      kcal: 120,
+      type: 'repas',
+      proteines: [{ type: 'reference', proteinesG: 6.2 }],
+    },
     {
       id: '2',
       heure: '12:40',
@@ -205,6 +225,13 @@ export const jour: JourCompose = composer({
       detail: '4 composants · estimation',
       kcal: 355,
       type: 'repas',
+      // La sauce est saisie en calories libres : elle ne porte pas de valeur
+      // protéique, et rend donc la somme du jour partielle (doc 02 § 9).
+      proteines: [
+        { type: 'reference', proteinesG: 30.1 },
+        { type: 'reference', proteinesG: 5.4 },
+        { type: 'libre', proteinesG: null },
+      ],
     },
     {
       id: '3',
@@ -227,7 +254,14 @@ export const jourAuDessus: JourCompose = composer({
   w: calibration.w,
   socleAppliqueKcal: calibration.socleAppliqueKcal,
   entrees: [
-    { id: '1', heure: '07:40', titre: 'Café au lait', kcal: 120, type: 'repas' },
+    {
+      id: '1',
+      heure: '07:40',
+      titre: 'Café au lait',
+      kcal: 120,
+      type: 'repas',
+      proteines: [{ type: 'reference', proteinesG: 6.2 }],
+    },
     {
       id: '2',
       heure: '13:05',

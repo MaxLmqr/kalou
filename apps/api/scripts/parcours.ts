@@ -101,12 +101,15 @@ verifier('GET /days/today', 200, jour.statut, {
   apport_cible: jour.donnees.apport_cible_kcal,
   besoin_journalier: jour.donnees.besoin_journalier_kcal,
   detail: jour.donnees.detail,
+  proteines: jour.donnees.proteines,
 })
 
 // Les chiffres du § 3.2 du doc 02, à l'arrondi près.
 verifier('apport cible conforme au doc 02', 1679, jour.donnees.apport_cible_kcal)
 verifier('besoin journalier conforme au doc 02', 2290, jour.donnees.besoin_journalier_kcal)
 verifier('socle conforme au doc 02', 2061, jour.donnees.detail.socle)
+// 1,6 × 85 kg = 136 g, arrondi à 5 g près (doc 02 § 9).
+verifier('plancher protéique conforme au doc 02', 135, jour.donnees.proteines.plancher_g)
 
 const repas = await appel('POST', '/food-entries', {
   items: [
@@ -123,6 +126,12 @@ verifier('total = somme des composants', 725, repas.donnees.kcal)
 
 const apres = await appel('GET', '/days/today')
 verifier('les apports comptent dans le reste', 954, apres.donnees.restant_kcal)
+// Trois composants libres sans protéines : la somme est vide, et partielle.
+verifier(
+  'une entrée libre rend la somme protéique partielle',
+  1,
+  apres.donnees.proteines.partiel === true && apres.donnees.proteines.total_g === null ? 1 : 0,
+)
 
 verifier('DELETE /food-entries/:id', 204, (await appel('DELETE', `/food-entries/${repas.donnees.id}`)).statut)
 const nettoye = await appel('GET', '/days/today')
