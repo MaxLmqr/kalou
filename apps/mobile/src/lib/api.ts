@@ -55,3 +55,14 @@ export function jourIso(valeur: string | Date | null | undefined): string | null
   if (valeur instanceof Date) return valeur.toISOString().slice(0, 10)
   return typeof valeur === 'string' ? valeur.slice(0, 10) : null
 }
+
+/**
+ * Vrai si le rejet est un 401 de l'API : session absente, expirée ou révoquée.
+ *
+ * Le cas n'est pas théorique en développement — une base réinitialisée efface
+ * le compte sous les pieds d'un téléphone qui garde son cookie. Il vaut donc la
+ * peine d'être distingué d'une panne réseau, qui, elle, se répare en réessayant.
+ */
+export function estSessionExpiree(rejet: unknown): boolean {
+  return (rejet as { status?: number } | null)?.status === 401
+}
