@@ -15,6 +15,27 @@
       "when": 1787260919764,
       "tag": "0001_reflective_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787264270403,
+      "tag": "0002_extensions_recherche",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787264298490,
+      "tag": "0003_lonely_komodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1787264365344,
+      "tag": "0004_supreme_silhouette",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "foods_source_code_unique" ON "foods" USING btree ("source","code_source");
