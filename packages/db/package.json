@@ -1,0 +1,28 @@
+{
+  "name": "@kalou/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "db:generate": "bun --env-file=../../.env drizzle-kit generate",
+    "db:migrate": "bun --env-file=../../.env drizzle-kit migrate",
+    "db:push": "bun --env-file=../../.env drizzle-kit push",
+    "db:studio": "bun --env-file=../../.env drizzle-kit studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@kalou/typescript-config": "workspace:*",
+    "@types/bun": "^1.3.14",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.10",
+    "pg": "^8.23.0",
+    "typescript": "~6.0.3"
+  }
+}

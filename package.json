@@ -1,0 +1,24 @@
+{
+  "name": "kalou",
+  "private": true,
+  "packageManager": "bun@1.4.0",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:api": "turbo run dev --filter=@kalou/api",
+    "dev:mobile": "turbo run dev --filter=@kalou/mobile",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:studio": "turbo run db:studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.11",
+    "typescript": "~6.0.3"
+  },
+  "engines": {
+    "bun": ">=1.4.0"
+  }
+}

@@ -1,0 +1,4 @@
+[install]
+# Layout hoisté (comme npm) : requis pour que Metro/React Native
+# résolve correctement les modules natifs en monorepo.
+linker = "hoisted"

@@ -1,2 +1,103 @@
-# kalou
-Kalou, c'est le petit compagnon qui compte pour vous. Notez ce que vous mangez, suivez ce que vous dépensez, et laissez Kalou faire le calcul : votre balance calorique du jour, claire et sans jugement. Des objectifs à votre rythme, des progrès qui se voient, et une perte de poids qui tient dans le temps. Doucement, mais sûrement.
+# Kalou
+
+Monorepo Turborepo : application mobile Expo + backend Elysia, en TypeScript de bout en bout.
+
+## Stack
+
+| Brique | Choix |
+|---|---|
+| Runtime & package manager | Bun 1.4 (workspaces) |
+| Orchestrateur | Turborepo 2.10 |
+| Backend | Elysia 1.4 (`apps/api`) |
+| Mobile | Expo SDK 57 / React Native 0.86 / expo-router (`apps/mobile`) |
+| Base de données | PostgreSQL + Drizzle ORM (`packages/db`) |
+| Typage client↔serveur | Eden Treaty (`@elysiajs/eden`) |
+| Cache de données mobile | TanStack Query |
+| TypeScript | 6.0.3 (version épinglée par le SDK Expo 57) |
+
+## Arborescence
+
+```
+kalou/
+├── apps/
+│   ├── api/          Serveur Elysia (Bun) — expose le type `App`
+│   └── mobile/       Application Expo
+├── packages/
+│   ├── db/           Schéma Drizzle, client Postgres, migrations
+│   └── typescript-config/  Configs tsconfig partagées
+├── turbo.json
+└── bunfig.toml       linker hoisté (requis par Metro)
+```
+
+## Typage de bout en bout
+
+`apps/api` exporte le type de son application ; `apps/mobile` le consomme via Eden Treaty.
+Aucun codegen, aucune duplication de types :
+
+```ts
+// apps/api/src/app.ts
+export type App = typeof app
+
+// apps/mobile/src/lib/api.ts
+import type { App } from '@kalou/api'
+export const api = treaty<App>(baseUrl)
+```
+
+Renommer un champ d'une route casse la compilation du mobile. L'import étant
+`import type`, aucun code serveur n'entre dans le bundle React Native.
+
+La chaîne complète est : **schéma Drizzle → `drizzle-typebox` → validation Elysia →
+OpenAPI + types Eden**. Le schéma de la base est la source unique de vérité.
+
+## Démarrage
+
+Prérequis : [Bun](https://bun.sh) ≥ 1.4 et un PostgreSQL accessible.
+
+```bash
+bun install
+cp .env.example .env          # renseigner DATABASE_URL
+bun run db:generate           # générer la migration depuis le schéma
+bun run db:migrate            # l'appliquer
+```
+
+Lancer les deux applications :
+
+```bash
+bun run dev                   # api + mobile
+bun run dev:api               # http://localhost:3000 — docs sur /docs
+bun run dev:mobile            # serveur Expo
+```
+
+## Scripts
+
+| Commande | Effet |
+|---|---|
+| `bun run dev` | Démarre toutes les apps |
+| `bun run build` | Build de tous les packages |
+| `bun run typecheck` | `tsc --noEmit` sur tout le monorepo |
+| `bun run lint` | Lint |
+| `bun run db:generate` | Génère une migration à partir du schéma Drizzle |
+| `bun run db:migrate` | Applique les migrations |
+| `bun run db:studio` | Ouvre Drizzle Studio |
+
+## Notes d'implémentation
+
+- **`@sinclair/typebox` est épinglé en `^0.34.52` dans `apps/api`.** Elysia le déclare
+  en peer dependency, mais la chaîne de dépendances d'Expo (jest) remonte une 0.27
+  qui shadowe la bonne version et casse le typage des schémas.
+- **`pg` est une devDependency de `packages/db`** : `drizzle-kit` ne sait pas se
+  connecter via `Bun.sql`. Le runtime de l'API, lui, utilise `drizzle-orm/bun-sql`
+  et n'embarque aucun driver Node.
+- **`apps/mobile/expo-env.d.ts` est versionné** (le template Expo l'ignore par défaut)
+  pour que `bun run typecheck` fonctionne sur un clone frais et en CI.
+- **`metro.config.js`** déclare la racine du monorepo. `disableHierarchicalLookup`
+  est volontairement laissé à `false` : utile avec pnpm, nuisible avec le linker
+  hoisté de Bun.
+- L'URL de l'API en dev est déduite de l'IP LAN du serveur Expo
+  (`Constants.expoConfig.hostUri`), pour que l'app fonctionne sur un téléphone
+  physique sans configuration. Surcharge possible via `EXPO_PUBLIC_API_URL`.
+
+## Reste à faire
+
+- Authentification (Better Auth s'intègre à Elysia et gère le cas mobile).
+- Déploiement de l'API (`apps/api/Dockerfile` est prêt, image `oven/bun`).
