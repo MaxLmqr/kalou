@@ -20,8 +20,10 @@ recalibration automatique du budget sur la perte de poids réellement observée.
 
 ## L'utilisateur
 
-Une personne seule, qui veut perdre du poids durablement et sans se transformer en
-comptable de son assiette. Elle accepte de photographier ses repas et de se peser
+**Une seule personne : l'auteur de l'application.** Ce n'est pas un persona, c'est une
+contrainte de conception — il n'y a pas de cas limite à couvrir « pour les autres », pas
+de parcours d'inscription, pas de compromis entre profils divergents. Quelqu'un qui veut
+perdre du poids durablement sans se transformer en comptable de son assiette. Elle accepte de photographier ses repas et de se peser
 régulièrement ; elle n'acceptera pas de peser ses aliments ni de renseigner des
 fiches nutritionnelles. Elle n'est pas athlète : le sport est occasionnel, pas
 structurant.
@@ -77,8 +79,9 @@ Explicitement hors périmètre v1, pour que la v1 existe :
 | Hydratation | Les boissons comptent pour leurs calories ; le suivi du volume est un autre produit. |
 | Social, défis, séries, gamification | Contraire au principe « sans jugement ». |
 | Coach conversationnel | L'IA sert à estimer, pas à converser. |
-| Multi-appareil temps réel, web | Un appareil, une personne. |
-| Export de données | Nécessaire à terme (portabilité RGPD), pas au premier jour. |
+| Multi-appareil, web | Un appareil, une personne — donc un seul écrivain, et aucun moteur de synchronisation. |
+| Comptes, inscription, authentification tierce | Un utilisateur unique, pré-créé. Un jeton en configuration tient lieu d'accès. |
+| Export de données, portabilité | Les données sont sur une base personnelle, accessibles directement en SQL. |
 | Jeûne intermittent, cycles, recharges | Complexité de modèle sans bénéfice sur l'objectif de départ. |
 
 ## Critères de réussite

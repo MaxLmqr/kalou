@@ -74,19 +74,22 @@ Retenue : **la table CIQUAL de l'ANSES**, référence nutritionnelle française.
 | Contenu | ~3 200 aliments génériques, crus et préparés | ~3 M produits de marque |
 | Adapté à | Ingrédients et plats maison — le besoin exprimé | Produits emballés, scan de code-barres |
 | Qualité | Mesures de laboratoire, homogènes | Contributive, très inégale |
-| Volume | ~2 Mo — embarquable dans l'application | Inembarquable, nécessite une API |
+| Volume | ~2 Mo — embarquable si un jour c'est utile | Inembarquable, nécessite une API |
 | Licence | Licence Ouverte / Etalab 2.0 | ODbL |
-| Hors ligne | Total | Impossible |
 
 CIQUAL est le bon outil pour « pois chiches » et « pignons de pin » ; Open Food Facts
 serait le bon outil pour « barre Granola », c'est-à-dire pour le scan de code-barres,
 qui reste hors v1 (cf. [07](07-roadmap.md)).
 
-**Obligations** : la Licence Ouverte 2.0 impose la mention de la paternité. Un écran
-« Sources » doit citer *« ANSES. Table de composition nutritionnelle des aliments
-Ciqual »* avec la version importée. La **version du jeu de données est figée à
-l'import** et enregistrée : sans cela, une mise à jour ANSES modifierait
-silencieusement des valeurs déjà utilisées dans l'historique.
+**Attribution** : la Licence Ouverte 2.0 impose la mention de la paternité — *« ANSES.
+Table de composition nutritionnelle des aliments Ciqual »*, avec la version importée.
+Pour un usage personnel non distribué, un commentaire dans le script d'import et une
+ligne dans le README suffisent ; un écran « Sources » deviendrait nécessaire le jour
+d'une distribution.
+
+La **version du jeu de données est figée à l'import** et enregistrée : sans cela, une
+mise à jour ANSES modifierait silencieusement des valeurs déjà utilisées dans
+l'historique.
 
 À faire au moment de l'import : vérifier la version publiée la plus récente sur le site
 de l'ANSES, et n'importer que les colonnes utiles (énergie kcal, protéines, glucides,
@@ -111,9 +114,11 @@ Taper « pois chiche » et recevoir onze lignes indiscernables est un échec pro
 c'est exactement la friction que Kalou existe pour supprimer. Quatre mesures, à
 implémenter ensemble :
 
-1. **Sous-ensemble curé** — environ 300 aliments courants marqués `promu`, remontés en
+1. **Sous-ensemble curé** — environ 150 aliments courants marqués `promu`, remontés en
    tête et seuls affichés par défaut. Le reste de CIQUAL n'apparaît que sur demande
-   explicite (« voir toutes les variantes »).
+   explicite (« voir toutes les variantes »). 150 suffisent pour une cuisine
+   personnelle : le premier jet est dans
+   [`data/aliments-premier-jet.csv`](data/aliments-premier-jet.csv).
 2. **Libellés réécrits** — « Pois chiches cuits » plutôt que « Pois chiches, cuits à
    l'eau, non salés », le libellé CIQUAL d'origine restant conservé en second champ.
    Réécriture manuelle sur le sous-ensemble curé uniquement.
@@ -133,10 +138,11 @@ Ordre de tri retenu :
 4. reste de CIQUAL, par similarité — sur demande
 ```
 
-**Implémentation de la recherche** : `unaccent` + `pg_trgm` côté Postgres ; index FTS5
-sur la copie SQLite embarquée côté mobile. La recherche doit fonctionner **hors ligne
-et sans latence** — c'est ce qui fait de la composition manuelle le chemin fiable
-quand le réseau manque, là où l'estimation IA doit attendre.
+**Implémentation de la recherche** : `unaccent` + `pg_trgm` côté Postgres, servie par
+l'API. La copie SQLite embarquée avec index FTS5, qui rendrait la recherche disponible
+hors ligne, est **reportée** (cf. [06](06-api.md) § 7) : elle demande un protocole de
+versions pour un confort marginal en usage personnel. Hors réseau, le composant `libre`
+reste le chemin de secours complet.
 
 ## 6. Portions domestiques
 
@@ -199,9 +205,10 @@ citées ici sont indicatives et proviendront du jeu CIQUAL importé.
 
 ## 8. Aliments personnels et repas enregistrés
 
-**Aliment personnel** — créé par l'utilisateur quand la base ne suffit pas : libellé,
-kcal pour 100 g *ou* kcal par portion, macros optionnelles. Privé, jamais partagé,
-indexé dans sa recherche au même rang que les aliments promus.
+**Aliment perso** — créé quand la base ne suffit pas : libellé, kcal pour 100 g *ou*
+kcal par portion, macros optionnelles. Indexé dans la recherche au même rang que les
+aliments promus. C'est le complément naturel de CIQUAL pour les produits du quotidien
+qui n'y figurent pas (une marque précise, un plat du traiteur d'en bas).
 
 **Repas enregistré** — une composition sauvegardée sous un nom (« mon houmous », « bol
 du midi »), réutilisable en un tap et **redimensionnable** par un facteur (× 0,5, × 2)
@@ -223,7 +230,7 @@ gestion d'ingrédients, de rendement ni de portions produites.
    l'entrée : corriger les frites ne gèle pas le burger.
 4. Un composant `reference` fige `kcal_ref_utilise` à l'écriture : une mise à jour du
    jeu CIQUAL ne réécrit pas l'historique.
-5. Supprimer un aliment personnel ne supprime pas les composants qui le citent — ils
+5. Supprimer un aliment perso ne supprime pas les composants qui le citent — ils
    conservent leur libellé et leurs calories figés.
 6. Arrondi à l'unité par composant, puis somme. Pas de somme sur des flottants
    affichés arrondis, sinon le total ne correspond pas aux lignes affichées.
@@ -241,9 +248,10 @@ sans conséquence, le composant reste de type `ia`.
 
 ## 11. Mise à jour du jeu de référence
 
-Le jeu CIQUAL est versionné (`reference_version`). Le client télécharge la version
-courante à l'installation puis les deltas. Un aliment retiré d'une version à l'autre est
-marqué `actif = false` plutôt que supprimé — l'historique doit rester lisible.
+Le jeu CIQUAL est importé une fois, sa version enregistrée dans `reference_version`.
+Il n'y a pas de protocole de distribution ni de deltas : réimporter, c'est relancer le
+script.
 
-Aucune mise à jour ne modifie une valeur déjà utilisée dans une entrée passée
-(invariant § 9.4).
+Un aliment retiré d'une version à l'autre est marqué `actif = false` plutôt que
+supprimé — l'historique doit rester lisible. Et aucune réimportation ne modifie une
+valeur déjà utilisée dans une entrée passée (invariant § 9.4).

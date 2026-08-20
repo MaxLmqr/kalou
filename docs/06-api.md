@@ -12,24 +12,26 @@ Le type est le contrat : aucune duplication de schéma entre client et serveur.
   sinon la moindre évolution du modèle exige une mise à jour de l'application, et les
   deux implémentations divergent.
 - **Écriture idempotente.** Toute écriture accepte un en-tête `Idempotency-Key` ; le
-  client hors ligne rejoue sa file sans risque de doublon.
+  client hors ligne rejoue sa file sans risque de doublon. C'est ce qui remplace, à lui
+  seul, un moteur de synchronisation (§ 13).
 - **Identifiants générés par le client.** UUID v7 côté mobile : une entrée existe et
   s'affiche avant toute connexion.
 - **Validation par schéma** aux frontières (`t.Object` d'Elysia), avec erreurs typées.
 
-## 2. Authentification
+## 2. Accès
 
-```
-POST /auth/apple          { identity_token }              → { access_token, refresh_token }
-POST /auth/google         { id_token }                    → { access_token, refresh_token }
-POST /auth/email/request  { email }                       → 204   (envoi d'un code à 6 chiffres)
-POST /auth/email/verify   { email, code }                 → { access_token, refresh_token }
-POST /auth/refresh        { refresh_token }               → { access_token }
-POST /auth/logout                                          → 204
-```
+Pas d'authentification. Un **jeton statique** en variable d'environnement, partagé entre
+l'API et l'application, envoyé en `Authorization: Bearer <token>` sur chaque requête.
+Toute requête sans le bon jeton reçoit un `401`.
 
-JWT court (15 min) + refresh token rotatif (30 jours). `Authorization: Bearer` sur
-tout le reste.
+C'est suffisant et proportionné : un seul utilisateur, un seul appareil. Les providers
+tiers, les codes par e-mail et la rotation de jetons demanderaient une infrastructure
+d'envoi de mails et des entitlements Apple pour protéger des données qui n'intéressent
+personne d'autre.
+
+> Corollaire : l'API ne doit pas être exposée publiquement sans TLS, et le jeton doit
+> être long (32 octets aléatoires). C'est la seule mesure de sécurité du système, elle
+> mérite d'être correcte.
 
 ## 3. Profil et objectif
 
@@ -136,9 +138,9 @@ GET  /foods?q=pois+chiche&limit=20&toutes_variantes=false
      → { resultats: Food[], plus_de_variantes: boolean }
 
 GET  /foods/:id                    → Food & { portions: Portion[] }
-POST /foods        { libelle, kcal_100g, unite_base, macros? }  → Food   (aliment personnel)
-PATCH /foods/:id   { ... }         → Food     (aliment personnel uniquement)
-DELETE /foods/:id                  → 204      (aliment personnel ; les composants sont conservés)
+POST /foods        { libelle, kcal_100g, unite_base, macros? }  → Food   (aliment perso)
+PATCH /foods/:id   { ... }         → Food     (aliment perso uniquement)
+DELETE /foods/:id                  → 204      (aliment perso ; les composants sont conservés)
 ```
 
 Le classement des résultats est calculé par le serveur selon l'ordre du § 5 de
@@ -148,18 +150,16 @@ promus, puis le reste de CIQUAL sur demande. Le client ne trie pas.
 `plus_de_variantes` permet d'afficher « voir toutes les variantes » sans second appel à
 vide.
 
-### Jeu de référence embarqué
+### Jeu de référence embarqué — reporté
 
-```
-GET /foods/reference?version=<version_locale>
-    → { version, complet: boolean, foods: [], portions: [], aliases: [],
-        retires: string[] }
-```
+Un endpoint `GET /foods/reference` servant le jeu complet au client, une copie SQLite
+locale et un index FTS5 rendraient la recherche disponible hors ligne. **Ce n'est pas
+dans la v1** : la recherche par API suffit tant qu'on est chez soi ou en 4G, et le
+protocole de versions et de deltas coûterait plus cher que le confort gagné.
 
-Appelé à l'installation (jeu complet, ~2 Mo) puis en delta. Le client tient une copie
-SQLite avec index FTS5 : **la recherche d'aliments fonctionne hors ligne et sans
-latence**, contrairement à l'estimation IA. `retires` liste les `id` passés à
-`actif = false`.
+Le jeu CIQUAL est donc importé une fois côté serveur, sa version enregistrée, et c'est
+tout. Si l'absence de recherche hors ligne devient gênante à l'usage, cet endpoint est
+la réponse — la structure de données ne changera pas.
 
 ## 8. Repas enregistrés
 
@@ -222,29 +222,31 @@ GET /stats/weekly?weeks=12   → [{ semaine, apports_moyens, depense_moyenne,
 Le couple `perte_predite` / `perte_observee` est l'indicateur de véracité du modèle.
 Il est affiché à l'utilisateur **et** suivi comme métrique produit.
 
-## 13. Synchronisation hors ligne
+## 13. Mode hors ligne
 
-Le mobile tient une base locale (SQLite) et une file d'écritures.
+**Il n'y a pas de synchronisation, parce qu'il n'y a qu'un écrivain.** Un seul appareil
+écrit, le serveur est la source de vérité, et aucun conflit n'est possible. Le moteur
+de synchronisation différentielle (pull par curseur, résolution de conflits,
+suppressions logiques) est donc retiré : c'était la pièce la plus lourde de la
+spécification, pour un problème qui n'existe pas ici.
 
-```
-GET  /sync?since=<timestamp>   → { food_entries: [], activity_entries: [],
-                                   weigh_ins: [], favorites: [], foods: [],
-                                   deleted_ids: [], server_time }
-POST /sync                     { operations: [{ op, entity, payload, idempotency_key }] }
-                               → { applied: [], conflicts: [] }
-```
+Ce qui reste, et qui suffit :
 
-- **Pull** par `updated_at > since`, suppressions incluses via `deleted_at`.
-- **Push** en lot, chaque opération portant sa clé d'idempotence.
-- **Conflits** : dernière écriture gagnante par entité, **sauf** si
-  `edited_by_user = true` côté serveur — une correction humaine ne perd jamais contre
-  une écriture automatique.
-- Les entrées alimentaires et les favoris se synchronisent **avec leurs composants**,
-  comme un tout : un repas partiellement transmis n'a pas de sens.
-- `foods` ne concerne ici que les **aliments personnels**. Le jeu de référence CIQUAL a
-  son propre canal versionné (§ 7), qui n'est pas lié au compte.
-- Les `daily_summaries` ne sont **jamais** synchronisés : ils sont dérivés, et le
-  serveur en est seul propriétaire.
+- **Une file d'envoi locale (outbox).** Toute écriture est enregistrée localement puis
+  postée ; en cas d'échec réseau, elle est rejouée. L'`Idempotency-Key` garantit
+  qu'un rejeu ne crée pas de doublon.
+- **Des identifiants générés par le client**, donc une entrée existe et s'affiche avant
+  toute connexion.
+- **Un cache de lecture** de la journée courante, pour que l'écran d'accueil s'affiche
+  hors réseau.
+- **La saisie d'un composant `libre`** (libellé + calories) ne demande jamais le réseau.
+  C'est le chemin de secours complet : la recherche d'aliments et l'estimation IA, elles,
+  ont besoin de l'API.
+
+Ce qu'on accepte en échange : l'application ne fonctionne pas hors ligne sur un
+appareil neuf (aucun cache), et la recherche d'aliments est indisponible sans réseau.
+Deux limitations sans conséquence pour un usage personnel — et si la seconde devenait
+gênante, le jeu CIQUAL peut être embarqué (§ 7) sans rien changer d'autre.
 
 ## 14. Erreurs
 
@@ -261,7 +263,8 @@ Format unique :
 | Code HTTP | Usage |
 |---|---|
 | 400 | Validation de schéma |
-| 401 / 403 | Authentification ; accès à la ressource d'un autre utilisateur ; tentative de modification d'un aliment de référence CIQUAL (seuls les aliments personnels sont modifiables) |
+| 401 | Jeton absent ou invalide |
+| 403 | Tentative de modification d'un aliment de référence CIQUAL (seuls les aliments perso sont modifiables) |
 | 404 | Ressource absente ou supprimée logiquement |
 | 409 | Conflit d'idempotence avec une charge différente |
 | 422 | Règle métier (plancher de sécurité, objectif hors limites) |
@@ -274,6 +277,5 @@ Format unique :
 |---|---|---|
 | Clôture de journée | Chaque heure (par fuseau) | Fige les `daily_summaries` de la journée écoulée |
 | Calibration | Quotidien, après clôture | Recalcule le socle, applique les garde-fous |
-| Purge | Quotidien | Images des comptes supprimés, estimations de plus de 90 jours |
-| Agrégation des usages | Quotidien | `foods.usages_globaux`, alimente le classement par défaut de la recherche |
+| Purge | Quotidien | Vignettes orphelines, estimations de plus de 90 jours |
 | Notifications | Selon profil | Rappel de pesée, récapitulatif du soir |

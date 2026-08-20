@@ -14,7 +14,7 @@ pas sur ce chemin.
 - Monorepo Bun + Turbo, `apps/api` (Elysia), `apps/mobile` (Expo), `packages/db`
   (Drizzle + Postgres).
 - Migrations, seed du référentiel `activities` depuis la table MET.
-- Authentification (Apple, Google, e-mail à code).
+- Jeton d'accès statique en configuration — pas d'authentification à construire.
 - **Import CIQUAL** : script d'import du jeu ANSES vers `foods` (+ `food_portions`),
   version figée et enregistrée, extensions `pg_trgm` et `unaccent`. Indépendant du
   reste, donc parallélisable dès maintenant.
@@ -38,10 +38,11 @@ l'estimation. C'est aussi ce qui permet de tester la boucle sur soi pendant que
 l'estimation se construit. Il livre en outre un chemin de saisie **complet et
 autonome** : si l'estimation IA déçoit au jalon 2, l'application reste utilisable.
 
-**Le sous-ensemble curé** (~300 aliments réécrits, promus, avec alias et portions) est
-un travail manuel à mener en parallèle de ce jalon. Sans lui, la recherche renvoie onze
-variantes de pois chiches et le composeur est inutilisable — c'est la tâche la plus
-sous-estimée de la roadmap.
+**Le sous-ensemble curé** (~150 aliments réécrits, promus, avec alias et portions) est
+un travail de contenu à mener en parallèle de ce jalon. Sans lui, la recherche renvoie
+onze variantes de pois chiches et le composeur est inutilisable. Premier jet dans
+[`data/aliments-premier-jet.csv`](data/aliments-premier-jet.csv), à rapprocher des
+codes CIQUAL au moment de l'import.
 
 ## Jalon 2 — Estimation IA
 
@@ -82,16 +83,19 @@ et l'historisation.
 
 ## Jalon 5 — Robustesse
 
-**Critère de sortie : l'application est utilisable dans le métro et en avion.**
+**Critère de sortie : une saisie faite sans réseau n'est jamais perdue.**
 
-- Base locale SQLite, file d'écritures, `GET/POST /sync`.
-- **Jeu CIQUAL embarqué** (`GET /foods/reference`) avec index FTS5 : la recherche
-  d'aliments devient instantanée et disponible hors ligne.
+- File d'envoi locale (outbox) avec rejeu et `Idempotency-Key`, cache de lecture de la
+  journée courante.
 - File d'estimations différées.
 - Repas enregistrés et réutilisations en un tap, avec redimensionnement (dépend d'un
   historique réel — donc après les jalons 2 et 3).
-- Aliments personnels.
+- Aliments perso.
 - Notifications.
+
+Ce jalon a fondu avec le recadrage en usage personnel : sans second appareil, il n'y a
+ni synchronisation différentielle, ni résolution de conflits, ni jeu CIQUAL embarqué à
+distribuer. Il ne reste que le rejeu des écritures, qui est le seul vrai besoin.
 
 ## Après la v1
 
@@ -99,15 +103,15 @@ Par ordre d'intérêt décroissant, sans engagement de calendrier :
 
 1. **Affichage des macronutriments** — les données sont déjà stockées, c'est du pur
    affichage.
-2. **Pas via Apple Health / Google Fit** — remplace le NEAT forfaitaire par une mesure
-   quotidienne. Le gain est réel mais borné par la calibration.
+2. **Pas via Apple Health** — remplace le NEAT forfaitaire par une mesure quotidienne.
+   Le gain est réel mais borné par la calibration.
 3. **Code-barres et Open Food Facts** pour les produits emballés, là où ni l'IA ni
    CIQUAL ne sont pertinents.
 4. **Recettes structurées** — rendement, portions produites, échelle d'ingrédients. Les
    repas enregistrés redimensionnables du jalon 5 couvrent l'essentiel du besoin ; le
    reste ne se justifie que si l'usage le demande.
-5. **Export des données** (obligation de portabilité RGPD à traiter avant une
-   distribution publique).
+5. **Recherche d'aliments hors ligne** — jeu CIQUAL embarqué et index FTS5, si
+   l'absence de réseau se révèle gênante à l'usage.
 6. **Widget et raccourci Siri** — « ajouter un repas » sans ouvrir l'application. Très
    aligné avec le principe des trois taps.
 

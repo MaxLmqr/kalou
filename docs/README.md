@@ -16,6 +16,7 @@ structure technique de l'application, indépendamment de l'implémentation en co
 | 06 | [API](06-api.md) | Endpoints, contrats, mode hors-ligne, idempotence |
 | 07 | [Roadmap](07-roadmap.md) | Découpage v1, jalons, ce qui attend |
 | 08 | [Base d'aliments](08-base-aliments.md) | Composition d'un repas, source CIQUAL, recherche, portions |
+| — | [`data/`](data/) | Jeu de curation : 203 aliments promus, libellés, alias, portions |
 
 ## Décisions verrouillées
 
@@ -36,19 +37,37 @@ Ces choix sont arbitrés et ne sont pas rediscutés dans les documents :
 5. **Suivi** — calories **et poids** (pesées + objectif de perte). Le poids n'est pas
    une option : c'est lui qui alimente la recalibration.
 
+## Cadre : application personnelle
+
+**Kalou est écrit pour un seul utilisateur — son auteur.** Ce n'est pas une étape
+avant une distribution : c'est le périmètre. Toute la spécification en découle, et
+c'est ce qui justifie l'absence de pans entiers habituellement obligatoires.
+
+Ce qui est délibérément absent, et qu'il faudrait ajouter pour distribuer un jour :
+
+| Absent | Ce qu'il faudrait faire |
+|---|---|
+| Authentification | Un jeton statique en configuration suffit. Sinon : Apple/Google, e-mail à code, rotation, infrastructure d'envoi de mails |
+| Inscription, comptes multiples | Une seule ligne `users`, pré-créée par migration |
+| Synchronisation multi-appareil | Un seul appareil, donc un seul écrivain : une file d'envoi locale remplace tout moteur de synchronisation et sa résolution de conflits |
+| Suppression logique (`deleted_at`) | Sans synchronisation, la suppression physique suffit |
+| RGPD, portabilité, purge | Les données sont sur une base personnelle |
+| Limites anti-abus | Un simple garde-fou de coût sur les appels au modèle |
+| Conformité magasin d'applications (avertissements sanitaires, âge) | Sujet réel dès qu'un tiers utilise l'application |
+| Modèle économique | ~2 $/mois de coût variable, assumé personnellement |
+| i18n, unités impériales | Français et métrique en dur |
+
+La règle à tenir : **ne pas re-spécifier ces sujets « au cas où »**. Ils sont écrits
+ici pour être retrouvés le jour où la question se pose, pas pour être anticipés.
+
 ## Hypothèses prises par défaut
 
-À valider, mais non bloquantes — elles sont assumées dans les documents :
-
-- **Mono-utilisateur par compte**, authentification Sign in with Apple / Google +
-  e-mail à code unique. Pas de mot de passe.
-- **Journée = minuit à minuit** dans le fuseau du profil, avec une bascule optionnelle
-  à 03 h 00 pour les couche-tard (cf. 05).
-- **Hors-ligne** : la saisie fonctionne toujours ; l'estimation IA est mise en file
-  d'attente et se résout au retour du réseau (cf. 04, 06).
-- **Unités métriques** (kg, cm, kcal). Pas de lb/ft en v1.
-- **Une seule langue : le français.** Les libellés d'activités et les prompts IA sont
-  en français, pas de i18n en v1.
+- **Journée = minuit à minuit**, fuseau `Europe/Paris` en configuration
+  d'application (pas un champ de profil), avec une bascule optionnelle à 03 h 00.
+- **Hors-ligne** : la saisie fonctionne toujours — un composant saisi en calories ne
+  demande aucun réseau. La recherche d'aliments et l'estimation IA passent par l'API ;
+  l'estimation est mise en file d'attente et se résout au retour du réseau (cf. 04, 06).
+- **Unités métriques** (kg, cm, kcal).
 
 ## Corrections apportées au cadrage initial
 
@@ -71,17 +90,16 @@ Ces choix sont arbitrés et ne sont pas rediscutés dans les documents :
 
 ## Questions ouvertes
 
-Listées ici plutôt que tranchées seul, car elles engagent le produit :
+Il n'en reste que deux, et ce sont les seules qui ne soient pas techniques :
 
-- **Plancher calorique de sécurité** — 1 500 kcal (homme) / 1 200 kcal (femme) est
-  la valeur retenue par défaut. À confirmer, avec le message d'avertissement associé.
-- **Rythme de perte maximal proposé** — plafonné à 1 % du poids corporel par semaine.
-  Faut-il autoriser au-delà en assumant un avertissement explicite ?
-- **Version CIQUAL à importer** — à figer sur la publication ANSES la plus récente au
-  moment de l'import, et à citer dans l'écran « Sources » (Licence Ouverte 2.0).
-- **Étendue du sous-ensemble curé** — ~300 aliments réécrits et promus est l'ordre de
-  grandeur retenu. C'est un travail manuel : à confirmer avant de le lancer.
-- **Conservation des photos de repas** — vignette conservée pour l'historique, ou
-  suppression immédiate après estimation ? Enjeu RGPD et confiance.
-- **Notifications** — rappel de pesée matinal et récapitulatif du soir sont-ils dans
-  la v1, ou différés ?
+- **Plancher calorique de sécurité** — 1 500 kcal par défaut. Ce n'est plus une
+  question de responsabilité envers des tiers, mais un garde-fou que tu te poses à
+  toi-même : à confirmer ou à ajuster.
+- **Rythme de perte maximal** — plafonné à 1 % du poids corporel par semaine.
+  Autoriser au-delà, en connaissance de cause ?
+
+Tranchées depuis, pour mémoire : les photos de repas gardent une vignette locale
+(plus de débat RGPD) ; les notifications restent dans le périmètre parce qu'elles sont
+utiles et coûtent peu ; la version CIQUAL sera celle publiée au moment de l'import ; le
+sous-ensemble curé est réduit à ~150 aliments, taille suffisante pour une cuisine
+personnelle.

@@ -176,18 +176,18 @@ réels avant toute décision d'échelle.
 4. **Modèle moins cher pour le chemin texte seul** — décrire « un café au lait » ne
    demande pas de vision. À arbitrer plus tard, en mesurant l'écart de qualité.
 
-Ces chiffres justifient une limite anti-abus (par exemple 40 estimations par jour et
-par compte) plutôt qu'une dégradation du modèle par défaut.
+Il n'y a pas d'abus à prévenir avec un seul utilisateur : la limite quotidienne (40
+estimations) n'est qu'un **fusible de coût** contre une boucle de rejeu qui partirait
+en vrille. Elle ne justifie pas de dégrader le modèle par défaut.
 
-## 8. Confidentialité
+## 8. Données envoyées
 
-- Les photos sont envoyées à l'API Anthropic pour estimation. **Cela doit être dit
-  explicitement** à l'onboarding, avant la première photo — pas enterré dans des CGU.
-- Conservation : question ouverte (cf. [README](README.md)). Recommandation :
-  vignette 256 px conservée pour l'historique visuel, original supprimé après
-  estimation.
-- Aucune donnée d'identité (e-mail, identifiant) n'est envoyée dans le prompt.
-- La suppression du compte supprime les images et les enregistrements d'estimation.
+- Les photos de repas sont envoyées à l'API Anthropic pour estimation. C'est le seul
+  flux sortant de l'application.
+- Conservation : vignette 256 px conservée localement pour l'historique visuel,
+  original supprimé après estimation.
+- Le prompt ne contient que la photo ou le texte du repas : ni identifiant, ni
+  historique, ni donnée de profil (le poids n'améliore pas l'estimation d'une assiette).
 
 ## 9. Journalisation
 

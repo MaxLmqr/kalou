@@ -139,21 +139,21 @@ Formulation factuelle, sans rouge.
 
 ## 3. Onboarding
 
-Cinq écrans, une information par écran, aucun formulaire dense. Objectif : première
-saisie en moins de 60 secondes.
+Quatre écrans, une information par écran. L'écran de bienvenue est supprimé : il n'y a
+personne à convaincre. Cet onboarding ne sera vu **qu'une seule fois** — il ne mérite
+ni polish ni cas limites, seulement d'être juste.
 
 | # | Écran | Contenu |
 |---|---|---|
-| 1 | Bienvenue | Une phrase sur le principe, un bouton. Pas de carrousel de vente. |
-| 2 | Toi | Sexe (avec la note du § 2 de [02](02-modele-calorique.md)), date de naissance, taille |
-| 3 | Ton poids | Poids actuel, poids souhaité (optionnel) |
-| 4 | Ton rythme | Trois cartes : 0,25 / 0,5 / 0,75 kg par semaine, avec la date d'atteinte projetée sur chacune. Défaut : 0,5. |
-| 5 | Ton budget | Le chiffre, et une phrase d'honnêteté : « C'est une estimation. Dans deux semaines, Kalou l'aura mesurée pour de vrai. » |
+| 1 | Toi | Sexe (cf. § 2 de [02](02-modele-calorique.md)), date de naissance, taille |
+| 2 | Ton poids | Poids actuel, poids souhaité (optionnel) |
+| 3 | Ton rythme | Trois cartes : 0,25 / 0,5 / 0,75 kg par semaine, avec la date d'atteinte projetée sur chacune. Défaut : 0,5. |
+| 4 | Ton budget | Le chiffre, et une phrase d'honnêteté : « C'est une estimation. Dans deux semaines, Kalou l'aura mesurée pour de vrai. » |
 
 Aucune question sur le niveau d'activité. C'est un gain d'onboarding **et** un gain de
 justesse.
 
-À la sortie de l'écran 5, le menu d'action rapide s'ouvre de lui-même : la première
+À la sortie de l'écran 4, le menu d'action rapide s'ouvre de lui-même : la première
 saisie fait partie de l'onboarding.
 
 ## 4. Écran historique
@@ -182,8 +182,8 @@ Trois états possibles, toujours explicites :
 ## 6. Profil et réglages
 
 Minimal : morphologie, objectif, plancher de sécurité (lecture seule avec explication),
-fuseau et heure de bascule de journée, notifications, suppression du compte et des
-données.
+heure de bascule de journée, notifications. Ni compte, ni sources de données, ni
+suppression — le fuseau horaire est une constante d'application, pas un réglage.
 
 ## 7. Notifications
 

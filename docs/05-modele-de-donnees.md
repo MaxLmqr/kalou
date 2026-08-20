@@ -13,11 +13,11 @@ est nécessaire pour la saisie hors ligne).
   figé. Sans cela, un voyage ou un changement d'heure réécrit l'histoire.
 - **Calories** : entiers, en kcal. Aucun besoin de décimales.
 - **Poids** : `numeric(5,2)` en kg.
-- **Suppression** : logique (`deleted_at`), pour permettre la synchronisation
-  différentielle avec un client hors ligne. Exception : les tables filles
-  (`food_entry_items`, `favorite_items`) sont supprimées physiquement en cascade — elles
-  se synchronisent avec leur parent, pas séparément.
-- **`updated_at`** sur toutes les tables synchronisables, indexé, pour le `pull`.
+- **Suppression** : physique. Il n'y a qu'un écrivain et aucune synchronisation
+  différentielle à alimenter : la suppression logique (`deleted_at`) et les clauses
+  `WHERE deleted_at IS NULL` qui vont avec seraient du poids mort.
+- **`updated_at`** conservé partout : utile au débogage et à un éventuel rattrapage,
+  sans être un mécanisme.
 
 ## 2. Tables
 
@@ -27,10 +27,13 @@ Identité et authentification.
 | Colonne | Type | Notes |
 |---|---|---|
 | `id` | uuid PK | |
-| `email` | text unique | |
-| `apple_sub`, `google_sub` | text unique nullable | Sign in with Apple / Google |
 | `created_at`, `updated_at` | timestamptz | |
-| `deleted_at` | timestamptz null | Suppression de compte |
+
+> **Une seule ligne**, insérée par migration. Pas d'e-mail, pas d'identité tierce, pas
+> d'inscription : l'accès à l'API se fait par un jeton statique en configuration (cf.
+> [06](06-api.md) § 2). La table existe uniquement pour que les `user_id` des autres
+> tables aient une cible — la retirer coûterait plus cher en réécritures qu'elle ne
+> rapporte.
 
 ### `profiles`
 Morphologie et préférences. Une ligne par utilisateur.
@@ -41,7 +44,6 @@ Morphologie et préférences. Une ligne par utilisateur.
 | `sexe` | enum(`homme`,`femme`) | Paramètre de la formule BMR, cf. [02](02-modele-calorique.md) § 2 |
 | `date_naissance` | date | L'âge est dérivé, jamais stocké |
 | `taille_cm` | smallint | |
-| `timezone` | text | IANA, ex. `Europe/Paris` |
 | `heure_bascule_journee` | smallint | 0 par défaut, 3 pour les couche-tard |
 | `notifications_pesee`, `notifications_recap` | boolean | |
 
@@ -71,7 +73,7 @@ Pesées brutes. La tendance n'est **pas** stockée ici — elle est dérivée (�
 | `occurred_at` | timestamptz | |
 | `poids_kg` | numeric(5,2) | |
 | `est_aberrante` | boolean | Écart > 3 kg avec la tendance ; incluse mais signalée |
-| `updated_at`, `deleted_at` | | |
+| `updated_at` | | |
 
 ### `food_entries`
 Entrées alimentaires (nourriture et boissons — pas de distinction structurelle, un
@@ -93,7 +95,7 @@ verre de jus est un aliment liquide).
 | `favorite_id` | uuid FK null | Si créée depuis un favori |
 | `edited_by_user` | boolean | Vrai si au moins un composant a été corrigé |
 | `image_ref` | text null | Clé de la vignette |
-| `updated_at`, `deleted_at` | | |
+| `updated_at` | | |
 
 > Une entrée en `en_attente` est **exclue** du total du jour, et le nombre d'entrées
 > en attente est renvoyé à part (cf. [06](06-api.md)) pour que l'interface puisse le dire.
@@ -131,8 +133,7 @@ Base d'aliments : jeu de référence CIQUAL + aliments personnels. Cf.
 | Colonne | Type | Notes |
 |---|---|---|
 | `id` | uuid PK | |
-| `user_id` | uuid FK null | `null` = aliment de référence, sinon aliment personnel privé |
-| `source` | enum(`ciqual`,`utilisateur`) | |
+| `source` | enum(`ciqual`,`perso`) | Pas de `user_id` : tous les aliments appartiennent au seul utilisateur |
 | `code_source` | text null | Code CIQUAL d'origine, pour la traçabilité et les mises à jour |
 | `libelle` | text | Libellé affiché, réécrit pour le sous-ensemble curé |
 | `libelle_origine` | text null | Libellé CIQUAL brut, conservé |
@@ -140,13 +141,12 @@ Base d'aliments : jeu de référence CIQUAL + aliments personnels. Cf.
 | `kcal_100g` | numeric(6,1) | Unité de référence |
 | `proteines_100g`, `glucides_100g`, `lipides_100g`, `fibres_100g` | numeric(5,1) null | |
 | `unite_base` | enum(`g`,`ml`) | `ml` pour les liquides |
-| `promu` | boolean | Appartient au sous-ensemble curé (~300 aliments) |
-| `usages_globaux` | integer | Compteur agrégé, pour le classement par défaut |
-| `reference_version` | text null | Version du jeu CIQUAL qui a fourni la ligne |
+| `promu` | boolean | Appartient au sous-ensemble curé (~150 aliments) |
+| `reference_version` | text null | Version du jeu CIQUAL qui a fourni la ligne, pour la traçabilité de l'import |
 | `actif` | boolean | Retrait sans suppression |
 
-> Contrainte : `user_id IS NULL` ⇔ `source = 'ciqual'`. Un aliment personnel est
-> toujours rattaché à son propriétaire et n'est jamais visible d'un autre compte.
+> `usages_globaux` (compteur agrégé inter-utilisateurs) est retiré : avec un seul
+> utilisateur, `food_usages` est déjà le classement global.
 
 ### `food_portions`
 Portions domestiques d'un aliment (cf. [08](08-base-aliments.md) § 6).
@@ -160,21 +160,21 @@ Portions domestiques d'un aliment (cf. [08](08-base-aliments.md) § 6).
 | `par_defaut` | boolean | Portion proposée en premier |
 
 ### `food_aliases`
-Synonymes de recherche. Alimentée à la main, puis par les recherches infructueuses
-observées.
+Synonymes de recherche. Alimentée à la main depuis le jeu de curation (cf.
+[08](08-base-aliments.md)), puis complétée quand une recherche ne trouve rien.
 
 | Colonne | Type | Notes |
 |---|---|---|
 | `food_id` | uuid FK | |
 | `alias_normalise` | text | PK composite avec `food_id` |
 
-### `user_food_usages`
+### `food_usages`
 Historique de consommation par aliment — c'est ce qui fait remonter les bons résultats
 au bout de deux semaines d'usage.
 
 | Colonne | Type | Notes |
 |---|---|---|
-| `user_id`, `food_id` | PK composite | |
+| `food_id` | PK | |
 | `usages` | integer | |
 | `dernier_usage_at` | timestamptz | |
 | `derniere_quantite`, `derniere_unite`, `dernier_portion_id` | | Pré-remplissage du sélecteur de quantité |
@@ -192,7 +192,7 @@ Dépenses sportives.
 | `met` | numeric(4,2) | **Figé** : valeur de la table au moment de la saisie |
 | `poids_utilise_kg` | numeric(5,2) | **Figé** : tendance du jour |
 | `kcal_net` | integer | **Figé** : résultat du calcul, pas recalculé à la lecture |
-| `updated_at`, `deleted_at` | | |
+| `updated_at` | | |
 
 > Les trois champs figés rendent l'historique auditable : on peut recalculer et
 > vérifier une entrée de l'an dernier même si la table MET a changé depuis.
@@ -320,19 +320,11 @@ tant que la journée est en cours).
 
 ```sql
 -- Lecture d'une journée (le chemin le plus chaud de l'application)
-CREATE INDEX ON food_entries (user_id, local_date) WHERE deleted_at IS NULL;
-CREATE INDEX ON activity_entries (user_id, local_date) WHERE deleted_at IS NULL;
+CREATE INDEX ON food_entries (user_id, local_date);
+CREATE INDEX ON activity_entries (user_id, local_date);
 
--- Synchronisation différentielle
-CREATE INDEX ON food_entries (user_id, updated_at);
-CREATE INDEX ON activity_entries (user_id, updated_at);
-CREATE INDEX ON weigh_ins (user_id, updated_at);
-
--- Tendance et calibration
-CREATE INDEX ON weigh_ins (user_id, local_date) WHERE deleted_at IS NULL;
-
--- Une pesée par jour
-CREATE UNIQUE INDEX ON weigh_ins (user_id, local_date) WHERE deleted_at IS NULL;
+-- Tendance, calibration, et une seule pesée par jour
+CREATE UNIQUE INDEX ON weigh_ins (user_id, local_date);
 
 -- Un objectif actif
 CREATE UNIQUE INDEX ON goals (user_id) WHERE fin_le IS NULL;
@@ -345,12 +337,14 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
 CREATE INDEX ON foods USING gin (libelle_normalise gin_trgm_ops) WHERE actif;
 CREATE INDEX ON food_aliases USING gin (alias_normalise gin_trgm_ops);
-CREATE INDEX ON foods (promu) WHERE user_id IS NULL AND actif;
-CREATE INDEX ON foods (user_id) WHERE user_id IS NOT NULL AND actif;
+CREATE INDEX ON foods (promu) WHERE actif;
 
 -- Classement personnel des résultats de recherche
-CREATE INDEX ON user_food_usages (user_id, usages DESC);
+CREATE INDEX ON food_usages (usages DESC);
 ```
+
+Les index de synchronisation différentielle (`(user_id, updated_at)` sur chaque table)
+sont retirés : il n'y a pas de `pull` à servir.
 
 ## 4. Grandeurs dérivées, non stockées
 
@@ -382,7 +376,7 @@ Calculées à la lecture, pour éviter les incohérences :
 7. `activity_entries.kcal_net` est cohérent avec `(met − 1) × 3,5 × poids_utilise_kg /
    200 × duree_min`, à l'arrondi près. Vérifiable a posteriori.
 8. `daily_summaries.budget_kcal` d'une journée close n'est jamais modifié.
-9. `local_date` d'une entrée est cohérent avec `occurred_at`, le `timezone` et
-   l'`heure_bascule_journee` **du moment de l'écriture**.
-10. Un utilisateur supprimé (`users.deleted_at`) voit ses images et ses `estimations`
-   purgées par un travail de fond dans les 30 jours.
+9. `local_date` d'une entrée est cohérent avec `occurred_at`, le fuseau de
+   l'application et l'`heure_bascule_journee` **du moment de l'écriture**.
+10. Une entrée supprimée l'est physiquement, avec ses composants en cascade, et sa
+   vignette est effacée dans le même mouvement.
