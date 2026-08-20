@@ -14,7 +14,8 @@ pas sur ce chemin.
 - Monorepo Bun + Turbo, `apps/api` (Elysia), `apps/mobile` (Expo), `packages/db`
   (Drizzle + Postgres).
 - Migrations, seed du référentiel `activities` depuis la table MET.
-- Jeton d'accès statique en configuration — pas d'authentification à construire.
+- Authentification par code e-mail (Better Auth), avec code de développement
+  connectant n'importe quelle adresse tant qu'aucun envoi d'e-mails n'est branché.
 - **Import CIQUAL** : script d'import du jeu ANSES vers `foods` (+ `food_portions`),
   version figée et enregistrée, extensions `pg_trgm` et `unaccent`. Indépendant du
   reste, donc parallélisable dès maintenant.

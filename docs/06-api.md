@@ -20,13 +20,9 @@ Le type est le contrat : aucune duplication de schéma entre client et serveur.
 
 ## 2. Accès
 
-> **Décision à confirmer.** Le recadrage en usage personnel prévoyait de supprimer
-> toute authentification au profit d'un jeton statique en configuration. Better Auth
-> ayant été implémenté entre-temps, la spécification décrit ici le code qui existe
-> plutôt qu'une intention contredite. Ce qu'il en coûte : un fournisseur d'envoi
-> d'e-mails est nécessaire pour délivrer les codes — c'est la seule dépendance externe
-> de l'application en dehors du modèle d'estimation. Voir la question ouverte dans le
-> [README](README.md).
+> **Décision prise** : Better Auth est conservé. Le recadrage en usage personnel
+> prévoyait un simple jeton statique, mais la bibliothèque était déjà en place et
+> fonctionnelle. Elle ouvre en outre le multi-appareil sans rien reprendre.
 
 Assurée par **Better Auth**, monté sous `/auth`. Les routes ci-dessous sont celles
 de la bibliothèque : les réécrire derrière des alias maison ferait perdre le
@@ -52,6 +48,37 @@ automatiquement ; le client (`createAuthClient`) expose `signIn`, `signOut` et
 Les routes protégées se déclarent avec la macro `auth` d'Elysia, qui résout
 `utilisateur` et `session` et répond `401` en leur absence — la vérification ne
 peut pas être oubliée sur une route.
+
+### Code de développement
+
+Tant qu'aucun fournisseur d'envoi d'e-mails n'est branché, **un code unique connecte
+n'importe quelle adresse**. C'est ce qui permet de se connecter aujourd'hui sans
+infrastructure de mail, et donc de reporter cette dépendance jusqu'à ce qu'elle soit
+utile.
+
+```
+POST /auth/sign-in/email-otp   { email: <n'importe laquelle>, otp: AUTH_DEV_OTP }
+     → { token, user }     — le compte est créé s'il n'existe pas
+```
+
+Trois garde-fous, à implémenter **en même temps** que le raccourci — pas après :
+
+1. **Activation explicite** : le contournement n'existe que si la variable
+   d'environnement `AUTH_DEV_OTP` est renseignée. Absente, le code normal à six
+   chiffres est seul valable. Elle n'a pas de valeur par défaut dans le code.
+2. **Refus de démarrer en production** : si `NODE_ENV=production` et que `AUTH_DEV_OTP`
+   est renseignée, l'API s'arrête au démarrage avec une erreur explicite. Un
+   avertissement à chaque démarrage ne suffit pas — personne ne lit les logs de sa
+   propre application.
+3. **Trace visible** : chaque connexion par ce chemin est journalisée en
+   avertissement, avec l'adresse utilisée.
+
+C'est un raccourci de développement, pas un mode d'authentification : il ouvre l'accès
+à **tout le monde** dès que l'API est joignable depuis le réseau. Le garde-fou 2 est ce
+qui fait la différence entre un confort temporaire et une porte ouverte oubliée.
+
+À retirer quand l'envoi d'e-mails sera branché — ou à garder indéfiniment si l'API ne
+sort jamais du réseau local, ce qui est le cas d'usage actuel.
 
 **Apple et Google** arrivent plus tard via `POST /auth/sign-in/social` : Better
 Auth range les identités externes dans la table `accounts`, ce qui rend inutiles
