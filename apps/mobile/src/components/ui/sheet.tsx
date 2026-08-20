@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ScrollView, View, type ViewProps } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/design';
@@ -19,12 +19,28 @@ export type SheetProps = ViewProps & {
  * Contenu d'une feuille modale.
  *
  * La feuille elle-même est native (`presentation: 'formSheet'`) : poignée,
- * coins et geste de fermeture viennent du système. Ce composant ne fournit que
- * la gouttière, le rythme vertical et la zone sûre du bas.
+ * coins et geste de fermeture viennent du système. Ce composant fournit la
+ * gouttière, le rythme vertical, la zone sûre du bas — et l'évitement du
+ * clavier.
+ *
+ * **Ce dernier point n'est pas un détail.** iOS ne redimensionne pas une feuille
+ * quand le clavier apparaît : il la recouvre. Une feuille à champs de saisie et
+ * à bouton ancré devient alors une impasse — on peut taper, mais plus valider.
+ * Les claviers numériques aggravent le cas : ils n'ont pas de touche de retour,
+ * donc aucun moyen de les refermer. D'où le `KeyboardAvoidingView` ici plutôt
+ * que dans chaque écran, et le renvoi du clavier au défilement.
  */
 export function Sheet({ title, children, scroll = false, footer, style, ...rest }: SheetProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+
+  const gouttiere = {
+    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xl,
+    width: '100%' as const,
+    maxWidth: theme.maxContentWidth,
+    alignSelf: 'center' as const,
+  };
 
   const content = (
     <View style={{ gap: theme.spacing.xl }}>
@@ -34,34 +50,20 @@ export function Sheet({ title, children, scroll = false, footer, style, ...rest 
   );
 
   return (
-    <View
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[{ flex: 1, backgroundColor: theme.colors.surface }, style]}
       {...rest}>
       {scroll ? (
         <ScrollView
-          contentContainerStyle={{
-            padding: theme.spacing.lg,
-            paddingTop: theme.spacing.xl,
-            gap: theme.spacing.xl,
-            width: '100%',
-            maxWidth: theme.maxContentWidth,
-            alignSelf: 'center',
-          }}
+          contentContainerStyle={{ ...gouttiere, gap: theme.spacing.xl }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
           showsVerticalScrollIndicator={false}>
           {content}
         </ScrollView>
       ) : (
-        <View
-          style={{
-            padding: theme.spacing.lg,
-            paddingTop: theme.spacing.xl,
-            width: '100%',
-            maxWidth: theme.maxContentWidth,
-            alignSelf: 'center',
-          }}>
-          {content}
-        </View>
+        <View style={gouttiere}>{content}</View>
       )}
 
       {footer ? (
@@ -79,6 +81,6 @@ export function Sheet({ title, children, scroll = false, footer, style, ...rest 
       ) : (
         <View style={{ height: insets.bottom }} />
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }

@@ -69,8 +69,12 @@ export default function MorphologieScreen() {
 
   async function valider() {
     if (!complet) return;
-    await enregistrer.mutateAsync({ sexe, date_naissance: iso, taille_cm: tailleCm });
-    router.back();
+    try {
+      await enregistrer.mutateAsync({ sexe, date_naissance: iso, taille_cm: tailleCm });
+      router.back();
+    } catch {
+      // Rendu par `enregistrer.isError` : la feuille reste ouverte sur la saisie.
+    }
   }
 
   return (

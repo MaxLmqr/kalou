@@ -11,6 +11,7 @@ import {
   MessageErreur,
   PressableSurface,
   Sheet,
+  StatLine,
   Surface,
   Text,
 } from '@/components/ui';
@@ -21,6 +22,14 @@ import { erreurApi } from '@/lib/api';
 
 const RYTHMES = [0.25, 0.5, 0.75] as const;
 const RECOMMANDE = 0.5;
+
+/** Doc 02 § 6 et § 5.4. Chaque plafond a une raison, et elle se dit. */
+const RAISON_DU_PLAFOND: Record<string, string> = {
+  part_du_poids:
+    'Au-delà de 1 % de ton poids par semaine, la perte se fait surtout sur le muscle.',
+  deficit_max: 'Le déficit ne dépasse jamais un quart de ta dépense du jour.',
+  plancher_apport: 'Descendre plus bas te ferait passer sous le plancher de sécurité.',
+};
 
 /**
  * Objectif de perte (doc 02 § 6).
@@ -54,14 +63,51 @@ export default function ObjectifScreen() {
   async function valider() {
     if (!cibleValide) return;
     try {
-      await enregistrer.mutateAsync({
+      const resultat = await enregistrer.mutateAsync({
         rythme_kg_semaine: rythme,
         ...(cibleKg !== undefined ? { poids_cible_kg: cibleKg } : {}),
       });
-      router.back();
+      // Doc 02 § 6 : les plafonds s'appliquent silencieusement **puis
+      // s'expliquent**. Refermer la feuille sur un rythme qu'on n'a pas choisi,
+      // sans un mot, c'est n'appliquer que la moitié de la règle.
+      if (resultat.plafonds_appliques.length === 0) router.back();
     } catch {
       // Rendu par `messageErreur` : la feuille reste ouverte sur la saisie.
     }
+  }
+
+  const ajuste = enregistrer.data;
+  if (ajuste && ajuste.plafonds_appliques.length > 0) {
+    return (
+      <Sheet
+        title="Rythme ajusté"
+        footer={<Button label="Compris" onPress={() => router.back()} />}>
+        <View
+          style={{
+            alignItems: 'center',
+            gap: theme.spacing.xs,
+            marginVertical: theme.spacing.sm,
+          }}>
+          <Text variant="numberLarge">{formatRythme(ajuste.rythme_applique)}</Text>
+          <Text variant="body" color="textSecondary">
+            au lieu de {formatRythme(rythme)}
+          </Text>
+        </View>
+
+        <Surface variant="sunken" style={{ gap: theme.spacing.sm }}>
+          {ajuste.plafonds_appliques.map((motif) => (
+            <Text key={motif} variant="body" color="textSecondary">
+              {RAISON_DU_PLAFOND[motif] ?? motif}
+            </Text>
+          ))}
+        </Surface>
+
+        <Surface variant="accent" style={{ gap: theme.spacing.xs }}>
+          <StatLine label="Ton budget" value={formatKcal(ajuste.budget_estime)} />
+          <StatLine label="Ta dépense estimée" value={formatKcal(ajuste.depense_estimee)} />
+        </Surface>
+      </Sheet>
+    );
   }
 
   return (
