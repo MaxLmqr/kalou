@@ -3,13 +3,19 @@ import { sql } from 'drizzle-orm'
 import { db } from '../index'
 import { activities } from '../schema/activite'
 import { ACTIVITES } from './activities'
+import { importerAliments } from './aliments'
+
+/** Chemin du jeu de curation, relatif à ce module. */
+export function cheminCurationParDefaut(): string {
+  return new URL('../../../../docs/data/aliments-premier-jet.csv', import.meta.url).pathname
+}
 
 /**
- * Alimente les tables de référence. Idempotent : rejouer le seed met à jour les
- * libellés et les MET sans toucher aux entrées d'activité déjà enregistrées, qui
- * portent leur propre MET figé (doc 05, `activity_entries`).
+ * Référentiel MET. Idempotent : rejouer le seed met à jour les libellés et les
+ * MET sans toucher aux entrées d'activité déjà enregistrées, qui portent leur
+ * propre MET figé (doc 05, `activity_entries`).
  */
-export async function seed(): Promise<void> {
+export async function seedActivites(): Promise<void> {
   const resultat = await db
     .insert(activities)
     .values([...ACTIVITES])
@@ -27,7 +33,13 @@ export async function seed(): Promise<void> {
   console.log(`✓ ${resultat.length} activités dans le référentiel MET`)
 }
 
+/** Toutes les données de référence : activités et aliments. */
+export async function seed(cheminCuration = cheminCurationParDefaut()): Promise<void> {
+  await seedActivites()
+  await importerAliments(cheminCuration)
+}
+
 if (import.meta.main) {
-  await seed()
+  await seed(process.argv[2])
   process.exit(0)
 }
