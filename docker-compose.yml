@@ -1,0 +1,26 @@
+# Postgres de développement local.
+#
+# L'image 18 place son PGDATA dans /var/lib/postgresql/18/docker ; c'est le
+# parent /var/lib/postgresql qu'elle déclare en volume, et donc lui qu'on monte.
+services:
+  postgres:
+    image: postgres:18
+    container_name: kalou-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kalou
+    # Lié à la boucle locale uniquement : la base n'est pas exposée au réseau.
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d kalou']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:

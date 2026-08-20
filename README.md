@@ -51,14 +51,20 @@ OpenAPI + types Eden**. Le schéma de la base est la source unique de vérité.
 
 ## Démarrage
 
-Prérequis : [Bun](https://bun.sh) ≥ 1.4 et un PostgreSQL accessible.
+Prérequis : [Bun](https://bun.sh) ≥ 1.4 et Docker.
 
 ```bash
 bun install
-cp .env.example .env          # renseigner DATABASE_URL
+cp .env.example .env          # les valeurs par défaut visent le conteneur
+docker compose up -d          # PostgreSQL 18 sur 127.0.0.1:5432
 bun run db:generate           # générer la migration depuis le schéma
 bun run db:migrate            # l'appliquer
 ```
+
+La base tourne dans le conteneur `kalou-postgres` décrit par `docker-compose.yml`
+(volume nommé `pgdata`, port lié à la boucle locale uniquement). `docker compose
+down` l'arrête sans perdre les données ; `docker compose down -v` supprime aussi
+le volume.
 
 Lancer les deux applications :
 
@@ -79,6 +85,8 @@ bun run dev:mobile            # serveur Expo
 | `bun run db:generate` | Génère une migration à partir du schéma Drizzle |
 | `bun run db:migrate` | Applique les migrations |
 | `bun run db:studio` | Ouvre Drizzle Studio |
+| `docker compose up -d` | Démarre PostgreSQL 18 |
+| `docker compose down` | L'arrête, en conservant le volume |
 
 ## Notes d'implémentation
 
