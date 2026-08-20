@@ -10,14 +10,14 @@ import { profil } from '@/data/exemple';
 
 const PAS_KG = 0.1;
 
-/** Écran 3 — le poids actuel, et le poids souhaité en facultatif assumé. */
+/** Écran 2 — le poids actuel, et le poids souhaité en facultatif assumé. */
 export default function PoidsScreen() {
   const theme = useTheme();
   const [poidsKg, setPoidsKg] = useState(profil.tendanceKg);
 
   return (
     <OnboardingStep
-      etape={3}
+      etape={2}
       titre="Ton poids"
       intro="C'est ce chiffre, suivi dans le temps, qui mesurera ta dépense réelle."
       onBack={() => router.back()}

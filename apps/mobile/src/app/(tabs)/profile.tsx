@@ -12,9 +12,14 @@ const DATE_COURTE = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'l
 /**
  * Profil — volontairement pauvre (docs/03 § 6).
  *
- * Morphologie, objectif, journée, notifications, données. Le plancher de
- * sécurité y est en lecture seule et expliqué : c'est le seul endroit de
- * l'application où le ton d'avertissement est autorisé.
+ * Morphologie, objectif, bascule de journée, notifications. Ni compte, ni
+ * sources de données, ni suppression : l'application est écrite pour une seule
+ * personne, sur une base personnelle. Le plancher de sécurité y est en lecture
+ * seule et expliqué — c'est le seul endroit de l'application où le ton
+ * d'avertissement est autorisé.
+ *
+ * Le dernier bloc n'est pas dans la spécification : ce sont deux commodités de
+ * développement, à retirer quand elles auront cessé de servir.
  */
 export default function ProfilScreen() {
   const theme = useTheme();
@@ -58,8 +63,8 @@ export default function ProfilScreen() {
             onPress={() => {}}
           />
           <Row
-            title="Journée"
-            value="Paris · minuit"
+            title="Bascule de journée"
+            value="Minuit"
             valueTone="textMuted"
             trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
             onPress={() => {}}
@@ -107,20 +112,9 @@ export default function ProfilScreen() {
           />
           <Row
             title="Revoir l'onboarding"
-            detail="Refaire les cinq écrans et recalculer le budget estimé"
+            detail="Refaire les quatre écrans et recalculer le budget estimé"
             trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
-            onPress={() => router.push('/bienvenue')}
-          />
-          <Row
-            title="Sources des données"
-            detail="CIQUAL (ANSES), Compendium of Physical Activities"
-            trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
-            onPress={() => {}}
-          />
-          <Row
-            title="Supprimer mon compte et mes données"
-            trailing={<Icon name="chevronRight" size={18} color="borderStrong" strokeWidth={2} />}
-            onPress={() => {}}
+            onPress={() => router.push('/toi')}
           />
         </List>
       </Section>
