@@ -17,6 +17,8 @@
     "lint": "turbo run lint",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
+    "db:seed": "turbo run db:seed",
+    "db:reset": "turbo run db:reset",
     "db:studio": "turbo run db:studio"
   },
   "devDependencies": {

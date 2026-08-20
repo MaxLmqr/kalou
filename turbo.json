@@ -44,6 +44,12 @@
         "^build"
       ],
       "outputs": []
+    },
+    "db:seed": {
+      "cache": false
+    },
+    "db:reset": {
+      "cache": false
     }
   }
 }
