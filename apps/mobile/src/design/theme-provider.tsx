@@ -9,6 +9,7 @@ import {
   motion,
   radius,
   spacing,
+  tabBarHeight,
   typography,
 } from './tokens';
 
@@ -19,6 +20,7 @@ export type Theme = {
   radius: typeof radius;
   borderWidth: typeof borderWidth;
   hitSize: typeof hitSize;
+  tabBarHeight: number;
   typography: typeof typography;
   motion: typeof motion;
   maxContentWidth: number;
@@ -32,6 +34,7 @@ function buildTheme(scheme: ColorSchemeName): Theme {
     radius,
     borderWidth,
     hitSize,
+    tabBarHeight,
     typography,
     motion,
     maxContentWidth,

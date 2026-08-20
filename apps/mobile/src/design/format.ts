@@ -51,6 +51,12 @@ export function formatWeightDelta(kg: number): string {
   return `${sign}${Math.abs(rounded).toFixed(1).replace('.', ',')}${NARROW_NBSP}kg`;
 }
 
+/** `0.5` → « 0,5 kg par semaine ». */
+export function formatRythme(kgSemaine: number): string {
+  const texte = kgSemaine.toFixed(2).replace(/0$/, '').replace('.', ',');
+  return `${texte}${NARROW_NBSP}kg par semaine`;
+}
+
 /** `45` → « 45 min », `90` → « 1 h 30 ». */
 export function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes}${NARROW_NBSP}min`;

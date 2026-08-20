@@ -1,115 +1,70 @@
-import {
-  Tabs,
-  TabList,
-  TabTrigger,
-  TabSlot,
-  TabTriggerSlotProps,
-  TabListProps,
-} from 'expo-router/ui';
-import { SymbolView } from 'expo-symbols';
-import { Pressable, useColorScheme, View, StyleSheet } from 'react-native';
+import type { Href } from 'expo-router';
+import { TabList, Tabs, TabSlot, TabTrigger, type TabTriggerSlotProps } from 'expo-router/ui';
+import { forwardRef } from 'react';
+import { Pressable, View } from 'react-native';
 
-import { ExternalLink } from './external-link';
-import { ThemedText } from './themed-text';
-import { ThemedView } from './themed-view';
+import { Icon, Text, type IconName } from '@/components/ui';
+import { useTheme } from '@/design';
 
-import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
+const DESTINATIONS: { name: string; href: Href; label: string; icon: IconName }[] = [
+  { name: 'index', href: '/', label: "Aujourd'hui", icon: 'home' },
+  { name: 'history', href: '/history', label: 'Historique', icon: 'chart' },
+  { name: 'profile', href: '/profile', label: 'Profil', icon: 'person' },
+];
 
+/**
+ * Barre d'onglets du web.
+ *
+ * `NativeTabs` n'existe pas ici : on redessine les mêmes trois destinations
+ * avec les primitives du design system. Le web n'est pas une cible de la v1
+ * (docs/01, non-objectifs) — cette version existe pour que `expo start --web`
+ * reste utilisable comme banc d'essai, pas comme un produit.
+ */
 export default function AppTabs() {
+  const theme = useTheme();
+
   return (
     <Tabs>
       <TabSlot style={{ height: '100%' }} />
-      <TabList asChild>
-        <CustomTabList>
-          <TabTrigger name="home" href="/" asChild>
-            <TabButton>Home</TabButton>
+      <TabList
+        style={{
+          borderTopWidth: theme.borderWidth.hairline,
+          borderTopColor: theme.colors.border,
+          backgroundColor: theme.colors.background,
+        }}>
+        {DESTINATIONS.map((destination) => (
+          <TabTrigger key={destination.name} name={destination.name} href={destination.href} asChild>
+            <TabButton icon={destination.icon}>{destination.label}</TabButton>
           </TabTrigger>
-          <TabTrigger name="explore" href="/explore" asChild>
-            <TabButton>Explore</TabButton>
-          </TabTrigger>
-        </CustomTabList>
+        ))}
       </TabList>
     </Tabs>
   );
 }
 
-export function TabButton({ children, isFocused, ...props }: TabTriggerSlotProps) {
-  return (
-    <Pressable {...props} style={({ pressed }) => pressed && styles.pressed}>
-      <ThemedView
-        type={isFocused ? 'backgroundSelected' : 'backgroundElement'}
-        style={styles.tabButtonView}>
-        <ThemedText type="small" themeColor={isFocused ? 'text' : 'textSecondary'}>
-          {children}
-        </ThemedText>
-      </ThemedView>
-    </Pressable>
-  );
-}
+const TabButton = forwardRef<View, TabTriggerSlotProps & { icon: IconName }>(
+  ({ children, icon, isFocused, ...props }, ref) => {
+    const theme = useTheme();
 
-export function CustomTabList(props: TabListProps) {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+    return (
+      <Pressable
+        ref={ref}
+        {...props}
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: theme.spacing.xs,
+          paddingVertical: theme.spacing.sm,
+          minHeight: theme.hitSize.lg,
+        }}>
+        <Icon name={icon} color={isFocused ? 'text' : 'textMuted'} />
+        <Text variant="caption" color={isFocused ? 'text' : 'textMuted'}>
+          {children as string}
+        </Text>
+      </Pressable>
+    );
+  },
+);
 
-  return (
-    <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={styles.innerContainer}>
-        <ThemedText type="smallBold" style={styles.brandText}>
-          Expo Starter
-        </ThemedText>
-
-        {props.children}
-
-        <ExternalLink href="https://docs.expo.dev" asChild>
-          <Pressable style={styles.externalPressable}>
-            <ThemedText type="link">Docs</ThemedText>
-            <SymbolView
-              tintColor={colors.text}
-              name={{ ios: 'arrow.up.right.square', web: 'link' }}
-              size={12}
-            />
-          </Pressable>
-        </ExternalLink>
-      </ThemedView>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  tabListContainer: {
-    position: 'absolute',
-    width: '100%',
-    padding: Spacing.three,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  innerContainer: {
-    paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
-    borderRadius: Spacing.five,
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexGrow: 1,
-    gap: Spacing.two,
-    maxWidth: MaxContentWidth,
-  },
-  brandText: {
-    marginRight: 'auto',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  tabButtonView: {
-    paddingVertical: Spacing.one,
-    paddingHorizontal: Spacing.three,
-    borderRadius: Spacing.three,
-  },
-  externalPressable: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: Spacing.one,
-    marginLeft: Spacing.three,
-  },
-});
+TabButton.displayName = 'TabButton';

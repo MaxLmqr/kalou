@@ -8,13 +8,15 @@ import { Text } from './text';
 export type RowProps = {
   /** Horodatage à gauche, en chasse fixe : « 08:12 ». */
   time?: string;
+  /** Slot libre tout à gauche : l'icône d'une action du menu rapide. */
+  leading?: ReactNode;
   title: string;
   /** Précision sous le titre : « estimation », « 45 min ». */
   detail?: string;
   /** Valeur alignée à droite, déjà formatée. */
   value?: string;
-  /** Rôle de couleur de la valeur : apport, dépense, ou neutre. */
-  valueTone?: 'text' | 'intake' | 'expenditure' | 'textMuted';
+  /** Rôle de couleur de la valeur : apport, dépense, sélection, ou neutre. */
+  valueTone?: 'text' | 'intake' | 'expenditure' | 'textMuted' | 'accent';
   /** Slot libre à droite de la valeur (pastille, chevron). */
   trailing?: ReactNode;
   onPress?: () => void;
@@ -27,6 +29,7 @@ export type RowProps = {
  */
 export function Row({
   time,
+  leading,
   title,
   detail,
   value,
@@ -53,6 +56,7 @@ export function Row({
         },
         style,
       ]}>
+      {leading}
       {time ? (
         <Text variant="caption" color="textMuted" tabular style={{ width: 40 }}>
           {time}

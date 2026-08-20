@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import {
@@ -12,6 +13,7 @@ import {
   ProgressBar,
   Row,
   Screen,
+  ScreenHeader,
   Section,
   StatLine,
   Surface,
@@ -29,9 +31,10 @@ import {
 /**
  * Aperçu du design system.
  *
- * Écran temporaire : il sert de référence visuelle pendant le développement et
- * sera remplacé par l'accueil réel au jalon 1. La première section est une
- * maquette fidèle de cet accueil — c'est elle qui valide le système.
+ * Catalogue des primitives, atteignable depuis le profil. Il sert de référence
+ * visuelle et de banc d'essai : c'est ici qu'on vérifie qu'un état rare — un
+ * budget dépassé, une estimation en attente, le plancher de sécurité — reste
+ * lisible sans avoir à le provoquer dans l'application.
  */
 export default function DesignSystemScreen() {
   const theme = useTheme();
@@ -39,12 +42,10 @@ export default function DesignSystemScreen() {
 
   return (
     <Screen>
-      <View style={{ gap: theme.spacing.xs }}>
-        <Text variant="title">Design system</Text>
-        <Text variant="caption" color="textMuted">
-          Thème {theme.scheme === 'dark' ? 'sombre' : 'clair'}, suit le réglage système.
-        </Text>
-      </View>
+      <ScreenHeader title="Design system" onBack={() => router.back()} />
+      <Text variant="caption" color="textMuted">
+        Thème {theme.scheme === 'dark' ? 'sombre' : 'clair'}, suit le réglage système.
+      </Text>
 
       {/* ---- Maquette de l'accueil (docs/03 § 2) ---- */}
       <Surface style={{ gap: theme.spacing.xl }}>

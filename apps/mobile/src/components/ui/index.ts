@@ -1,10 +1,17 @@
 export { Badge, PendingDot } from './badge';
 export { Button, Fab } from './button';
+export { Chip } from './chip';
 export { Divider } from './divider';
+export { ScreenHeader } from './header';
+export { Icon, type IconName } from './icon';
 export { Input } from './input';
+export { List } from './list';
 export { ProgressBar } from './progress';
 export { Row } from './row';
 export { Screen, Section } from './screen';
+export { Segmented } from './segmented';
+export { Sheet } from './sheet';
 export { BigNumber, StatLine } from './stat';
+export { Stepper } from './stepper';
 export { PressableSurface, Surface } from './surface';
 export { Text } from './text';

@@ -12,6 +12,7 @@
  *  — « honnête sur l'incertitude » : une teinte discrète dédiée aux états
  *    provisoires (estimation en attente, budget non calibré).
  */
+import { Platform } from 'react-native';
 
 /** Neutres chauds. Base de toute l'interface. */
 const neutral = {
@@ -84,6 +85,14 @@ export const borderWidth = {
   hairline: 1,
   thick: 2,
 } as const;
+
+/**
+ * Hauteur de la barre d'onglets native, **hors** zone sûre du bas.
+ *
+ * `NativeTabs` ne l'expose pas : un élément flottant (le bouton d'action) doit
+ * donc l'additionner à `insets.bottom` pour ne pas passer derrière la barre.
+ */
+export const tabBarHeight = Platform.select({ ios: 50, android: 80 }) ?? 0;
 
 /** Hauteurs de zone tactile. Plancher iOS/Android : 44. */
 export const hitSize = {
