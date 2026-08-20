@@ -1,7 +1,8 @@
 # 02 — Modèle calorique
 
 Ce document est la référence normative des calculs. Toute divergence entre le code et
-ce document est un bug de l'un des deux.
+ce document est un bug de l'un des deux. Les termes employés ici sont définis dans le
+[lexique](00-lexique.md).
 
 ## 1. Vue d'ensemble
 

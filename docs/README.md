@@ -8,6 +8,7 @@ structure technique de l'application, indépendamment de l'implémentation en co
 
 | # | Document | Contenu |
 |---|---|---|
+| 00 | [Lexique](00-lexique.md) | **À lire d'abord.** Le vocabulaire de la spécification et du code |
 | 01 | [Vision et périmètre](01-vision-et-perimetre.md) | Problème, utilisateur, principes, non-objectifs |
 | 02 | [Modèle calorique](02-modele-calorique.md) | **Le cœur.** BMR, NEAT, TEF, MET, calibration, objectif |
 | 03 | [Parcours utilisateur](03-parcours-utilisateur.md) | Écrans, menu d'action rapide, onboarding, ton |
@@ -17,6 +18,11 @@ structure technique de l'application, indépendamment de l'implémentation en co
 | 07 | [Roadmap](07-roadmap.md) | Découpage v1, jalons, ce qui attend |
 | 08 | [Base d'aliments](08-base-aliments.md) | Composition d'un repas, source CIQUAL, recherche, portions |
 | — | [`data/`](data/) | Jeu de curation : 203 aliments promus, libellés, alias, portions |
+
+> Le vocabulaire est factuel et emprunte au domaine quand un terme existe. Chaque terme
+> a un sens unique dans toute la spécification **et dans le code** — identifiants,
+> colonnes et champs d'API le reprennent tel quel. Un mot qui change se corrige dans le
+> [lexique](00-lexique.md) d'abord.
 
 ## Décisions verrouillées
 
@@ -36,30 +42,6 @@ Ces choix sont arbitrés et ne sont pas rediscutés dans les documents :
    une table MET et le poids courant. Pas de saisie directe en kcal en v1.
 5. **Suivi** — calories **et poids** (pesées + objectif de perte). Le poids n'est pas
    une option : c'est lui qui alimente la recalibration.
-
-## Lexique
-
-Le vocabulaire est factuel et emprunte au domaine quand un terme existe. Ces mots ont
-un sens unique dans toute la spécification et dans le code.
-
-| Terme | Définition | Exemple |
-|---|---|---|
-| **BMR** | Métabolisme de base : l'énergie dépensée au repos absolu, calculée par Mifflin-St Jeor | 1 792 kcal |
-| **NEAT** | Dépense d'activité non sportive (marche, station debout, ménage), estimée à 15 % du BMR | 269 kcal |
-| **TEF** | Thermogenèse alimentaire : le coût de la digestion, 10 % des calories ingérées | 168 kcal |
-| **EAT** | Dépense sportive volontaire, saisie par l'utilisateur, en calories **nettes** | 489 kcal |
-| **Socle** | `BMR + NEAT` : la dépense d'une journée sans sport, hors digestion. Seule grandeur que la calibration corrige | 2 061 kcal |
-| **Besoin énergétique journalier** | L'apport pour lequel la balance est nulle — ni perte ni prise. C'est le chiffre affiché comme dépense du jour | 2 290 kcal |
-| **Apport cible** | Le besoin énergétique journalier moins le déficit visé. Ce que l'utilisateur peut manger aujourd'hui | 1 679 kcal |
-| **Restant** | `apport cible − apports du jour`. Le chiffre unique de l'écran d'accueil | 1 204 kcal |
-| **Balance** | `apports − dépense réelle`. La grandeur historisée, celle qui se compare à la perte de poids | −550 kcal |
-| **Tendance** | Poids lissé par moyenne exponentielle. Aucune décision n'est prise sur une pesée brute | 84,7 kg |
-| **Calibration** | Mesure du socle réel par bilan énergétique sur 14 jours, en remplacement de la formule | — |
-| **Plancher protéique** | `1,6 × poids`. Un minimum affiché, pas une cible | 136 g |
-
-Deux termes écartés : « budget » (métaphore comptable, et il désignait deux grandeurs
-distinctes — le besoin et la cible) et « calories brûlées » (imprécis, et faux pour le
-sport où seul le net compte).
 
 ## Cadre : application personnelle
 
