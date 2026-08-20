@@ -14,10 +14,12 @@
     "reset-project": "node ./scripts/reset-project.js"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.7.1",
     "@elysiajs/eden": "^1.4.9",
     "@expo/ui": "~57.0.12",
     "@kalou/api": "workspace:*",
     "@tanstack/react-query": "^5.101.4",
+    "better-auth": "^1.7.1",
     "expo": "~57.0.15",
     "expo-constants": "~57.0.13",
     "expo-device": "~57.0.1",
@@ -26,6 +28,7 @@
     "expo-image": "~57.0.3",
     "expo-linking": "~57.0.7",
     "expo-router": "~57.0.15",
+    "expo-secure-store": "~57.0.1",
     "expo-splash-screen": "~57.0.7",
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.2",

@@ -2,6 +2,7 @@ export { Badge, PendingDot } from './badge';
 export { Button, Fab } from './button';
 export { Chip } from './chip';
 export { Divider } from './divider';
+export { MessageErreur } from './erreur';
 export { ScreenHeader } from './header';
 export { Icon, type IconName } from './icon';
 export { Input } from './input';
