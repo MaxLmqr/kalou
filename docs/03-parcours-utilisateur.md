@@ -94,7 +94,7 @@ Détails de conception, cf. [08](08-base-aliments.md) § 6 et § 7 :
 Liste des activités MET, triée par usage personnel puis alphabétique, avec recherche.
 Sélection → sélecteur de durée pré-rempli sur la dernière durée utilisée pour cette
 activité. Les calories nettes s'affichent en direct pendant le réglage de la durée,
-pour que le lien entre effort et budget soit lisible.
+pour que le lien entre effort et apport cible soit lisible.
 
 ### 1.5 Me peser
 
@@ -113,9 +113,10 @@ brute par rapport à hier.
 │                                 │
 │    ●━━━━━━━━━━━━━━○━━━━━━━      │
 │                                 │
-│  Mangé      475                 │
-│  Dépensé  2 168  (dont 489 ⚡)  │
-│  Budget   1 679                 │
+│  Mangé        475               │
+│  Besoin     2 168  (dont 489 ⚡)│
+│  Apport cible 1 679             │
+│  Protéines  ≥ 42 / 136 g        │
 │                                 │
 │  ── Aujourd'hui ──              │
 │  08:12  Café au lait      120   │
@@ -126,7 +127,10 @@ brute par rapport à hier.
 └─────────────────────────────────┘
 ```
 
-**Un seul grand chiffre** : les calories restantes. Les trois lignes en dessous sont
+**Un seul grand chiffre** : les calories restantes. Les protéines sont la seule autre
+grandeur suivie (§ 9 de [02](02-modele-calorique.md)) : une ligne discrète, un plancher
+et non une cible, affichée en borne inférieure quand une entrée libre rend la somme
+incomplète. Aucune alerte si elle n'est pas atteinte. Les trois lignes en dessous sont
 le détail, en typographie secondaire. La barre de progression est neutre : elle se
 remplit, et continue au-delà sans changer de couleur pour l'alarme.
 
@@ -148,7 +152,7 @@ ni polish ni cas limites, seulement d'être juste.
 | 1 | Toi | Sexe (cf. § 2 de [02](02-modele-calorique.md)), date de naissance, taille |
 | 2 | Ton poids | Poids actuel, poids souhaité (optionnel) |
 | 3 | Ton rythme | Trois cartes : 0,25 / 0,5 / 0,75 kg par semaine, avec la date d'atteinte projetée sur chacune. Défaut : 0,5. |
-| 4 | Ton budget | Le chiffre, et une phrase d'honnêteté : « C'est une estimation. Dans deux semaines, Kalou l'aura mesurée pour de vrai. » |
+| 4 | Ton apport cible | Le chiffre, et une phrase d'honnêteté : « C'est une estimation. Dans deux semaines, Kalou l'aura mesurée pour de vrai. » |
 
 Aucune question sur le niveau d'activité. C'est un gain d'onboarding **et** un gain de
 justesse.
@@ -196,7 +200,7 @@ Aucune notification « tu n'as rien saisi depuis 3 jours ».
 
 ## 8. Règles de ton
 
-- « Au-dessus de ton budget », jamais « tu as dépassé ».
+- « Au-dessus de ton apport cible », jamais « tu as dépassé ».
 - « Estimation », « environ », « mesuré » sont des mots à utiliser précisément.
 - Pas d'emoji dans le texte système, pas de félicitations automatiques.
 - Les nombres sont arrondis à l'unité pour les calories, à 100 g pour les poids.

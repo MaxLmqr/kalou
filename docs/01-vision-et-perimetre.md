@@ -8,7 +8,7 @@ est construit contre ces deux-là :
 1. **La saisie est trop coûteuse.** Chercher un aliment dans une base, choisir entre
    quatorze variantes de « poulet », peser sa portion : le coût par repas est de
    30 à 90 secondes. À quatre saisies par jour, l'abandon arrive en deux semaines.
-2. **Le budget calorique est faux, et le reste.** Un facteur d'activité déclaré à
+2. **L'apport cible calorique est faux, et le reste.** Un facteur d'activité déclaré à
    l'inscription se trompe de 300 à 500 kcal — l'ordre de grandeur du déficit
    recherché. L'utilisateur suit l'application à la lettre, ne perd pas, et conclut
    que le suivi ne marche pas.
@@ -16,7 +16,7 @@ est construit contre ces deux-là :
 Kalou répond à (1) par l'estimation IA d'un repas photographié ou décrit en une
 phrase — et, quand l'utilisateur connaît déjà ses ingrédients, par une composition
 manuelle rapide adossée à une base d'aliments française. Il répond à (2) par une
-recalibration automatique du budget sur la perte de poids réellement observée.
+recalibration automatique de l'apport cible sur la perte de poids réellement observée.
 
 ## L'utilisateur
 
@@ -42,12 +42,12 @@ me reste aujourd'hui ?* Tout le reste est secondaire et se déplie.
 valider. Une photo de repas doit être enregistrée en moins de 15 secondes.
 
 **Sans jugement.** Aucun rouge alarmant, aucun « vous avez dépassé », aucune série
-de jours parfaits à ne pas briser. Dépasser son budget est une information, pas une
+de jours parfaits à ne pas briser. Dépasser son apport cible est une information, pas une
 faute. Le ton du README (« votre balance calorique du jour, claire et sans
 jugement ») est une contrainte de design, pas une accroche marketing.
 
 **Honnête sur l'incertitude.** Une estimation IA est affichée comme une estimation.
-Un budget non encore calibré le dit. Kalou ne présente jamais une approximation
+Un apport cible non encore calibré le dit. Kalou ne présente jamais une approximation
 comme une mesure — c'est ce qui rend crédible la mesure quand elle arrive.
 
 **Le corps est l'instrument de mesure.** Aucune formule ne connaît la dépense réelle
@@ -56,13 +56,14 @@ découle de ce principe.
 
 ## Ce que fait Kalou (v1)
 
-- Un budget calorique quotidien, estimé au départ puis mesuré.
+- Un apport cible quotidien, estimé au départ puis mesuré.
 - L'enregistrement d'un repas ou d'une boisson par photo ou par description.
 - La composition manuelle d'un repas à partir d'une base d'aliments (CIQUAL) ou de
   calories saisies directement — pour les repas dont on connaît les ingrédients.
 - Les repas enregistrés, réutilisables en un tap et redimensionnables.
 - L'enregistrement d'une activité par type et durée.
 - Le suivi du poids, avec courbe de tendance lissée.
+- Un plancher protéique quotidien, seule grandeur non calorique suivie.
 - Un objectif de perte exprimé en kg/semaine, qui pilote le déficit.
 - L'historique quotidien et hebdomadaire de la balance.
 
@@ -72,7 +73,7 @@ Explicitement hors périmètre v1, pour que la v1 existe :
 
 | Écarté | Pourquoi |
 |---|---|
-| Macros affichées (protéines / glucides / lipides) | Alourdit l'accueil et la saisie. Les valeurs sont **stockées** dès la v1 (l'IA les produit gratuitement), donc l'affichage sera une évolution sans migration. |
+| Glucides et lipides affichés | Aucun effet comparable sur l'objectif. Les valeurs sont **stockées** dès la v1 (l'IA les produit gratuitement), donc l'affichage sera une évolution sans migration. Les **protéines**, elles, sont affichées : elles déterminent si les kilos perdus sont du gras ou du muscle. |
 | Code-barres et produits de marque (Open Food Facts) | CIQUAL couvre les ingrédients et les plats maison, qui sont le besoin réel. Une base contributive de 3 millions de produits ajoute une dépendance de qualité inégale, un réseau obligatoire, et n'est utile qu'avec le scan. |
 | Recettes structurées (rendement, portions produites, échelle d'ingrédients) | Un repas enregistré redimensionnable couvre 90 % du besoin pour 10 % du modèle. |
 | Apple Health / Google Fit | Coût natif élevé, et le dédoublonnage avec la saisie manuelle et le NEAT est un piège. La calibration rend le gain marginal. |
@@ -84,7 +85,7 @@ Explicitement hors périmètre v1, pour que la v1 existe :
 | Export de données, portabilité | Les données sont sur une base personnelle, accessibles directement en SQL. |
 | Jeûne intermittent, cycles, recharges | Complexité de modèle sans bénéfice sur l'objectif de départ. |
 | **Mode maintenance après l'objectif** | Choix explicite : la v1 s'arrête à l'atteinte du poids cible. Ce qui vient après (stabilisation, alerte de dérive) est un autre produit, à traiter le jour où la question se posera. |
-| **Cadre hebdomadaire** | La journée reste l'unité de décision. Une vue hebdomadaire, pour le recul, est une évolution identifiée — pas un second budget. |
+| **Cadre hebdomadaire** | La journée reste l'unité de décision. Une vue hebdomadaire, pour le recul, est une évolution identifiée — pas un second apport cible. |
 
 ## Critères de réussite
 

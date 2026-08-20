@@ -4,7 +4,7 @@
 
 Chaque jalon produit quelque chose d'utilisable. Le premier jalon utile n'est pas
 « l'authentification marche », c'est « je peux enregistrer un repas et voir mon
-budget ». L'ordre ci-dessous privilégie le chemin chaud et repousse tout ce qui n'est
+apport cible ». L'ordre ci-dessous privilégie le chemin chaud et repousse tout ce qui n'est
 pas sur ce chemin.
 
 ## Jalon 0 — Socle technique
@@ -22,7 +22,7 @@ pas sur ce chemin.
 
 ## Jalon 1 — La boucle nue
 
-**Critère de sortie : je peux composer un repas et voir mon budget du jour.**
+**Critère de sortie : je peux composer un repas et voir mon apport cible du jour.**
 
 - Onboarding (5 écrans), calcul du BMR et du socle par formule, objectif et déficit.
 - `GET /days/:date` et l'écran d'accueil avec son chiffre unique.
@@ -61,7 +61,7 @@ codes CIQUAL au moment de l'import.
 
 ## Jalon 3 — Activités
 
-**Critère de sortie : une séance saisie augmente correctement mon budget.**
+**Critère de sortie : une séance saisie augmente correctement mon apport cible.**
 
 - Liste MET avec recherche et tri par usage, sélecteur de durée.
 - Calcul net côté serveur, valeurs figées.
@@ -69,7 +69,7 @@ codes CIQUAL au moment de l'import.
 
 ## Jalon 4 — Calibration
 
-**Critère de sortie : au bout de deux semaines, mon budget est mesuré et non plus
+**Critère de sortie : au bout de deux semaines, mon apport cible est mesuré et non plus
 estimé.**
 
 - Travail de fond quotidien, fenêtre de 14 jours, transition progressive.
@@ -113,7 +113,7 @@ Par ordre d'intérêt décroissant, sans engagement de calendrier :
    reste ne se justifie que si l'usage le demande.
 5. **Vue hebdomadaire** — apports, dépense et balance agrégés sur la semaine, pour
    prendre du recul sur un écart isolé. C'est une vue de lecture : la journée reste
-   l'unité de décision et le budget ne devient pas hebdomadaire.
+   l'unité de décision et l'apport cible ne devient pas hebdomadaire.
 6. **Recherche d'aliments hors ligne** — jeu CIQUAL embarqué et index FTS5, si
    l'absence de réseau se révèle gênante à l'usage.
 7. **Widget et raccourci Siri** — « ajouter un repas » sans ouvrir l'application. Très

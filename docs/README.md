@@ -37,6 +37,30 @@ Ces choix sont arbitrés et ne sont pas rediscutés dans les documents :
 5. **Suivi** — calories **et poids** (pesées + objectif de perte). Le poids n'est pas
    une option : c'est lui qui alimente la recalibration.
 
+## Lexique
+
+Le vocabulaire est factuel et emprunte au domaine quand un terme existe. Ces mots ont
+un sens unique dans toute la spécification et dans le code.
+
+| Terme | Définition | Exemple |
+|---|---|---|
+| **BMR** | Métabolisme de base : l'énergie dépensée au repos absolu, calculée par Mifflin-St Jeor | 1 792 kcal |
+| **NEAT** | Dépense d'activité non sportive (marche, station debout, ménage), estimée à 15 % du BMR | 269 kcal |
+| **TEF** | Thermogenèse alimentaire : le coût de la digestion, 10 % des calories ingérées | 168 kcal |
+| **EAT** | Dépense sportive volontaire, saisie par l'utilisateur, en calories **nettes** | 489 kcal |
+| **Socle** | `BMR + NEAT` : la dépense d'une journée sans sport, hors digestion. Seule grandeur que la calibration corrige | 2 061 kcal |
+| **Besoin énergétique journalier** | L'apport pour lequel la balance est nulle — ni perte ni prise. C'est le chiffre affiché comme dépense du jour | 2 290 kcal |
+| **Apport cible** | Le besoin énergétique journalier moins le déficit visé. Ce que l'utilisateur peut manger aujourd'hui | 1 679 kcal |
+| **Restant** | `apport cible − apports du jour`. Le chiffre unique de l'écran d'accueil | 1 204 kcal |
+| **Balance** | `apports − dépense réelle`. La grandeur historisée, celle qui se compare à la perte de poids | −550 kcal |
+| **Tendance** | Poids lissé par moyenne exponentielle. Aucune décision n'est prise sur une pesée brute | 84,7 kg |
+| **Calibration** | Mesure du socle réel par bilan énergétique sur 14 jours, en remplacement de la formule | — |
+| **Plancher protéique** | `1,6 × poids`. Un minimum affiché, pas une cible | 136 g |
+
+Deux termes écartés : « budget » (métaphore comptable, et il désignait deux grandeurs
+distinctes — le besoin et la cible) et « calories brûlées » (imprécis, et faux pour le
+sport où seul le net compte).
+
 ## Cadre : application personnelle
 
 **Kalou est écrit pour un seul utilisateur — son auteur.** Ce n'est pas une étape
@@ -74,7 +98,7 @@ ici pour être retrouvés le jour où la question se pose, pas pour être antici
 - **Le TEF (thermogenèse alimentaire, ~10 % des apports) est réintroduit** dans le
   calcul. L'illustration échangée pendant le cadrage (BMR 1 790 + NEAT 270 =
   2 060 kcal) l'omettait : la dépense d'équilibre réelle est plus proche de
-  2 290 kcal. L'omettre reviendrait à donner un budget ~230 kcal trop bas, soit un
+  2 290 kcal. L'omettre reviendrait à donner un apport cible ~230 kcal trop bas, soit un
   déficit involontaire de 40 % supérieur à l'objectif affiché. Le détail du calcul
   est en [02](02-modele-calorique.md#tef).
 - **La saisie manuelle est un chemin de premier rang, pas un filet de sécurité.**

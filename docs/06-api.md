@@ -90,7 +90,7 @@ GET   /me                          → { user, profile, goal, calibration_state 
 PATCH /me/profile                  { sexe?, date_naissance?, taille_cm?, timezone?,
                                      heure_bascule_journee?, notifications_* }
 PUT   /me/goal                     { rythme_kg_semaine, poids_cible_kg? }
-                                   → { goal, rythme_applique, plafond_applique?, budget_estime }
+                                   → { goal, rythme_applique, plafond_applique?, apport_cible_estime }
 ```
 
 `PUT /me/goal` applique les plafonds du § 6 de [02](02-modele-calorique.md) et renvoie
@@ -107,10 +107,10 @@ GET /days?from=&to=                → DayView[]   (résumés, sans le journal d
 ```ts
 type DayView = {
   local_date: string;
-  budget_kcal: number;
+  apport_cible_kcal: number;
   apports_kcal: number;
   depense_kcal: number;          // socle + EAT (+ TEF avant calibration)
-  restant_kcal: number;          // budget − apports, peut être négatif
+  restant_kcal: number;          // apport cible − apports, peut être négatif
   balance_kcal: number;
   detail: {
     bmr: number;
@@ -118,6 +118,11 @@ type DayView = {
     eat_kcal: number;
     deficit_cible: number;
     phase: "formule" | "transition" | "calibre";
+  };
+  proteines: {
+    total_g: number | null;
+    plancher_g: number;
+    partiel: boolean;             // true si une entrée libre rend la somme incomplète
   };
   entrees_en_attente: number;     // exclues des totaux — à afficher explicitement
   journal: (FoodEntry | ActivityEntry)[];   // trié par occurred_at
@@ -253,11 +258,11 @@ affiche, pas la variation brute.
 ```
 GET  /calibration        → { statut, socle_applique, socle_formule, socle_mesure?,
                              jours_valides, jours_requis, derniere_calibration_le,
-                             delta_budget_kcal?, garde_fous_actifs, explication }
+                             delta_apport_cible_kcal?, garde_fous_actifs, explication }
 ```
 
 Lecture seule. La calibration est déclenchée par un travail de fond quotidien, jamais
-par le client — sinon deux appareils obtiennent deux budgets différents.
+par le client — sinon deux appareils obtiennent deux apport cibles différents.
 
 `explication` est une phrase prête à afficher, générée côté serveur à partir des
 chiffres, pour que le message reste cohérent avec le calcul.

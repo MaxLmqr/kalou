@@ -306,8 +306,11 @@ tant que la journée est en cours).
 | `eat_kcal` | integer | |
 | `depense_kcal` | integer | |
 | `deficit_cible` | integer | Figé |
-| `budget_kcal` | integer | Figé |
+| `apport_cible_kcal` | integer | Figé |
 | `apports_kcal` | integer | |
+| `proteines_g` | numeric(5,1) null | Somme du jour ; `null` si aucun composant n'en porte |
+| `proteines_partielles` | boolean | Vrai si une entrée libre rend la somme incomplète (borne inférieure) |
+| `plancher_proteines_g` | smallint | Figé : 1,6 × tendance de poids |
 | `balance_kcal` | integer | `apports − depense` |
 | `entrees_en_attente` | smallint | |
 | `tendance_poids_kg` | numeric(5,2) null | |
@@ -377,7 +380,7 @@ Calculées à la lecture, pour éviter les incohérences :
 6. `favorites.kcal = Σ favorite_items.kcal` pour un favori de type `repas`.
 7. `activity_entries.kcal_net` est cohérent avec `(met − 1) × 3,5 × poids_utilise_kg /
    200 × duree_min`, à l'arrondi près. Vérifiable a posteriori.
-8. `daily_summaries.budget_kcal` d'une journée close n'est jamais modifié.
+8. `daily_summaries.apport_cible_kcal` d'une journée close n'est jamais modifié.
 9. `local_date` d'une entrée est cohérent avec `occurred_at`, le fuseau de
    l'application et l'`heure_bascule_journee` **du moment de l'écriture**.
 10. Une entrée supprimée l'est physiquement, avec ses composants en cascade, et sa

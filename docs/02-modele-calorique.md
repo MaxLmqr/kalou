@@ -35,7 +35,7 @@ BMR = 10 × poids(kg) + 6,25 × taille(cm) − 5 × âge(années) + s
 ```
 
 **Entrées** : le `poids` utilisé est la **tendance lissée** (§ 4), jamais une pesée
-brute — sinon le budget oscille de 40 kcal au gré de la rétention d'eau. L'âge est
+brute — sinon l'apport cible oscille de 40 kcal au gré de la rétention d'eau. L'âge est
 recalculé à chaque changement d'année civile de naissance.
 
 **Sexe non renseigné ou non binaire** : proposer les deux formules et laisser choisir
@@ -46,7 +46,7 @@ et non d'une identité. La calibration corrigera l'écart (~165 kcal) en deux se
 le BMR de 100 kcal — c'est une des deux causes classiques de plateau, et elle est ici
 prise en compte automatiquement.
 
-## 3. Socle, TEF et budget du jour
+## 3. Socle, TEF et apport cible du jour
 
 ### 3.1 NEAT forfaitaire (phase initiale)
 
@@ -56,16 +56,16 @@ socle_formule = BMR × 1,15
 ```
 
 Le facteur 1,15 correspond à une vie de bureau avec des déplacements ordinaires. Il
-est volontairement **prudent** : mieux vaut un budget légèrement bas qui se corrige
-vers le haut (« Kalou t'a rendu 200 kcal ») qu'un budget optimiste qui ne produit
-aucune perte. Aucune question n'est posée à l'utilisateur — cette valeur est
+est volontairement **prudent** : mieux vaut un apport cible légèrement bas qui se
+corrige vers le haut (« Kalou t'a rendu 200 kcal ») qu'un apport cible optimiste qui
+ne produit aucune perte. Aucune question n'est posée à l'utilisateur — cette valeur est
 transitoire par construction.
 
 ### 3.2 TEF {#tef}
 
 Digérer coûte environ 10 % des calories ingérées. Le TEF ne peut donc pas être une
-constante : il dépend de ce qui est mangé, c'est-à-dire de ce que le budget autorise.
-La résolution est immédiate.
+constante : il dépend de ce qui est mangé, c'est-à-dire de ce que l'apport cible
+autorise. La résolution est immédiate.
 
 Soit `A` l'apport d'équilibre (celui pour lequel la balance est nulle) :
 
@@ -75,11 +75,12 @@ A × 0,90 = socle + EAT
 A = (socle + EAT) / 0,90
 ```
 
-`A` est la grandeur affichée à l'utilisateur comme **« dépense du jour »** : le nombre
-de calories qu'il peut manger sans ni perdre ni prendre. Le budget en découle :
+`A` est la grandeur affichée à l'utilisateur comme **« besoin énergétique
+journalier »** : le nombre de calories qu'il peut manger sans ni perdre ni prendre.
+L'apport cible en découle :
 
 ```
-budget = (socle + EAT − déficit) / 0,90
+apport_cible = (socle + EAT − déficit) / 0,90
 ```
 
 Le déficit est divisé par 0,90 lui aussi, et c'est correct : manger moins réduit aussi
@@ -89,11 +90,11 @@ retirer 611 kcal de l'assiette.
 **Exemple** — homme, 35 ans, 85 kg, 178 cm, objectif 0,5 kg/semaine, pas de sport :
 
 ```
-BMR              = 10×85 + 6,25×178 − 5×35 + 5   = 1 792 kcal
-socle            = 1 792 × 1,15                  = 2 061 kcal
-dépense du jour  = 2 061 / 0,90                  = 2 290 kcal
-déficit          = 0,5 × 1 100                   =   550 kcal
-budget           = (2 061 − 550) / 0,90          = 1 679 kcal
+BMR               = 10×85 + 6,25×178 − 5×35 + 5   = 1 792 kcal
+socle             = 1 792 × 1,15                  = 2 061 kcal
+besoin_journalier = 2 061 / 0,90                  = 2 290 kcal
+déficit           = 0,5 × 1 100                   =   550 kcal
+apport_cible      = (2 061 − 550) / 0,90          = 1 679 kcal
 ```
 
 Vérification : à 1 679 kcal ingérées, TEF = 168, dépense totale = 2 229, balance =
@@ -105,8 +106,8 @@ La dépense mesurée par calibration (§ 5) **contient déjà le TEF**, puisqu'e
 déduite d'un bilan énergétique réel. Le facteur 0,90 ne s'applique donc plus :
 
 ```
-dépense_du_jour = socle_calibré + EAT_du_jour
-budget          = dépense_du_jour − déficit
+besoin_journalier = socle_calibré + EAT_du_jour
+apport_cible      = besoin_journalier − déficit
 ```
 
 L'incohérence résiduelle (le TEF mesuré l'a été au niveau d'apport de la fenêtre
@@ -117,7 +118,7 @@ variation d'apport de 200 kcal. Elle est ignorée sciemment.
 
 Les § 3.2 et § 3.3 décrivent deux régimes, mais le socle transite progressivement
 de l'un à l'autre (§ 5.3). Basculer brutalement du diviseur 0,90 au régime calibré
-dès que `w > 0` ferait tomber le budget de l'exemple ci-dessus de 1 679 à
+dès que `w > 0` ferait tomber l'apport cible de l'exemple ci-dessus de 1 679 à
 1 511 kcal — précisément le saut que § 5.3 cherche à éviter.
 
 La correction de TEF est donc interpolée en même temps que le socle :
@@ -125,8 +126,8 @@ La correction de TEF est donc interpolée en même temps que le socle :
 ```
 facteur_tef = w + (1 − w) / 0,90
 
-dépense_du_jour = (socle_appliqué + EAT) × facteur_tef
-budget          = (socle_appliqué + EAT − déficit) × facteur_tef
+besoin_journalier = (socle_appliqué + EAT) × facteur_tef
+apport_cible      = (socle_appliqué + EAT − déficit) × facteur_tef
 ```
 
 `w = 0` redonne le § 3.2 à l'identique, `w = 1` le § 3.3. C'est cohérent
@@ -195,7 +196,7 @@ w = clamp((jours_valides_cumulés − 10) / 18 ; 0 ; 1)
 socle_appliqué = w × socle_mesuré + (1 − w) × socle_formule
 ```
 
-`w` passe de 0 (jour 10) à 1 (jour 28). Pas de saut visible dans le budget.
+`w` passe de 0 (jour 10) à 1 (jour 28). Pas de saut visible dans l'apport cible.
 
 `jours_valides_cumulés` compte les jours avec apports saisis **depuis le début du
 suivi**, à ne pas confondre avec les jours valides *de la fenêtre* du § 5.1 (qui
@@ -210,8 +211,8 @@ Non négociables — ils protègent d'une spirale documentée.
 |---|---|---|
 | Vitesse de variation | `socle_appliqué` ne bouge pas de plus de **±5 % par semaine** | Absorbe un artefact de fenêtre |
 | Bornes absolues | `socle_appliqué ∈ [BMR × 1,00 ; BMR × 2,20]` | Une valeur hors de cet intervalle est un bug de données, pas une physiologie |
-| Sous-déclaration | Calibration suspendue sous **11 jours saisis sur 14** | **La spirale** : sous-déclarer les apports fait mesurer une dépense trop basse, donc rétrécit le budget, donc aggrave la faim et la sous-déclaration |
-| Plancher d'apport | `budget ≥ plancher` — 1 500 (H) / 1 200 (F) | Sécurité sanitaire ; si le déficit visé l'exige, on réduit le rythme et on le dit. Le BMR **n'est pas** un plancher : combiné au socle NEAT de +15 %, il rendrait le rythme recommandé par défaut inatteignable pour le profil du § 3.2, dont le budget de 1 679 kcal est pourtant celui de ce document |
+| Sous-déclaration | Calibration suspendue sous **11 jours saisis sur 14** | **La spirale** : sous-déclarer les apports fait mesurer une dépense trop basse, donc rétrécit l'apport cible, donc aggrave la faim et la sous-déclaration |
+| Plancher d'apport | `apport_cible ≥ plancher` — 1 500 (H) / 1 200 (F) | Sécurité sanitaire ; si le déficit visé l'exige, on réduit le rythme et on le dit. Le BMR **n'est pas** un plancher : combiné au socle NEAT de +15 %, il rendrait le rythme recommandé par défaut inatteignable pour le profil du § 3.2, dont l'apport cible de 1 679 kcal est pourtant celui de ce document |
 
 ### 5.5 Ce que l'utilisateur voit
 
@@ -220,9 +221,9 @@ Un écran de calibration, consultable, jamais imposé :
 > **Kalou a mesuré ta dépense**
 > 2 285 kcal par jour — au lieu de 2 061 estimés.
 > Mesuré sur tes 14 derniers jours : 27 300 kcal saisies, −0,65 kg de tendance.
-> Ton budget augmente de 56 kcal.
+> Ton apport cible augmente de 56 kcal.
 
-Cette transparence est fonctionnelle : elle explique pourquoi le budget a changé, ce
+Cette transparence est fonctionnelle : elle explique pourquoi l'apport cible a changé, ce
 qui évite l'interprétation « l'appli déraille ».
 
 ## 6. Objectif de perte et déficit
@@ -242,7 +243,7 @@ déficit_quotidien = rythme_kg_semaine × 7 700 / 7
 **Plafonds** appliqués silencieusement puis expliqués :
 
 - rythme ≤ **1 % du poids corporel par semaine** (à 85 kg : 0,85 kg/sem) ;
-- déficit ≤ **25 % de la dépense du jour** ;
+- déficit ≤ **25 % de la besoin énergétique journalier** ;
 - apport cible ≥ plancher de sécurité (§ 5.4).
 
 Si l'objectif choisi viole une contrainte, Kalou propose le rythme le plus proche
@@ -303,13 +304,13 @@ La table est servie par l'API (cf. 06) et mise en cache par le client, pour pouv
 ## 8. Balance et journée
 
 ```
-apports_du_jour  = Σ kcal des entrées alimentaires de la journée locale
-EAT_du_jour      = Σ kcal_net des activités de la journée locale
-dépense_du_jour  = (socle_appliqué + EAT_du_jour) × facteur_tef      (cf. § 3.4)
-budget           = (socle_appliqué + EAT_du_jour − déficit) × facteur_tef
-restant          = budget − apports_du_jour
-dépense_réelle   = socle_appliqué + EAT_du_jour + (1 − w) × 0,10 × apports_du_jour
-balance          = apports_du_jour − dépense_réelle
+apports_du_jour   = Σ kcal des entrées alimentaires de la journée locale
+EAT_du_jour       = Σ kcal_net des activités de la journée locale
+besoin_journalier = (socle_appliqué + EAT_du_jour) × facteur_tef      (cf. § 3.4)
+apport_cible      = (socle_appliqué + EAT_du_jour − déficit) × facteur_tef
+restant           = apport_cible − apports_du_jour
+dépense_réelle    = socle_appliqué + EAT_du_jour + (1 − w) × 0,10 × apports_du_jour
+balance           = apports_du_jour − dépense_réelle
 ```
 
 - **`restant`** est le chiffre unique de l'écran d'accueil. Il peut être négatif ;
@@ -317,18 +318,46 @@ balance          = apports_du_jour − dépense_réelle
 - **`balance`** est la grandeur historisée et cumulée : c'est elle qui se compare à
   la perte de poids réelle. Son TEF porte sur ce qui a **réellement** été mangé, et
   non sur l'apport d'équilibre — d'où `dépense_réelle`, distincte de
-  `dépense_du_jour`. Facturer le TEF de l'apport d'équilibre surestimerait le
-  déficit dès que l'utilisateur s'écarte de son budget : sur l'exemple du § 3.2,
+  `besoin_journalier`. Facturer le TEF de l'apport d'équilibre surestimerait le
+  déficit dès que l'utilisateur s'écarte de son apport cible : sur l'exemple du § 3.2,
   −611 au lieu de −550. C'est cette définition qui est cohérente avec le § 5.2, où
   la dépense est déduite d'un bilan énergétique réel.
-- **`dépense_du_jour`** reste l'apport d'équilibre `A` : c'est le chiffre affiché,
+- **`besoin_journalier`** reste l'apport d'équilibre `A` : c'est le chiffre affiché,
   et il a l'avantage de ne pas bouger au fil des saisies de la journée.
-- Une activité saisie **augmente** le budget du jour. C'est cohérent avec le modèle
+- Une activité saisie **augmente** l'apport cible du jour. C'est cohérent avec le modèle
   (le socle ne contient pas le sport) et c'est le comportement attendu ; le risque de
   surestimation est contenu par l'usage du MET net et par la calibration, qui
   retirera l'excédent du socle.
 
-## 9. Journal des grandeurs figées
+## 9. Plancher protéique
+
+Seule grandeur non calorique du modèle. Elle ne modifie aucun calcul d'énergie : c'est
+un repère affiché, pas une contrainte.
+
+```
+plancher_proteines = 1,6 × poids(kg)        arrondi à 5 g près
+```
+
+Avec la tendance lissée à 85 kg : **136 g par jour**.
+
+**Pourquoi cette grandeur et pas les autres.** Dans un déficit, le corps puise dans le
+tissu adipeux *et* dans le muscle. Or le muscle consomme de l'énergie au repos :
+en perdre fait baisser le BMR, donc l'apport cible, donc installe le plateau. Un apport
+protéique suffisant fait que la masse perdue est majoritairement grasse. Accessoirement,
+c'est le macronutriment le plus rassasiant à calories égales, ce qui aide à tenir le
+déficit. Les glucides et les lipides n'ont pas d'effet comparable sur l'objectif et
+restent hors périmètre.
+
+**C'est un plancher, pas une cible** : le dépasser n'est pas un écart, et l'interface ne
+doit pas le présenter comme tel.
+
+**Somme incomplète.** Un composant saisi en calories libres (§ 3 de
+[08](08-base-aliments.md)) ne porte pas de valeur protéique. Le total du jour est donc
+une **borne inférieure** dès qu'une entrée libre est présente, et doit s'afficher comme
+telle (« ≥ 78 g ») plutôt que comme une valeur exacte. Afficher un chiffre faussement
+précis sur une donnée partielle est pire que de ne rien afficher.
+
+## 10. Journal des grandeurs figées
 
 Pour que l'historique soit auditable et stable, sont **figés à l'écriture** et jamais
 recalculés : le `poids` utilisé pour un calcul MET, les kcal d'une entrée alimentaire
