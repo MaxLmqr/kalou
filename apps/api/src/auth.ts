@@ -1,3 +1,4 @@
+import { expo } from '@better-auth/expo'
 import { db, profiles, schema } from '@kalou/db'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
@@ -47,10 +48,33 @@ const raccourciDeDeveloppement = createAuthMiddleware(async (ctx) => {
   await auth.api.sendVerificationOTP({ body: { email: corps.email, type: 'sign-in' } })
 })
 
+/**
+ * Origines de confiance.
+ *
+ * Better Auth refuse toute requête d'écriture porteuse d'un cookie dont
+ * l'`Origin` n'est pas de confiance — c'est sa protection contre le CSRF. Par
+ * défaut la seule origine de confiance est `baseURL`.
+ *
+ * L'application native n'a pas d'origine HTTP : React Native n'envoie aucun
+ * en-tête `Origin`, et le plugin Expo rejoue à sa place son `expo-origin`, qui
+ * vaut le schéma de l'application — `mobile://` pour une version installée,
+ * `exp://…` tant qu'on passe par Expo Go. Sans ces deux entrées, la
+ * déconnexion partait en 403 et l'application gardait une session qu'elle ne
+ * pouvait plus fermer.
+ *
+ * Le banc d'essai web, lui, est un vrai navigateur : il envoie son origine, qui
+ * n'est pas celle de l'API (8081 contre 3000).
+ */
+const originesDeConfiance = [
+  'mobile://',
+  ...(env.isProduction ? [] : ['exp://', 'http://localhost:8081']),
+]
+
 export const auth = betterAuth({
   baseURL: env.baseUrl,
   secret: env.authSecret,
   basePath: '/auth',
+  trustedOrigins: originesDeConfiance,
   database: drizzleAdapter(db, { provider: 'pg', schema, usePlural: true }),
   advanced: {
     // Doc 05 § 1 : UUID v7, ordonnés temporellement.
@@ -71,6 +95,9 @@ export const auth = betterAuth({
     },
   },
   plugins: [
+    // Rejoue `expo-origin` dans `origin` : sans lui, aucune requête
+    // authentifiée de l'application native ne passe le contrôle d'origine.
+    expo(),
     emailOTP({
       otpLength: 6,
       expiresIn: 10 * 60,

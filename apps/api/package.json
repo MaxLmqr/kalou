@@ -16,6 +16,7 @@
     "parcours": "bun --env-file=../../.env scripts/parcours.ts"
   },
   "dependencies": {
+    "@better-auth/expo": "^1.7.1",
     "@elysiajs/cors": "^1.4.2",
     "@elysiajs/openapi": "^1.4.15",
     "@kalou/db": "workspace:*",
