@@ -20,9 +20,13 @@ export type TextProps = RNTextProps & {
   color?: ColorRole;
   align?: TextStyle['textAlign'];
   /**
-   * Chiffres à chasse fixe. Indispensable partout où une valeur change en
-   * place (compteur de calories restantes, durée d'activité) : sans cela le
-   * chiffre tremble à chaque incrément.
+   * Chiffres à chasse fixe, demandés partout où une valeur change en place
+   * (calories restantes, durée d'une séance) ou s'aligne en colonne.
+   *
+   * **Sans effet avec Poppins**, qui ne porte pas la fonction `tnum` : la
+   * demande est transmise à la fonte, la fonte n'y répond pas. Conservé parce
+   * que l'intention est juste et redeviendrait vraie avec une police qui la
+   * porte — cf. la section « Polices » du README du design system.
    */
   tabular?: boolean;
 };

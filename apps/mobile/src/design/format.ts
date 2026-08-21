@@ -5,12 +5,10 @@
  * de milliers en espace insécable comme le veut l'usage français.
  *
  * **Insécable, et non insécable étroite.** L'usage typographique demande une
- * fine (U+202F), mais Geist ne la dessine pas : le glyphe manquant part alors
+ * fine (U+202F), mais Poppins ne la dessine pas : le glyphe manquant part alors
  * en repli sur une autre police, ce qui creuse un trou d'une largeur de cadratin
- * au milieu du chiffre unique — et fait perdre l'alignement tabulaire, qui est
- * la raison d'avoir choisi cette police pour les chiffres. Une insécable
- * ordinaire (0,25 cadratin) est plus large que la règle, mais elle est dessinée
- * par la bonne police.
+ * au milieu du chiffre unique. Une insécable ordinaire est plus large que la
+ * règle, mais elle est dessinée par la bonne police.
  */
 
 const NBSP = ' ';

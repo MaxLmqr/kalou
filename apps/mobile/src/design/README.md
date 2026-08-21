@@ -72,19 +72,34 @@ avertissement de la palette. L'utiliser ailleurs casse le principe « sans jugem
 
 ## Polices
 
-Deux familles, deux rôles — et le contraste entre elles fait la hiérarchie, ce
-qui évite d'empiler les graisses :
+**Poppins**, et elle seule, en quatre graisses (300, 400, 500, 600). Le contraste
+ne vient donc pas d'un mélange de familles mais de l'échelle et des graisses,
+ce qui demande une échelle plus franche — d'où l'écart assumé entre `display` et
+tout le reste.
 
-| Famille | Rôle | Pourquoi celle-là |
-|---|---|---|
-| **Geist** | Chiffres et interface. Graisses 300, 400, 500, 600. | Ses chiffres ont un vrai jeu tabulaire (`tnum`) : sans lui, le chiffre unique tremblerait à chaque incrément et la colonne de droite du journal ne s'alignerait pas. |
-| **Instrument Serif** | La date de l'accueil et les titres d'écran (`variant="title"`), rien d'autre. | Un serif de titrage donne à la date le poids d'un titre. Il n'a **pas** de chiffres tabulaires : il ne doit donc jamais porter une valeur qui change en place. |
+**Poppins n'a pas de chiffres tabulaires.** Aucune fonction `tnum` dans la
+fonte, et des chasses très inégales : le « 1 » fait 0,29 cadratin contre 0,62
+pour le « 0 ». Deux conséquences à connaître avant de s'en étonner :
 
-`fonts.ts` charge les cinq fichiers au démarrage et rend la main dès qu'ils sont
-prêts — ou dès que le chargement échoue, auquel cas la police système prend le
-relais plutôt que de laisser l'application sur son écran de démarrage. La racine
-(`app/_layout.tsx`) ne dessine rien avant : un premier rendu en police système
-suivi d'un saut typographique se verrait sur chaque écran.
+- le chiffre unique se recompose légèrement quand il change (1 551 → 1 451
+  décale les glyphes) ;
+- une colonne de valeurs n'est pas alignée au chiffre près.
+
+La propriété `tabular` de `<Text>` reste donc **sans effet** : elle demande une
+fonction que la fonte n'a pas. Elle est conservée parce qu'elle redeviendrait
+vraie avec une police qui la porte, et parce qu'elle documente l'intention là où
+elle compte.
+
+Le séparateur de milliers est une espace **insécable ordinaire** et non une fine
+(U+202F) : Poppins ne dessine pas la fine, et un glyphe manquant part en repli
+sur une autre police — ce qui creuse un trou d'un cadratin au milieu du chiffre
+unique.
+
+`fonts.ts` charge les quatre fichiers au démarrage et rend la main dès qu'ils
+sont prêts — ou dès que le chargement échoue, auquel cas la police système prend
+le relais plutôt que de laisser l'application sur son écran de démarrage. La
+racine (`app/_layout.tsx`) ne dessine rien avant : un premier rendu en police
+système suivi d'un saut typographique se verrait sur chaque écran.
 
 Ajouter une graisse suppose d'ajouter son fichier dans `fonts.ts` **et** de la
 citer dans `typography` : le `satisfies` du module tient les deux ensemble, et

@@ -115,8 +115,8 @@ export function Fab({ accessibilityLabel, children, ...rest }: FabProps) {
       ]}
       {...rest}>
       {/*
-        Le « + » est tracé, pas composé : le titre d'écran est passé au serif de
-        titrage, dont le plus est fin et court — il ne fait pas un bouton.
+        Le « + » est tracé, pas composé : le plus d'une fonte de texte est fin
+        et court, il ne fait pas un bouton d'action.
       */}
       {children ?? <Icon name="plus" size={26} color="textOnAccent" strokeWidth={2} />}
     </Pressable>

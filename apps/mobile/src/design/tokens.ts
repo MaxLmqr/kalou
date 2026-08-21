@@ -103,19 +103,18 @@ export const hitSize = {
 } as const;
 
 /**
- * Familles de caractères.
+ * Famille de caractères — **une seule**, sur toute l'application.
  *
- * **Deux familles, deux rôles.** Un grotesque contemporain porte tout ce qui se
- * lit et surtout tout ce qui se compte ; un serif de titrage porte la date et
- * les titres d'écran. Le contraste entre les deux fait la hiérarchie à lui seul,
- * sans avoir à empiler des graisses.
+ * Poppins : géométrique, ronde, très lisible en petit corps. Le contraste ne
+ * vient donc pas d'un mélange de familles mais des graisses et des tailles, ce
+ * qui demande une échelle typographique plus franche — d'où l'écart assumé
+ * entre `display` et tout le reste.
  *
- * — **Geist** pour les chiffres et l'interface. Ses chiffres ont un vrai jeu
- *   tabulaire (`tnum`) : sans lui, le chiffre unique tremblerait à chaque
- *   incrément et la colonne de droite du journal ne s'alignerait pas.
- * — **Instrument Serif** pour la date de l'accueil et les titres d'écran. Il
- *   n'a **pas** de chiffres tabulaires : il ne doit jamais porter une valeur qui
- *   change en place.
+ * **Poppins n'a pas de chiffres tabulaires** (aucune fonction `tnum`, et des
+ * chasses très inégales : le « 1 » fait 0,29 cadratin contre 0,62 pour le
+ * « 0 »). Deux conséquences à connaître avant de s'étonner : le chiffre unique
+ * se recompose légèrement quand il change, et une colonne de valeurs n'est pas
+ * alignée au chiffre près. `tabular` sur `<Text>` reste sans effet ici.
  *
  * Les chaînes sont les noms sous lesquels `usePolices()` (`design/fonts.ts`)
  * enregistre les fichiers — les deux côtés sont tenus ensemble par une
@@ -127,49 +126,50 @@ export const hitSize = {
  * `fontWeight: '600'` y resterait sans effet.
  */
 export const fontFamily = {
-  sansLight: 'Geist_300Light',
-  sans: 'Geist_400Regular',
-  sansMedium: 'Geist_500Medium',
-  sansSemiBold: 'Geist_600SemiBold',
-  serif: 'InstrumentSerif_400Regular',
+  light: 'Poppins_300Light',
+  regular: 'Poppins_400Regular',
+  medium: 'Poppins_500Medium',
+  semiBold: 'Poppins_600SemiBold',
 } as const;
 
+/**
+ * Échelle typographique.
+ *
+ * Les interlignes sont plus généreux qu'ils ne le seraient pour un grotesque
+ * neutre : les hampes de Poppins sont longues, et un interligne serré fait se
+ * toucher les lignes d'un paragraphe.
+ */
 export const typography = {
   /** Le chiffre unique de l'accueil, et lui seul. */
   display: {
     fontSize: 64,
-    lineHeight: 68,
-    fontFamily: fontFamily.sansLight,
-    letterSpacing: -2.4,
+    lineHeight: 70,
+    fontFamily: fontFamily.light,
+    letterSpacing: -1.5,
   },
-  /** Chiffre secondaire mis en avant (poids, apport cible dans l'onboarding). */
+  /** Chiffre secondaire mis en avant (poids, durée d'une séance, total d'un repas). */
   numberLarge: {
     fontSize: 34,
-    lineHeight: 40,
-    fontFamily: fontFamily.sans,
-    letterSpacing: -1,
+    lineHeight: 42,
+    fontFamily: fontFamily.regular,
+    letterSpacing: -0.8,
   },
-  /**
-   * Titre d'écran, et la date de l'accueil. Le seul rôle du serif.
-   *
-   * Il compose plus petit à taille égale qu'un grotesque : d'où les 32 points,
-   * qui le posent à la même hauteur optique que l'ancien titre de 26.
-   */
-  title: { fontSize: 32, lineHeight: 36, fontFamily: fontFamily.serif, letterSpacing: -0.2 },
+  /** Titre d'écran, et la date de l'accueil. */
+  title: { fontSize: 26, lineHeight: 34, fontFamily: fontFamily.medium, letterSpacing: -0.4 },
   /** Titre de section, titre de feuille. */
-  heading: { fontSize: 18, lineHeight: 24, fontFamily: fontFamily.sansSemiBold, letterSpacing: -0.2 },
+  heading: { fontSize: 18, lineHeight: 26, fontFamily: fontFamily.semiBold, letterSpacing: -0.2 },
   /** Texte courant. */
-  body: { fontSize: 16, lineHeight: 23, fontFamily: fontFamily.sans },
-  bodyMedium: { fontSize: 16, lineHeight: 23, fontFamily: fontFamily.sansMedium },
+  body: { fontSize: 16, lineHeight: 24, fontFamily: fontFamily.regular },
+  bodyMedium: { fontSize: 16, lineHeight: 24, fontFamily: fontFamily.medium },
   /** Libellé de contrôle, ligne de journal. */
-  label: { fontSize: 15, lineHeight: 20, fontFamily: fontFamily.sansMedium },
+  label: { fontSize: 15, lineHeight: 21, fontFamily: fontFamily.medium },
   /** Légende, unité, mention d'incertitude. */
-  caption: { fontSize: 13, lineHeight: 18, fontFamily: fontFamily.sans },
+  caption: { fontSize: 13, lineHeight: 19, fontFamily: fontFamily.regular },
   /** En-tête de section : petites capitales espacées. */
   overline: {
     fontSize: 12,
     lineHeight: 16,
-    fontFamily: fontFamily.sansSemiBold,
+    fontFamily: fontFamily.semiBold,
     letterSpacing: 1,
   },
 } as const;

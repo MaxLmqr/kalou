@@ -1,10 +1,9 @@
 import {
-  Geist_300Light,
-  Geist_400Regular,
-  Geist_500Medium,
-  Geist_600SemiBold,
-} from '@expo-google-fonts/geist';
-import { InstrumentSerif_400Regular } from '@expo-google-fonts/instrument-serif';
+  Poppins_300Light,
+  Poppins_400Regular,
+  Poppins_500Medium,
+  Poppins_600SemiBold,
+} from '@expo-google-fonts/poppins';
 import { useFonts } from 'expo-font';
 
 import { fontFamily } from './tokens';
@@ -13,7 +12,7 @@ import { fontFamily } from './tokens';
  * Fichiers à charger, indexés par le nom de famille que `tokens.ts` annonce.
  *
  * Le `satisfies Record<...>` n'est pas décoratif : c'est lui qui garantit qu'une
- * famille citée par l'échelle typographique a bien un fichier derrière elle.
+ * graisse citée par l'échelle typographique a bien un fichier derrière elle.
  * Sans lui, une faute de frappe ne se verrait pas au type — elle se verrait à
  * l'écran, en police système, et seulement sur l'écran concerné.
  *
@@ -22,11 +21,10 @@ import { fontFamily } from './tokens';
  * raison d'être retirée ensuite.
  */
 const FICHIERS = {
-  [fontFamily.sansLight]: Geist_300Light,
-  [fontFamily.sans]: Geist_400Regular,
-  [fontFamily.sansMedium]: Geist_500Medium,
-  [fontFamily.sansSemiBold]: Geist_600SemiBold,
-  [fontFamily.serif]: InstrumentSerif_400Regular,
+  [fontFamily.light]: Poppins_300Light,
+  [fontFamily.regular]: Poppins_400Regular,
+  [fontFamily.medium]: Poppins_500Medium,
+  [fontFamily.semiBold]: Poppins_600SemiBold,
 } satisfies Record<(typeof fontFamily)[keyof typeof fontFamily], unknown>;
 
 /**

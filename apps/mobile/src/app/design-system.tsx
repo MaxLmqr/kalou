@@ -49,7 +49,7 @@ export default function DesignSystemScreen() {
 
       {/* ---- Maquette de l'accueil (docs/03 § 2) ---- */}
       <Surface style={{ gap: theme.spacing.xl }}>
-        {/* La date est le titre de l'écran : serif de titrage, en grand. */}
+        {/* La date est le titre de l'écran : composée comme tel, en grand. */}
         <View style={{ gap: theme.spacing.xs }}>
           <Text variant="overline" color="textMuted">
             Aujourd&apos;hui
@@ -109,16 +109,14 @@ export default function DesignSystemScreen() {
       {/* ---- Typographie ---- */}
       <Section title="Typographie">
         {/*
-          Deux familles, deux rôles : le grotesque porte les chiffres et
-          l'interface, le serif ne porte que la date et les titres d'écran. La
-          liste ci-dessous est l'endroit où l'on vérifie que le contraste entre
-          les deux suffit à faire la hiérarchie — sans empiler les graisses.
+          Une seule famille : la liste ci-dessous est l'endroit où l'on vérifie
+          que l'échelle reste franche sans elle — qu'un titre ne se confond pas
+          avec un texte courant, et que le chiffre unique domine tout.
         */}
         <Surface variant="sunken" style={{ gap: theme.spacing.md }}>
           <Text variant="caption" color="textMuted">
-            {fontFamily.sans.replace(/_.*/, '')} pour les chiffres et l&apos;interface,{' '}
-            {fontFamily.serif.replace(/_.*/, '').replace(/([a-z])([A-Z])/g, '$1 $2')} pour les
-            titres.
+            {fontFamily.regular.replace(/_.*/, '')}, en quatre graisses : c&apos;est l&apos;écart
+            des tailles et des graisses qui fait la hiérarchie, pas un mélange de familles.
           </Text>
           <Text variant="display">1 204</Text>
           <Text variant="numberLarge">{formatWeight(72.4)}</Text>

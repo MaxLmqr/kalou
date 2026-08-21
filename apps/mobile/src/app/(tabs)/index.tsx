@@ -117,9 +117,9 @@ function VueDuJour({ jour }: { jour: Journee }) {
         />
       }>
       {/*
-        La date est le titre de l'écran, et elle est traitée comme tel : le
-        serif de titrage, en grand. C'est la seule chose qui situe tout le
-        reste — un chiffre de calories restantes sans jour ne veut rien dire.
+        La date est le titre de l'écran, et elle est traitée comme tel : en
+        grand, dans la graisse de titrage. C'est la seule chose qui situe tout
+        le reste — un chiffre de calories restantes sans jour ne veut rien dire.
       */}
       <View style={{ gap: theme.spacing.xs }}>
         <Text variant="overline" color="textMuted">
