@@ -121,8 +121,22 @@ export const foodRoutes = new Elysia()
   .get(
     '/foods/:id',
     async ({ utilisateur, params, status }) => {
+      // Champs nommés un par un, en `snake_case`, comme la recherche juste
+      // au-dessus : deux conventions sur la même ressource obligeraient le
+      // client à savoir par quelle route il est passé.
       const [aliment] = await db
-        .select()
+        .select({
+          id: foods.id,
+          libelle: foods.libelle,
+          libelle_origine: foods.libelleOrigine,
+          kcal_100g: foods.kcal100g,
+          proteines_100g: foods.proteines100g,
+          glucides_100g: foods.glucides100g,
+          lipides_100g: foods.lipides100g,
+          unite_base: foods.uniteBase,
+          promu: foods.promu,
+          personnel: sql<boolean>`${foods.userId} is not null`,
+        })
         .from(foods)
         .where(
           sql`${foods.id} = ${params.id} and ${foods.actif}
@@ -142,7 +156,31 @@ export const foodRoutes = new Elysia()
         .where(eq(foodPortions.foodId, aliment.id))
         .orderBy(sql`${foodPortions.parDefaut} desc`, asc(foodPortions.libelle))
 
-      return { ...aliment, portions }
+      /**
+       * Dernière quantité consommée de cet aliment, par cet utilisateur.
+       *
+       * C'est le sélecteur de quantité qui la demande : la pré-remplir est « le
+       * raccourci le plus rentable de tout l'écran » (doc 08 § 6). Elle est
+       * servie ici plutôt que dans la recherche — un résultat de recherche sur
+       * vingt n'a pas besoin de la connaître, l'aliment qu'on ouvre, si.
+       */
+      const [usage] = await db
+        .select({
+          derniere_quantite: userFoodUsages.derniereQuantite,
+          derniere_unite: userFoodUsages.derniereUnite,
+          dernier_portion_id: userFoodUsages.dernierPortionId,
+          usages: userFoodUsages.usages,
+        })
+        .from(userFoodUsages)
+        .where(
+          and(eq(userFoodUsages.userId, utilisateur.id), eq(userFoodUsages.foodId, aliment.id)),
+        )
+
+      return {
+        ...aliment,
+        portions,
+        dernier_usage: usage ?? null,
+      }
     },
     { auth: true, params: t.Object({ id: t.String({ format: 'uuid' }) }) },
   )

@@ -159,7 +159,16 @@ type Item =
   pois chiches ».
 - `PATCH` avec `items` **remplace la liste** et recalcule le total. Tout composant dont
   les calories ou la quantité diffèrent de ce qui avait été estimé est marqué
-  `edited_by_user = true`, et l'entrée passe en `etat: "corrige"`.
+  `edited_by_user = true`, et l'entrée passe en `etat: "corrige"`. Cette bascule ne vaut
+  que pour une entrée **issue d'une estimation** : c'est là qu'une correction dit quelque
+  chose — le modèle a proposé, l'humain a tranché. Une entrée saisie à la main puis
+  modifiée à la main reste `manuel` ; la marquer « corrigée » salirait la seule
+  statistique qui compte, celle de la justesse du modèle.
+- Écrire une entrée **note la consommation** de chaque aliment référencé
+  (`user_food_usages`) : c'est ce qui alimente le classement personnel de la recherche
+  (§ 5 de [08](08-base-aliments.md)) et la quantité pré-remplie à la fois suivante (§ 6).
+  Une correction met à jour la dernière quantité mais ne compte pas une consommation de
+  plus.
 - `libelle` est facultatif : à défaut, le serveur le dérive des composants
   (« Pois chiches, pignons + 1 »).
 - Le total ne s'écrit pas directement. Il est toujours `Σ items.kcal`.

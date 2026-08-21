@@ -145,6 +145,113 @@ verifier('DELETE /food-entries/:id', 204, (await appel('DELETE', `/food-entries/
 const nettoye = await appel('GET', '/days/today')
 verifier("la suppression retire l'entrée du total", 0, nettoye.donnees.apports_kcal)
 
+// ── Base d'aliments et repas composé ────────────────────────────────────────
+const recherche = await appel('GET', '/foods?q=pomme&limit=5')
+verifier('GET /foods', 200, recherche.statut, {
+  resultats: recherche.donnees.resultats?.length,
+  premier: recherche.donnees.resultats?.[0]?.libelle,
+  plus_de_variantes: recherche.donnees.plus_de_variantes,
+})
+verifier(
+  'la recherche ne renvoie que le sous-ensemble curé par défaut',
+  1,
+  recherche.donnees.resultats.every((r: any) => r.promu || r.personnel || r.deja_consomme) ? 1 : 0,
+)
+
+// Le client envoie ce drapeau en chaîne (`?toutes_variantes=false`) : c'est la
+// sérialisation d'Eden, et c'est à la validation d'Elysia de la ramener au
+// booléen. Vérifié ici parce qu'un 422 sur ce paramètre ne se verrait qu'à la
+// frappe, dans l'application.
+const curees = await appel('GET', '/foods?q=pomme&limit=50&toutes_variantes=false')
+const variantes = await appel('GET', '/foods?q=pomme&limit=50&toutes_variantes=true')
+verifier('le drapeau de variantes accepte sa forme en chaîne', 200, variantes.statut, {
+  curees: curees.donnees.resultats?.length,
+  toutes: variantes.donnees.resultats?.length,
+})
+verifier(
+  'toutes les variantes en renvoient davantage',
+  1,
+  variantes.donnees.resultats.length > curees.donnees.resultats.length ? 1 : 0,
+)
+
+const alimentId = recherche.donnees.resultats[0].id
+const aliment = await appel('GET', `/foods/${alimentId}`)
+verifier('GET /foods/:id', 200, aliment.statut, {
+  libelle: aliment.donnees.libelle,
+  portions: aliment.donnees.portions?.map((p: any) => `${p.libelle} = ${p.grammes} g`),
+  dernier_usage: aliment.donnees.dernier_usage,
+})
+verifier("aucun usage avant la première consommation", 1, aliment.donnees.dernier_usage === null ? 1 : 0)
+
+const portion = aliment.donnees.portions[0]
+const compose = await appel('POST', '/food-entries', {
+  items: [
+    portion
+      ? { type: 'reference', food_id: alimentId, quantite: 1, unite: 'portion', portion_id: portion.id }
+      : { type: 'reference', food_id: alimentId, quantite: 150, unite: 'g' },
+    { type: 'libre', libelle: 'Vinaigrette maison', kcal: 90 },
+  ],
+})
+verifier('POST /food-entries avec un composant de la base', 200, compose.statut, {
+  libelle: compose.donnees.libelle,
+  total: compose.donnees.kcal,
+  premier: compose.donnees.items?.[0],
+})
+
+const grammes = portion ? portion.grammes : 150
+const attendu = Math.round(aliment.donnees.kcal_100g * (grammes / 100)) + 90
+verifier('les calories du composant viennent du serveur', attendu, compose.donnees.kcal)
+verifier(
+  'le kcal/100 g utilisé est figé dans le composant',
+  Number(aliment.donnees.kcal_100g),
+  Number(compose.donnees.items[0].kcalRefUtilise),
+)
+
+const apresUsage = await appel('GET', `/foods/${alimentId}`)
+verifier('la consommation est notée pour cet aliment', 1, apresUsage.donnees.dernier_usage?.usages)
+verifier(
+  'la dernière quantité est mémorisée pour le prochain repas',
+  1,
+  Number(apresUsage.donnees.dernier_usage?.derniere_quantite) === (portion ? 1 : 150) ? 1 : 0,
+)
+
+const corrige = await appel('PATCH', `/food-entries/${compose.donnees.id}`, {
+  items: [{ type: 'reference', food_id: alimentId, quantite: 200, unite: 'g' }],
+})
+verifier('PATCH /food-entries/:id', 200, corrige.statut, {
+  libelle: corrige.donnees.libelle,
+  total: corrige.donnees.kcal,
+  composants: corrige.donnees.items?.length,
+})
+verifier(
+  'la correction remplace la liste et recalcule le total',
+  Math.round(aliment.donnees.kcal_100g * 2),
+  corrige.donnees.kcal,
+)
+verifier('une entrée manuelle corrigée reste manuelle', 1, corrige.donnees.etat === 'manuel' ? 1 : 0)
+
+const apresCorrection = await appel('GET', `/foods/${alimentId}`)
+verifier(
+  'une correction ne compte pas une consommation de plus',
+  1,
+  apresCorrection.donnees.dernier_usage?.usages,
+)
+
+const rangee = await appel('GET', '/foods?q=pomme&limit=5')
+verifier(
+  'ce qui a été mangé remonte en tête de la recherche',
+  1,
+  rangee.donnees.resultats[0]?.deja_consomme === true ? 1 : 0,
+)
+
+verifier(
+  'PATCH sur une entrée inconnue',
+  404,
+  (await appel('PATCH', '/food-entries/00000000-0000-7000-8000-000000000000', { libelle: 'x' })).statut,
+)
+
+await appel('DELETE', `/food-entries/${compose.donnees.id}`)
+
 const referentiel = await appel('GET', '/activities')
 verifier('GET /activities', 200, referentiel.statut, { activites: referentiel.donnees.length })
 
