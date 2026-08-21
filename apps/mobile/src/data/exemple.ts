@@ -1,10 +1,10 @@
 /**
  * Données d'exemple.
  *
- * L'API n'expose pour l'instant que `/health` et `/me` : les écrans sont donc
- * alimentés d'ici en attendant `GET /days/:date` (doc 06). Un seul module, une
- * seule fois — quand l'API arrivera, c'est ce fichier qui disparaît, pas les
- * écrans.
+ * Les écrans encore non branchés sont alimentés d'ici. Un seul module, une seule
+ * fois — quand l'API arrivera, c'est ce fichier qui disparaît, pas les écrans.
+ * L'accueil, le profil et la pesée en sont déjà sortis : ils lisent `/days/today`,
+ * `/me` et `/weigh-ins`.
  *
  * **Aucun chiffre dérivable n'est écrit en dur.** Apport cible, besoin
  * journalier, reste, calories d'activité, dépense mesurée, plancher protéique,
@@ -15,17 +15,12 @@
  */
 import {
   apportCible,
-  besoinJournalier,
   bmr,
   calibrer,
   deficitQuotidien,
   kcalNet,
-  plancherProteines,
-  restant,
   semainesJusquAuPoidsCible,
   socleFormule,
-  sommeProteines,
-  type ComposantProteique,
   type Sexe,
 } from '@kalou/api/domain';
 
@@ -144,145 +139,7 @@ export const rythmes = [0.25, 0.5, 0.75].map((rythmeKgSemaine) => {
   };
 });
 
-export type TypeEntree = 'repas' | 'activite' | 'pesee';
-
-export type Entree = {
-  id: string;
-  heure: string;
-  titre: string;
-  detail?: string;
-  /** Apport positif, dépense négative. `null` tant que l'estimation n'est pas là. */
-  kcal: number | null;
-  type: TypeEntree;
-  /**
-   * Composants de l'entrée, réduits à ce qui porte les protéines (doc 02 § 9).
-   * Un composant `libre` sans valeur rend la somme du jour partielle.
-   */
-  proteines?: ComposantProteique[];
-};
-
-type JourBrut = {
-  date: Date;
-  entrees: Entree[];
-  socleAppliqueKcal: number;
-  /** Poids de la calibration : 0 tant que l'apport cible vient de la formule. */
-  w: number;
-};
-
-/** Compose une journée. Le modèle fait tout le calcul, ce module ne fait que trier. */
-function composer(jour: JourBrut) {
-  const { socleAppliqueKcal: socleApplique, w } = jour;
-
-  const apportsKcal = jour.entrees
-    .filter((entree) => entree.type === 'repas' && entree.kcal !== null)
-    .reduce((total, entree) => total + (entree.kcal ?? 0), 0);
-
-  const eatKcal = jour.entrees
-    .filter((entree) => entree.type === 'activite' && entree.kcal !== null)
-    .reduce((total, entree) => total - (entree.kcal ?? 0), 0);
-
-  const apportCibleKcal = apportCible({ socleApplique, eatKcal, deficitKcal: DEFICIT, w });
-  const proteines = sommeProteines(jour.entrees.flatMap((entree) => entree.proteines ?? []));
-
-  return {
-    ...jour,
-    apportsKcal,
-    eatKcal,
-    apportCibleKcal,
-    besoinJournalierKcal: besoinJournalier({ socleApplique, eatKcal, w }),
-    restantKcal: restant(apportCibleKcal, apportsKcal),
-    proteines: {
-      ...proteines,
-      plancherG: plancherProteines(profil.tendanceKg),
-    },
-    /** Une entrée sans calories attend encore son estimation. */
-    aUneEstimationEnCours: jour.entrees.some((entree) => entree.kcal === null),
-  };
-}
-
-export type JourCompose = ReturnType<typeof composer>;
-
 const COURSE_45_MIN = kcalNet({ met: 8.3, poidsKg: profil.tendanceKg, dureeMin: 45 });
-
-/** Journée courante : apport cible encore estimé par formule, reste positif. */
-export const jour: JourCompose = composer({
-  date: AUJOURD_HUI,
-  w: 0,
-  socleAppliqueKcal: SOCLE_FORMULE,
-  entrees: [
-    {
-      id: '1',
-      heure: '08:12',
-      titre: 'Café au lait',
-      kcal: 120,
-      type: 'repas',
-      proteines: [{ type: 'reference', proteinesG: 6.2 }],
-    },
-    {
-      id: '2',
-      heure: '12:40',
-      titre: 'Salade César',
-      detail: '4 composants · estimation',
-      kcal: 355,
-      type: 'repas',
-      // La sauce est saisie en calories libres : elle ne porte pas de valeur
-      // protéique, et rend donc la somme du jour partielle (doc 02 § 9).
-      proteines: [
-        { type: 'reference', proteinesG: 30.1 },
-        { type: 'reference', proteinesG: 5.4 },
-        { type: 'libre', proteinesG: null },
-      ],
-    },
-    {
-      id: '3',
-      heure: '18:05',
-      titre: 'Course à pied',
-      detail: '45 min',
-      kcal: -COURSE_45_MIN,
-      type: 'activite',
-    },
-  ],
-});
-
-/**
- * Journée au-dessus de l'apport cible, apport cible mesuré, une estimation en
- * attente. Sert à vérifier que l'écran d'accueil tient ses trois états sans
- * virer au rouge.
- */
-export const jourAuDessus: JourCompose = composer({
-  date: new Date(2026, 7, 21),
-  w: calibration.w,
-  socleAppliqueKcal: calibration.socleAppliqueKcal,
-  entrees: [
-    {
-      id: '1',
-      heure: '07:40',
-      titre: 'Café au lait',
-      kcal: 120,
-      type: 'repas',
-      proteines: [{ type: 'reference', proteinesG: 6.2 }],
-    },
-    {
-      id: '2',
-      heure: '13:05',
-      titre: 'Burger frites',
-      detail: '4 composants · estimation',
-      kcal: 1120,
-      type: 'repas',
-    },
-    { id: '3', heure: '16:30', titre: 'Part de tarte', kcal: 480, type: 'repas' },
-    { id: '4', heure: '19:05', titre: 'Bière', kcal: 240, type: 'repas' },
-    { id: '5', heure: '19:10', titre: 'Chips', detail: '1 poignée', kcal: 250, type: 'repas' },
-    {
-      id: '6',
-      heure: '20:18',
-      titre: 'Repas du soir',
-      detail: 'estimation en cours',
-      kcal: null,
-      type: 'repas',
-    },
-  ],
-});
 
 /** Repas enregistrés et activités, classés par fréquence puis récence (doc 03 § 1). */
 export const reutilisations = [

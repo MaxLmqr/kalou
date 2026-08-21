@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
+import { CLE_JOURNEE } from './use-journee';
+
 export const CLE_MOI = ['me'] as const;
 
 /**
@@ -40,7 +42,12 @@ export function useEnregistrerProfil() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLE_MOI }),
+    // La morphologie entre dans le métabolisme de base : l'apport cible du jour
+    // change avec elle, et l'accueil doit le relire plutôt que le déduire.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLE_MOI });
+      queryClient.invalidateQueries({ queryKey: CLE_JOURNEE });
+    },
   });
 }
 
@@ -58,6 +65,9 @@ export function useEnregistrerObjectif() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: CLE_MOI }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLE_MOI });
+      queryClient.invalidateQueries({ queryKey: CLE_JOURNEE });
+    },
   });
 }

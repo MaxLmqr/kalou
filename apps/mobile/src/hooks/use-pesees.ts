@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 
+import { CLE_JOURNEE } from './use-journee';
 import { CLE_MOI } from './use-moi';
 
 export const CLE_PESEES = ['weigh-ins'] as const;
@@ -30,7 +31,8 @@ export function usePesees() {
  *
  * Invalide aussi `/me` : une première pesée débloque l'objectif, qui n'est pas
  * calculable sans tendance. Sans cette invalidation, l'écran d'objectif
- * continuerait de refuser alors que la condition est levée.
+ * continuerait de refuser alors que la condition est levée. Et la journée, dont
+ * le socle et le plancher protéique sont calculés sur la tendance.
  */
 export function useEnregistrerPesee() {
   const queryClient = useQueryClient();
@@ -44,6 +46,7 @@ export function useEnregistrerPesee() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLE_PESEES });
       queryClient.invalidateQueries({ queryKey: CLE_MOI });
+      queryClient.invalidateQueries({ queryKey: CLE_JOURNEE });
     },
   });
 }

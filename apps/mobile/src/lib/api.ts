@@ -57,6 +57,20 @@ export function jourIso(valeur: string | Date | null | undefined): string | null
 }
 
 /**
+ * Vrai si l'API a refusé la requête pour une raison qui ne bougera pas d'elle-même
+ * (4xx) : profil incomplet, validation, session expirée, ressource absente.
+ *
+ * Réessayer ne change rien à un refus déterministe — cela ne fait que retarder
+ * l'écran qui doit l'expliquer. C'est le cas de l'accueil devant un onboarding
+ * inachevé (422 `profil_incomplet`), qui est un état de l'application et non une
+ * panne.
+ */
+export function estRefusDuClient(rejet: unknown): boolean {
+  const status = (rejet as { status?: number } | null)?.status
+  return typeof status === 'number' && status >= 400 && status < 500
+}
+
+/**
  * Vrai si le rejet est un 401 de l'API : session absente, expirée ou révoquée.
  *
  * Le cas n'est pas théorique en développement — une base réinitialisée efface

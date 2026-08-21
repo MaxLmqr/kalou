@@ -1,6 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query'
 
-import { estSessionExpiree } from './api'
+import { estRefusDuClient, estSessionExpiree } from './api'
 import { signOut } from './auth'
 
 /**
@@ -42,9 +42,10 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 30_000,
-      // Une session expirée ne se répare pas en réessayant : trois requêtes
-      // pour le même 401 ne font que retarder le retour à la connexion.
-      retry: (echecs, rejet) => !estSessionExpiree(rejet) && echecs < 2,
+      // Un refus du serveur ne se répare pas en réessayant : trois requêtes
+      // pour le même 401 ne font que retarder le retour à la connexion, et
+      // trois pour le même 422 retardent l'écran qui dit ce qui manque.
+      retry: (echecs, rejet) => !estRefusDuClient(rejet) && echecs < 2,
     },
   },
   queryCache: new QueryCache({ onError: fermerLaSession }),

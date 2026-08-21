@@ -8,26 +8,9 @@ import { formatKcal, formatRythme, formatWeight } from '@/design/format';
 import { useMoi } from '@/hooks/use-moi';
 import { jourIso } from '@/lib/api';
 import { signOut } from '@/lib/auth';
+import { libellesManque } from '@/lib/onboarding';
 
 const A_RENSEIGNER = 'À renseigner';
-
-/**
- * Les codes de `onboarding.manque` sont ceux de l'API (doc 06 § 3). Les
- * afficher tels quels ferait lire « date_naissance » à l'utilisateur.
- */
-const LIBELLE_MANQUE: Record<string, string> = {
-  sexe: 'ton sexe biologique',
-  date_naissance: 'ta date de naissance',
-  taille: 'ta taille',
-  pesee: 'une première pesée',
-  objectif: 'un objectif de perte',
-};
-
-/** « a, b et c » — l'énumération française, pas une liste à puces. */
-function enumerer(elements: string[]): string {
-  if (elements.length <= 1) return elements[0] ?? '';
-  return `${elements.slice(0, -1).join(', ')} et ${elements[elements.length - 1]}`;
-}
 
 /**
  * Profil — volontairement pauvre (docs/03 § 6).
@@ -88,7 +71,7 @@ export default function ProfilScreen() {
             Kalou ne peut pas encore calculer ton apport cible.
           </Text>
           <Text variant="caption" color="accent">
-            Il manque {enumerer(moi.onboarding.manque.map((quoi) => LIBELLE_MANQUE[quoi] ?? quoi))}.
+            Il manque {libellesManque(moi.onboarding.manque)}.
           </Text>
         </Surface>
       ) : null}
