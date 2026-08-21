@@ -1,4 +1,4 @@
-import { activityEntries, db, foodEntries, foodEntryItems, profiles } from '@kalou/db'
+import { activities, activityEntries, db, foodEntries, foodEntryItems, profiles } from '@kalou/db'
 import { and, asc, eq, inArray, isNull } from 'drizzle-orm'
 import { Elysia, t } from 'elysia'
 
@@ -35,9 +35,14 @@ async function journalDuJour(userId: string, localDate: string) {
           )
           .orderBy(asc(foodEntryItems.position))
 
+  // Le libellé vit dans le référentiel MET, pas dans l'entrée : sans cette
+  // jointure, le journal ne pourrait afficher que `course_8kmh`. On ne filtre
+  // pas sur `actif` — une activité retirée du référentiel ne doit pas faire
+  // disparaître les séances déjà enregistrées.
   const activites = await db
-    .select()
+    .select({ entree: activityEntries, libelle: activities.libelle })
     .from(activityEntries)
+    .innerJoin(activities, eq(activityEntries.activityCode, activities.code))
     .where(
       and(
         eq(activityEntries.userId, userId),
@@ -53,7 +58,11 @@ async function journalDuJour(userId: string, localDate: string) {
       ...entree,
       items: composants.filter((item) => item.foodEntryId === entree.id),
     })),
-    ...activites.map((activite) => ({ genre: 'activite' as const, ...activite })),
+    ...activites.map(({ entree, libelle }) => ({
+      genre: 'activite' as const,
+      ...entree,
+      libelle,
+    })),
   ].sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime())
 }
 
