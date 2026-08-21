@@ -277,7 +277,37 @@ verifier('le MET est figé depuis le référentiel', 8.3, activite.donnees.met)
 verifier('le poids figé est la tendance du jour', 85, activite.donnees.poidsUtiliseKg)
 
 const avecEat = await appel('GET', '/days/today')
-verifier("l'activité augmente l'apport cible", 489, avecEat.donnees.detail.eat_kcal)
+verifier("l'activité est comptée dans la journée", 489, avecEat.donnees.detail.eat_kcal)
+
+/*
+  Ce que l'activité rend n'est pas ce qu'elle a coûté : la correction de TEF
+  s'applique à l'EAT comme au reste (doc 02 § 3.2), donc 489 kcal courues
+  ajoutent 489 / 0,90 = 543 kcal au besoin et à l'apport cible. L'accueil
+  affiche ce chiffre-là ; afficher la dépense nette donnait un « dont » qui ne
+  tombait pas juste.
+*/
+verifier("ce que l'activité rend passe par la correction de TEF", 543, avecEat.donnees.detail.eat_ajout_kcal)
+/*
+  À une calorie près, et pas davantage : 489 / 0,90 vaut 543,33, et trois
+  arrondis indépendants (le besoin sans sport, le besoin avec, le montant rendu)
+  ne peuvent pas tomber tous les trois sur le même entier. L'écart est borné à 1,
+  ce qui est le seul énoncé vrai — exiger l'égalité stricte serait un test qui
+  passe par chance.
+*/
+const monteeDuBesoin = avecEat.donnees.besoin_journalier_kcal - jour.donnees.besoin_journalier_kcal
+const monteeDeLaCible = avecEat.donnees.apport_cible_kcal - jour.donnees.apport_cible_kcal
+verifier(
+  "le besoin monte de ce que l'activité rend, à l'arrondi près",
+  1,
+  Math.abs(monteeDuBesoin - avecEat.donnees.detail.eat_ajout_kcal) <= 1 ? 1 : 0,
+  { rendu: avecEat.donnees.detail.eat_ajout_kcal, montee: monteeDuBesoin },
+)
+verifier(
+  "l'apport cible monte du même montant",
+  1,
+  Math.abs(monteeDeLaCible - avecEat.donnees.detail.eat_ajout_kcal) <= 1 ? 1 : 0,
+  { rendu: avecEat.donnees.detail.eat_ajout_kcal, montee: monteeDeLaCible },
+)
 verifier(
   "l'activité apparaît dans le journal",
   1,

@@ -18,6 +18,7 @@ import {
   besoinJournalier,
   bmr,
   deficitQuotidien,
+  facteurTef,
   phase,
   plancherProteines,
   restant,
@@ -46,7 +47,19 @@ export type VueDuJour = {
   detail: {
     bmr: number
     socle: number
+    /** Dépense sportive **nette** du jour, telle que le journal l'affiche. */
     eat_kcal: number
+    /**
+     * Ce que cette activité ajoute au besoin et à l'apport cible.
+     *
+     * Ce n'est pas `eat_kcal` : la correction de TEF s'applique à l'activité
+     * comme au reste (doc 02 § 3.2), donc 489 kcal courues rendent 543 kcal
+     * d'assiette — manger plus coûte aussi plus de digestion. Servi calculé
+     * parce que c'est le seul chiffre qui explique l'écart entre deux journées
+     * identiques dont l'une a du sport, et que le client n'a pas `w` pour le
+     * retrouver lui-même.
+     */
+    eat_ajout_kcal: number
     deficit_cible: number
     phase: Phase
   }
@@ -213,6 +226,7 @@ export async function calculerJournee(
       bmr: Math.round(bmrKcal),
       socle: Math.round(socleApplique),
       eat_kcal: eatKcal,
+      eat_ajout_kcal: Math.round(eatKcal * facteurTef(w)),
       deficit_cible: Math.round(deficitKcal),
       phase: phase(w),
     },

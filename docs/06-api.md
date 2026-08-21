@@ -114,7 +114,8 @@ type DayView = {
   detail: {
     bmr: number;
     socle: number;
-    eat_kcal: number;
+    eat_kcal: number;      // dépense sportive nette, telle que le journal l'affiche
+    eat_ajout_kcal: number; // ce que cette activité ajoute au besoin et à l'apport cible
     deficit_cible: number;
     phase: "formule" | "transition" | "calibre";
   };
@@ -131,6 +132,13 @@ type DayView = {
 
 `GET /days/:date` est le seul appel nécessaire au rendu de l'écran d'accueil. Cible :
 une requête, moins de 100 ms.
+
+**`eat_ajout_kcal` n'est pas `eat_kcal`**, et c'est tout l'intérêt de le servir : la
+correction de TEF s'applique à l'activité comme au reste (doc 02 § 3.2), donc 489 kcal
+courues ajoutent 489 / 0,90 = 543 kcal au besoin comme à l'apport cible. C'est ce
+second chiffre que l'accueil annonce sous « Besoin » — le premier ne tomberait pas
+juste, le besoin ne montant pas de ce montant-là. Il est calculé côté serveur parce que
+le client n'a pas `w`, donc pas le facteur de correction.
 
 ## 5. Entrées alimentaires
 
