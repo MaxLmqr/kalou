@@ -9,7 +9,7 @@ import {
 } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { ThemeProvider, radius, themes, usePolices } from '@/design';
@@ -17,6 +17,16 @@ import { useSession } from '@/lib/auth';
 import { queryClient } from '@/lib/query-client';
 
 SplashScreen.preventAutoHideAsync();
+
+/**
+ * Ancre de la pile racine : les onglets, donc l'accueil.
+ *
+ * Sans elle, une URL ouvrant directement une modale — un lien profond, ou l'URL
+ * que le client de développement rejoue au lancement — donne une pile d'un seul
+ * écran : « Fermer » n'a alors rien à fermer, et l'écran devient une impasse.
+ * L'ancre garantit que l'accueil est toujours dessous.
+ */
+export const unstable_settings = { anchor: '(tabs)' };
 
 /**
  * Pile racine.
@@ -130,7 +140,7 @@ export default function RootLayout() {
 }
 
 /**
- * Garde de session.
+ * Garde de session, et page d'ouverture.
  *
  * Redirige vers la connexion tant qu'il n'y a pas de session, et en sort dès
  * qu'il y en a une. La règle vit ici plutôt que dans chaque écran : un oubli
@@ -139,19 +149,46 @@ export default function RootLayout() {
  *
  * L'écran de démarrage reste affiché pendant la résolution — sans quoi on
  * verrait la connexion s'afficher puis disparaître à chaque lancement.
+ *
+ * **L'ouverture se fait sur l'accueil**, quelle que soit l'URL de lancement.
+ * Un binaire lancé depuis l'écran d'accueil du téléphone démarre déjà sur `/`,
+ * mais pas un client de développement : celui-ci rejoue la dernière URL
+ * ouverte, et l'on se retrouve à démarrer sur un composeur de repas ou sur le
+ * catalogue du design system. Aucun lien profond n'a de sens à honorer
+ * aujourd'hui — il n'y a ni notification (docs/03 § 7) ni partage — donc la
+ * règle est simple : au démarrage, on va à l'accueil. À rouvrir le jour où une
+ * notification devra amener quelque part.
  */
 function GardeDeSession({ children }: { children: ReactNode }) {
   const { data: session, isPending } = useSession();
   const segments = useSegments();
   const router = useRouter();
+  /** Faux dès que la première résolution de session a été traitée. */
+  const auDemarrage = useRef(true);
 
   useEffect(() => {
     if (isPending) return;
     SplashScreen.hideAsync();
 
     const dansLaConnexion = segments[0] === '(auth)';
-    if (!session && !dansLaConnexion) router.replace('/connexion');
-    else if (session && dansLaConnexion) router.replace('/');
+    const demarrage = auDemarrage.current;
+    auDemarrage.current = false;
+
+    if (!session) {
+      if (!dansLaConnexion) router.replace('/connexion');
+      return;
+    }
+    if (dansLaConnexion) {
+      router.replace('/');
+      return;
+    }
+    // L'accueil, et lui seul : `(tabs)` sans second segment (ou `index`). Un
+    // démarrage sur l'historique ou sur le profil n'est pas plus voulu qu'un
+    // démarrage au milieu d'une saisie.
+    // Les routes typées le confirment : l'accueil est le groupe seul, sans second
+    // segment — `(tabs)/history` et `(tabs)/profile` sont les deux seuls autres.
+    const surLAccueil = segments.length === 1 && segments[0] === '(tabs)';
+    if (demarrage && !surLAccueil) router.replace('/');
   }, [session, isPending, segments, router]);
 
   return children;

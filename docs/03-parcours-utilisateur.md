@@ -121,6 +121,13 @@ même titre qu'un repas ou qu'une séance.
 
 ## 2. Écran d'accueil
 
+**L'application s'ouvre toujours ici.** Quelle que soit l'URL de lancement, le premier
+écran est l'accueil : aucun lien profond n'a de sens à honorer tant qu'il n'y a ni
+notification (§ 7) ni partage, et un client de développement qui rejoue la dernière URL
+ouverte ferait démarrer l'application au milieu d'une saisie. L'accueil est aussi
+l'ancre de la pile : une modale ouverte par un lien a donc toujours quelque chose sous
+elle à fermer.
+
 ```
 ┌─────────────────────────────────┐
 │  AUJOURD'HUI                    │

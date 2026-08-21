@@ -6,7 +6,7 @@ import {
   View,
   type ViewProps,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/design';
 
@@ -106,18 +106,36 @@ export function Screen({
   );
 
   return (
-    <View style={[{ flex: 1, backgroundColor: theme.colors.background }, style]} {...rest}>
-      <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-        {avoidKeyboard ? (
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            {corps}
-          </KeyboardAvoidingView>
-        ) : (
-          corps
-        )}
-      </SafeAreaView>
+    /*
+      La zone sûre du haut est prise sur la **fenêtre**, pas sur la vue.
+
+      `SafeAreaView` lit la zone sûre de la vue où il est monté, et celle d'une
+      modale présentée en plein écran par-dessus un autre écran vaut zéro : le
+      titre du composeur passait sous l'heure de la barre d'état. Le défaut ne se
+      voyait pas en ouvrant l'écran directement — seulement quand la modale
+      s'ouvre par-dessus l'accueil, c'est-à-dire dans le seul chemin réel.
+    */
+    <View
+      style={[
+        {
+          flex: 1,
+          backgroundColor: theme.colors.background,
+          paddingTop: insets.top,
+          paddingLeft: insets.left,
+          paddingRight: insets.right,
+        },
+        style,
+      ]}
+      {...rest}>
+      {avoidKeyboard ? (
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          {corps}
+        </KeyboardAvoidingView>
+      ) : (
+        corps
+      )}
 
       {floatingAction ? (
         <View
