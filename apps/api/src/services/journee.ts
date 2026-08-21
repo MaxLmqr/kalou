@@ -19,14 +19,12 @@ import {
   bmr,
   deficitQuotidien,
   facteurTef,
-  phase,
   plancherProteines,
   restant,
   socleFormule,
   sommeProteines,
   tendanceCourante,
   type ComposantProteique,
-  type Phase,
   type Sexe,
 } from '../domain'
 
@@ -61,7 +59,6 @@ export type VueDuJour = {
      */
     eat_ajout_kcal: number
     deficit_cible: number
-    phase: Phase
   }
   proteines: {
     /** `null` si aucun composant du jour ne porte de valeur protéique. */
@@ -182,8 +179,10 @@ async function eatDuJour(userId: string, localDate: string): Promise<number> {
  * Assemble la vue d'une journée. Doc 06 § 4 — le seul appel nécessaire au rendu
  * de l'écran d'accueil.
  *
- * Le poids de calibration `w` est nul tant que le jalon 4 n'est pas là : le
- * socle vient de la formule et la correction de TEF s'applique pleinement.
+ * La calibration est **hors périmètre** (doc 02 § 5, doc 07 V0.1) : le poids `w`
+ * est donc nul, le socle vient de la formule et la correction de TEF s'applique
+ * pleinement. C'est exactement le régime du § 3.2, et rien dans la réponse
+ * n'annonce une mesure à venir.
  */
 export async function calculerJournee(
   userId: string,
@@ -228,7 +227,6 @@ export async function calculerJournee(
       eat_kcal: eatKcal,
       eat_ajout_kcal: Math.round(eatKcal * facteurTef(w)),
       deficit_cible: Math.round(deficitKcal),
-      phase: phase(w),
     },
     proteines: {
       total_g: proteines.totalG,

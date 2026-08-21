@@ -86,7 +86,7 @@ les colonnes `apple_sub` et `google_sub`, retirées du doc 05.
 ## 3. Profil et objectif
 
 ```
-GET   /me                          → { user, profile, goal, calibration_state }
+GET   /me                          → { user, profile, goal }
 PATCH /me/profile                  { sexe?, date_naissance?, taille_cm? }
 PUT   /me/goal                     { rythme_kg_semaine, poids_cible_kg? }
                                    → { goal, rythme_applique, plafonds_appliques, apport_cible_estime }
@@ -117,7 +117,6 @@ type DayView = {
     eat_kcal: number;      // dépense sportive nette, telle que le journal l'affiche
     eat_ajout_kcal: number; // ce que cette activité ajoute au besoin et à l'apport cible
     deficit_cible: number;
-    phase: "formule" | "transition" | "calibre";
   };
   proteines: {
     total_g: number | null;
@@ -125,7 +124,7 @@ type DayView = {
     partiel: boolean;             // true si une entrée libre rend la somme incomplète
   };
   entrees_en_attente: number;     // exclues des totaux — à afficher explicitement
-  journal: (FoodEntry | ActivityEntry)[];   // trié par occurred_at
+  journal: (FoodEntry | ActivityEntry | WeighIn)[];   // trié par occurred_at, `genre` discrimine
   tendance_poids_kg: number | null;
 };
 ```
@@ -133,12 +132,20 @@ type DayView = {
 `GET /days/:date` est le seul appel nécessaire au rendu de l'écran d'accueil. Cible :
 une requête, moins de 100 ms.
 
-**`eat_ajout_kcal` n'est pas `eat_kcal`**, et c'est tout l'intérêt de le servir : la
-correction de TEF s'applique à l'activité comme au reste (doc 02 § 3.2), donc 489 kcal
-courues ajoutent 489 / 0,90 = 543 kcal au besoin comme à l'apport cible. C'est ce
-second chiffre que l'accueil annonce sous « Besoin » — le premier ne tomberait pas
-juste, le besoin ne montant pas de ce montant-là. Il est calculé côté serveur parce que
-le client n'a pas `w`, donc pas le facteur de correction.
+**`eat_ajout_kcal` n'est pas `eat_kcal`** : la correction de TEF s'applique à l'activité
+comme au reste (doc 02 § 3.2), donc 489 kcal courues ajoutent 489 / 0,90 = 543 kcal au
+besoin comme à l'apport cible. Il est servi avec `bmr`, `socle` et `deficit_cible`, pour
+qui veut vérifier le calcul ; comme eux, l'accueil ne l'affiche pas (§ 2 de
+[03](03-parcours-utilisateur.md)).
+
+**Le journal porte les trois genres de saisie du jour** — `repas`, `activite`, `pesee` —
+discriminés par `genre`. La pesée n'a pas de calories et n'entre dans aucun total : elle
+est là parce que l'accueil est l'endroit où l'on vérifie ce qu'on a saisi.
+
+**Pas de `phase`.** La calibration est hors périmètre (doc 02 § 5) : il n'y a qu'un
+régime, celui du § 3.2, et un champ dont la valeur serait constante n'apprendrait rien à
+personne — il inviterait seulement le client à afficher une distinction qui n'existe
+pas.
 
 ## 5. Entrées alimentaires
 
@@ -269,7 +276,11 @@ DELETE /weigh-ins/:id                                  → 204
 La réponse au `POST` contient la **tendance** recalculée : c'est ce que l'interface
 affiche, pas la variation brute.
 
-## 11. Calibration
+## 11. Calibration — hors périmètre pour l'instant
+
+> Ce chantier arrive au V0.1 (cf. [07](07-roadmap.md)) : la route n'existe pas, et
+> `/me` ne porte aucun état de calibration. La spécification ci-dessous reste la
+> référence pour le jour où on l'implémentera.
 
 ```
 GET  /calibration        → { statut, socle_applique, socle_formule, socle_mesure?,

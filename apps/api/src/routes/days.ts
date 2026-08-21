@@ -1,4 +1,4 @@
-import { activities, activityEntries, db, foodEntries, foodEntryItems, profiles } from '@kalou/db'
+import { activities, activityEntries, db, foodEntries, foodEntryItems, profiles, weighIns } from '@kalou/db'
 import { and, asc, eq, inArray, isNull } from 'drizzle-orm'
 import { Elysia, t } from 'elysia'
 
@@ -7,7 +7,7 @@ import { profilIncomplet } from '../http/erreurs'
 import { authMacro } from '../plugins/auth'
 import { calculerJournee, etatDuProfil } from '../services/journee'
 
-/** Journal du jour : entrées alimentaires et activités, triées par instant. */
+/** Journal du jour : repas, séances et pesée, triés par instant. */
 async function journalDuJour(userId: string, localDate: string) {
   const entrees = await db
     .select()
@@ -52,6 +52,31 @@ async function journalDuJour(userId: string, localDate: string) {
     )
     .orderBy(asc(activityEntries.occurredAt))
 
+  /*
+    La pesée est dans le journal, au même titre qu'un repas ou qu'une séance.
+
+    C'est une saisie du jour comme les autres, et l'accueil est l'endroit où l'on
+    vérifie ce qu'on a saisi : l'en écarter obligeait à ouvrir un autre écran
+    pour savoir si on s'était pesé. Elle ne porte aucune calorie et ne compte
+    donc dans aucun total — c'est une ligne de journal, pas un apport.
+  */
+  const pesees = await db
+    .select({
+      id: weighIns.id,
+      occurredAt: weighIns.occurredAt,
+      localDate: weighIns.localDate,
+      poidsKg: weighIns.poidsKg,
+      estAberrante: weighIns.estAberrante,
+    })
+    .from(weighIns)
+    .where(
+      and(
+        eq(weighIns.userId, userId),
+        eq(weighIns.localDate, localDate),
+        isNull(weighIns.deletedAt),
+      ),
+    )
+
   return [
     ...entrees.map((entree) => ({
       genre: 'repas' as const,
@@ -63,6 +88,7 @@ async function journalDuJour(userId: string, localDate: string) {
       ...entree,
       libelle,
     })),
+    ...pesees.map((pesee) => ({ genre: 'pesee' as const, ...pesee })),
   ].sort((a, b) => a.occurredAt.getTime() - b.occurredAt.getTime())
 }
 

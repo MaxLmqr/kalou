@@ -119,7 +119,15 @@ export function balance({
   return apportsKcal - depenseReelle({ socleApplique, eatKcal, apportsKcal, w })
 }
 
-/** Phase exposée par l'API (doc 06 § 4), dérivée du poids de calibration. */
+/**
+ * Phase du modèle, dérivée du poids de calibration.
+ *
+ * **Dormante** : la calibration est hors périmètre (doc 02 § 5), `w` vaut donc
+ * toujours 0 et rien n'appelle cette fonction. L'API ne sert plus de `phase` —
+ * un champ constant n'apprend rien et invite le client à afficher une
+ * distinction qui n'existe pas. Conservée avec la spécification qu'elle
+ * implémente, pour le jour où le chantier sera fait.
+ */
 export function phase(w: number): Phase {
   if (w <= 0) return 'formule'
   if (w >= 1) return 'calibre'

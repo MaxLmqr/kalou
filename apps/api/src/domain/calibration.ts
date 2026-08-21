@@ -11,6 +11,17 @@ import {
 } from './constantes'
 import type { GardeFou, StatutCalibration } from './types'
 
+/**
+ * Calibration automatique du socle. Doc 02 § 5.
+ *
+ * **Module dormant.** La calibration est hors périmètre pour l'instant (encadré
+ * du § 5, et doc 07 : elle arrive au V0.1) : aucune route ne l'appelle, aucun
+ * travail de fond ne l'exécute, et l'application ne l'annonce nulle part. Le
+ * calcul et ses garde-fous restent ici, testés, parce qu'ils sont la partie
+ * difficile du chantier et que les réécrire depuis le document coûterait plus
+ * cher que de les garder au chaud.
+ */
+
 export type EntreesCalibration = {
   fenetreJours?: number
   /** Jours avec apports saisis **dans la fenêtre** — condition d'activation (§ 5.1). */

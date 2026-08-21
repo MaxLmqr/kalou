@@ -39,8 +39,6 @@ export const meRoutes = new Elysia()
         profile: profile ?? null,
         goal: goal ?? null,
         onboarding: etat.complet ? { complet: true as const } : { complet: false as const, manque: etat.manque },
-        // La calibration n'existe qu'au jalon 4 ; la phase est donc figée.
-        calibration_state: { phase: 'formule' as const },
       }
     },
     { auth: true },

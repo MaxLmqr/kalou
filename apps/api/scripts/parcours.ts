@@ -114,6 +114,16 @@ verifier('GET /days/today', 200, jour.statut, {
 
 // Les chiffres du § 3.2 du doc 02, à l'arrondi près.
 verifier('apport cible conforme au doc 02', 1679, jour.donnees.apport_cible_kcal)
+verifier(
+  'la pesée du jour est dans le journal',
+  1,
+  jour.donnees.journal.filter((e: any) => e.genre === 'pesee').length,
+)
+verifier(
+  "la journée n'annonce plus de phase de calibration",
+  1,
+  jour.donnees.detail.phase === undefined ? 1 : 0,
+)
 verifier('besoin journalier conforme au doc 02', 2290, jour.donnees.besoin_journalier_kcal)
 verifier('socle conforme au doc 02', 2061, jour.donnees.detail.socle)
 // 1,6 × 85 kg = 136 g, arrondi à 5 g près (doc 02 § 9).
