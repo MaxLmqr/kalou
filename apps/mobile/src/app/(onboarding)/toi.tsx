@@ -37,11 +37,11 @@ export default function ToiScreen() {
         {/*
           docs/02 § 2 : la formule de Mifflin-St Jeor n'existe qu'en deux
           variantes. Le dire évite que le choix soit vécu comme une case à
-          cocher identitaire — et rappelle que la calibration corrigera l'écart.
+          cocher identitaire.
         */}
         <Text variant="caption" color="textMuted">
           La formule n&apos;existe qu&apos;en deux variantes. Choisis celle qui approche le mieux ta
-          masse musculaire ; la calibration corrigera l&apos;écart.
+          masse musculaire.
         </Text>
       </View>
 

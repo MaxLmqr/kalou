@@ -7,6 +7,7 @@ export { ScreenHeader } from './header';
 export { Icon, type IconName } from './icon';
 export { Input } from './input';
 export { List } from './list';
+export { Pastille } from './pastille';
 export { ProgressBar } from './progress';
 export { Row } from './row';
 export { Screen, Section } from './screen';

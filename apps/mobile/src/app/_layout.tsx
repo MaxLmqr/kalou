@@ -120,7 +120,6 @@ export default function RootLayout() {
             <Stack.Screen name="profil-morphologie" />
             <Stack.Screen name="profil-objectif" />
 
-            <Stack.Screen name="calibration" />
             <Stack.Screen name="design-system" />
           </Stack>
           </GardeDeSession>

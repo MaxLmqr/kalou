@@ -116,7 +116,8 @@ dans l'enregistrement : le poids retenu et la durée.
 
 Un sélecteur numérique pré-positionné sur la dernière pesée. Un tap pour valider.
 Après validation, la variation de **tendance** est affichée — jamais la variation
-brute par rapport à hier.
+brute par rapport à hier. La pesée apparaît ensuite dans le journal du jour (§ 2), au
+même titre qu'un repas ou qu'une séance.
 
 ## 2. Écran d'accueil
 
@@ -127,21 +128,21 @@ brute par rapport à hier.
 │ ┌─────────────────────────────┐ │
 │ │          1 747              │ │
 │ │     calories restantes      │ │
-│ │          (estimé)           │ │
 │ │  ●━━━━━━━━━━━━━━○━━━━━━━    │ │
 │ └─────────────────────────────┘ │
 │ ┌─────────────────────────────┐ │
 │ │ Mangé                   475 │ │
-│ │ Besoin   (dont 543 ⚡) 2 833 │ │
+│ │ Besoin                2 833 │ │
 │ │ Apport cible          2 222 │ │
 │ │ Protéines      ≥ 42 / 135 g │ │
-│ │ Apport cible estimé — Kalou │ │
-│ │ le mesurera après deux…     │ │
+│ │ Apport cible estimé depuis  │ │
+│ │ ta morphologie…             │ │
 │ └─────────────────────────────┘ │
 │  JOURNAL                        │
-│  08:12  Café au lait      120   │
-│  12:40  Salade César      355   │
-│  18:05  Course 45 min    −489   │
+│  ⚖ 07:05  Pesée       82,4 kg   │
+│  🍽 08:12  Café au lait    120   │
+│  🍽 12:40  Salade César    355   │
+│  🏃 18:05  Course 45 min  −489   │
 │                                 │
 │                          ( + )  │
 └─────────────────────────────────┘
@@ -152,12 +153,13 @@ Les chiffres de cet écran sont ceux du § 3.2 de [02](02-modele-calorique.md) �
 (2 061 + 489) / 0,90 = 2 833, apport cible (2 061 + 489 − 550) / 0,90 = 2 222,
 restant 2 222 − 475 = 1 747.
 
-**Le « dont » de la ligne « Besoin » annonce 543 et non 489** : ce que l'activité rend
-n'est pas ce qu'elle a coûté. La correction de TEF s'applique à elle aussi, donc
-489 / 0,90 = 543 kcal d'assiette gagnées — manger plus coûte aussi plus de digestion.
-La dépense nette, elle, se lit dans le journal, signée. Annoncer 489 ici donnait un
-« dont » qui ne tombait pas juste, et c'est la première chose qu'un lecteur essaie de
-vérifier.
+**Aucune annotation sur la ligne « Besoin ».** Elle a porté un « dont 489 par
+l'activité », et c'était faux : la correction de TEF s'applique aussi à l'activité, donc
+une séance de 489 kcal ajoute 489 / 0,90 = 543 kcal au besoin. Le « dont » ne tombait
+donc jamais juste — et une fois corrigé à 543, il annonçait un chiffre que rien d'autre
+à l'écran ne recoupait. La séance qui l'a produit est dans le journal, signée, une ligne
+plus bas : c'est suffisant. L'API sert le montant (`eat_ajout_kcal`) pour qui veut
+vérifier le calcul, l'accueil ne l'affiche pas.
 
 **Un seul grand chiffre** : les calories restantes. Les protéines sont la seule autre
 grandeur suivie (§ 9 de [02](02-modele-calorique.md)) : une ligne discrète, un plancher
@@ -168,10 +170,13 @@ remplit, et continue au-delà sans changer de couleur pour l'alarme.
 
 **La date est le titre de l'écran**, et elle est composée comme tel : en grand, dans la
 graisse de titrage. Un chiffre de calories restantes sans jour ne veut rien dire, et
-c'est la seule chose qui situe tout le reste. La provenance de l'apport cible se dit en
-deux registres : une pastille de trois mots sous le chiffre — « estimé », « mesuré » —
-et la phrase complète au bas du bloc de détail, là où la ligne « Apport cible » la rend
-nécessaire.
+c'est la seule chose qui situe tout le reste.
+
+**L'honnêteté sur l'incertitude tient en une phrase fixe**, au bas du bloc de détail :
+« apport cible estimé depuis ta morphologie et ta tendance de poids ». Tant que la
+calibration est hors périmètre (§ 5), il n'y a pas deux régimes à distinguer : une
+pastille « estimé » qui ne changerait jamais n'apprendrait rien, et une promesse de
+mesure à venir engagerait ce que l'application ne fait pas.
 
 **Deux blocs, pas quatre lignes flottantes.** Le chiffre unique et sa piste de
 progression sont sur une carte posée ; les quatre lignes de détail sont dans un bloc
@@ -183,6 +188,14 @@ dit « Journal » et non « Aujourd'hui » : c'est l'en-tête de l'écran qui po
 et le répéter à mi-hauteur ne dirait rien de plus. Chaque ligne est modifiable par tap
 et supprimable par balayage. Une entrée en attente d'estimation affiche une pastille
 discrète plutôt qu'un compte à rebours.
+
+**Trois genres, une pastille chacun** : repas, séance, et **pesée**. La pesée est une
+saisie du jour comme les autres, et l'accueil est l'endroit où l'on vérifie ce qu'on a
+saisi — l'en écarter obligeait à ouvrir un autre écran pour savoir si on s'était pesé.
+Elle ne porte aucune calorie et n'entre donc dans aucun total : c'est une ligne de
+journal, pas un apport. La pastille est un rond neutre portant un tracé ; c'est l'icône
+qui dit le genre, pas un aplat de couleur — teinter le fond aurait demandé un aplat par
+rôle, à tenir en clair comme en sombre, pour une information que le tracé donne déjà.
 
 **État négatif** : « 340 calories au-dessus » remplace « −340 calories restantes ».
 Formulation factuelle, sans rouge.
@@ -198,7 +211,7 @@ ni polish ni cas limites, seulement d'être juste.
 | 1 | Toi | Sexe (cf. § 2 de [02](02-modele-calorique.md)), date de naissance, taille |
 | 2 | Ton poids | Poids actuel, poids souhaité (optionnel) |
 | 3 | Ton rythme | Trois cartes : 0,25 / 0,5 / 0,75 kg par semaine, avec la date d'atteinte projetée sur chacune. Défaut : 0,5. |
-| 4 | Ton apport cible | Le chiffre, et une phrase d'honnêteté : « C'est une estimation. Dans deux semaines, Kalou l'aura mesurée pour de vrai. » |
+| 4 | Ton apport cible | Le chiffre, et une phrase d'honnêteté : « C'est une estimation : elle vient d'une formule et de ta morphologie. C'est ta tendance de poids qui dira si elle est juste. » |
 
 Aucune question sur le niveau d'activité. C'est un gain d'onboarding **et** un gain de
 justesse.
@@ -217,17 +230,21 @@ Trois strates, du plus lisible au plus détaillé :
 3. **Semaine** — apports moyens, dépense moyenne, déficit moyen, perte prédite vs
    perte observée. Ce dernier couple est le seul indicateur de véracité qui compte.
 
-## 5. Écran calibration
+## 5. Écran calibration — hors périmètre pour l'instant
 
-Accessible depuis l'accueil (tap sur « Dépensé ») et notifié une fois, à la première
-calibration. Contenu spécifié au § 5.5 de [02](02-modele-calorique.md).
+Il n'y en a pas, et rien dans l'application n'annonce une mesure à venir : pas de
+pastille de phase sur l'accueil, pas de promesse à l'onboarding, pas de ligne tactile
+qui ouvrirait un détail de calibration.
 
-Trois états possibles, toujours explicites :
+La calibration reste le cœur de la justesse du modèle (§ 5 de
+[02](02-modele-calorique.md)) et arrive au V0.1 (cf. [07](07-roadmap.md)). Tant qu'elle
+n'existe pas, la journée est calculée **intégralement** par le § 3.2 du doc 02 : socle
+formulé, correction de TEF pleine. C'est le régime le plus simple du modèle, et le seul
+que l'application connaisse.
 
-- **En cours d'apprentissage** — « encore 6 jours de données » + barre de progression.
-- **Calibré** — la mesure, sa date, l'écart avec l'estimation initiale.
-- **En pause** — « trop de jours sans saisie complète ; Kalou garde ta dernière
-  mesure ». Formulation non accusatrice, mais claire sur la cause.
+Le contenu de l'écran, ses trois états et l'explication de l'écart entre socle mesuré et
+apport cible restent spécifiés au § 5.5 du doc 02 : c'est là qu'il faudra revenir, pas
+ici.
 
 ## 6. Profil et réglages
 

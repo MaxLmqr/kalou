@@ -19,10 +19,17 @@ const paths = {
   person: ['M5 20c0-3.3 3.1-5.5 7-5.5s7 2.2 7 5.5'],
   camera: ['M4 8.5h3l1.5-2.5h7L17 8.5h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1Z'],
   search: ['m20 20-4.2-4.2'],
+  /** Genre d'une ligne de journal : un repas. */
+  meal: ['M4 11h16v1a8 8 0 0 1-16 0Z', 'M8.6 4c0 1.1-.9 1.6-.9 2.7', 'M13.4 4.6c0 .9-.7 1.4-.7 2.1'],
   /** « Ajouter une activité ». */
   run: ['M13 21l-1.5-5.5L8 13l1-5 4-1.5 3 3 3 1', 'M9 8 5.5 10 4 15'],
-  /** « Me peser ». */
-  scale: ['M8 8V6.5a4 4 0 0 1 8 0V8', 'M12 12v3'],
+  /**
+   * « Me peser », et la pastille d'une pesée dans le journal.
+   *
+   * Un cadran, et non le pèse-personne en boîte d'avant : à 16 pixels, le
+   * rectangle et sa petite poignée se refermaient en cadenas.
+   */
+  scale: ['M4.5 18a7.5 7.5 0 1 1 15 0', 'M12 18l4-4.5'],
   plus: ['M12 5v14M5 12h14'],
   minus: ['M5 12h14'],
   close: ['M6 6l12 12M18 6 6 18'],
@@ -49,7 +56,6 @@ const circles: Partial<Record<IconName, { cx: number; cy: number; r: number }[]>
 
 /** Cadres à angles arrondis, que `Path` ne sait pas tracer. */
 const rects: Partial<Record<IconName, { x: number; y: number; width: number; height: number; rx: number }>> = {
-  scale: { x: 3, y: 8, width: 18, height: 12, rx: 3 },
   image: { x: 3, y: 5, width: 18, height: 14, rx: 2.5 },
 };
 

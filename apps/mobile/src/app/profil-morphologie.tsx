@@ -141,7 +141,7 @@ function Formulaire({ profile }: { profile: ProfilExistant | null }) {
         </View>
         <Text variant="caption" color="textMuted">
           La formule n&apos;existe qu&apos;en deux variantes. Choisis celle qui approche le mieux ta
-          masse musculaire ; la calibration corrigera l&apos;écart.
+          masse musculaire.
         </Text>
       </View>
 

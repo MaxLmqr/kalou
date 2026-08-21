@@ -17,7 +17,6 @@
 import {
   apportCible,
   bmr,
-  calibrer,
   deficitQuotidien,
   kcalNet,
   semainesJusquAuPoidsCible,
@@ -58,48 +57,6 @@ const BMR = bmr({
 
 const SOCLE_FORMULE = socleFormule(BMR);
 const DEFICIT = deficitQuotidien(profil.rythmeKgSemaine);
-
-/**
- * Calibration au bout de quatre semaines de suivi : `w = 1`, le socle mesuré
- * remplace la formule. Les entrées sont plausibles, la sortie est calculée.
- */
-export const calibration = calibrer({
-  joursAvecApportsDansFenetre: 13,
-  nbPeseesDansFenetre: 12,
-  tendanceDebutKg: 83.3,
-  tendanceFinKg: profil.tendanceKg,
-  apportsTotauxKcal: 28700,
-  eatTotalKcal: 1400,
-  joursValidesCumules: 28,
-  socleFormuleKcal: SOCLE_FORMULE,
-  bmrKcal: BMR,
-  socleAppliquePrecedentKcal: null,
-  joursDepuisDerniereCalibration: null,
-});
-
-export const calibrationDetail = {
-  mesureeLe: new Date(2026, 7, 18),
-  fenetreJours: 14,
-  apportsTotauxKcal: 28700,
-  joursComplets: 13,
-  joursDansLaFenetre: 14,
-  /**
-   * Ce que devient l'apport cible, avant et après. C'est ce que l'écran
-   * explique.
-   */
-  apportCibleAvantKcal: apportCible({
-    socleApplique: SOCLE_FORMULE,
-    eatKcal: 0,
-    deficitKcal: DEFICIT,
-    w: 0,
-  }),
-  apportCibleApresKcal: apportCible({
-    socleApplique: calibration.socleAppliqueKcal,
-    eatKcal: 0,
-    deficitKcal: DEFICIT,
-    w: calibration.w,
-  }),
-};
 
 /** Détail du socle estimé, tel que l'affiche le dernier écran de l'onboarding. */
 export const socleEstime = {

@@ -48,7 +48,7 @@ export type StatLineProps = {
   note?: string;
   tone?: 'text' | 'intake' | 'expenditure' | 'textSecondary';
   trailing?: ReactNode;
-  /** Rend la ligne tactile : « Besoin » ouvre l'écran de calibration. */
+  /** Rend la ligne tactile, quand elle ouvre un détail. */
   onPress?: () => void;
 };
 

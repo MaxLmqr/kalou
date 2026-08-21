@@ -103,6 +103,8 @@ Vérification : à 1 679 kcal ingérées, TEF = 168, dépense totale = 2 229, ba
 
 ### 3.3 Après calibration
 
+> Ne s'applique qu'une fois la calibration implémentée — voir l'encadré du § 5.
+
 La dépense mesurée par calibration (§ 5) **contient déjà le TEF**, puisqu'elle est
 déduite d'un bilan énergétique réel. Le facteur 0,90 ne s'applique donc plus :
 
@@ -158,6 +160,14 @@ tendance_n = tendance_{n−1} + α × (pesée_n − tendance_{n−1})
   C'est ce qui désamorce l'angoisse du « +800 g ce matin ».
 
 ## 5. Calibration automatique
+
+> **Hors périmètre pour l'instant.** Ce chantier arrive au V0.1 (cf.
+> [07](07-roadmap.md)). Tant qu'il n'est pas fait, `w = 0` : la journée est calculée
+> **intégralement** par le § 3.2 — socle formulé, correction de TEF pleine — et les
+> § 3.3 et § 3.4 ne s'appliquent à rien. Rien dans l'application ne l'annonce non plus :
+> ni pastille de phase, ni écran, ni promesse de mesure à venir (§ 5 de
+> [03](03-parcours-utilisateur.md)). Cette section reste la spécification de référence
+> pour le jour où on l'implémentera.
 
 Le principe : sur une fenêtre suffisamment longue, la variation de poids révèle la
 dépense réelle. C'est une mesure, pas une estimation.

@@ -7,9 +7,9 @@ import { Text } from './text';
 type Tone =
   /** Information neutre. */
   | 'neutral'
-  /** Estimation en attente, apport cible non calibré. */
+  /** Estimation en attente, valeur saisie à la main. */
   | 'pending'
-  /** Valeur mesurée, calibrée. */
+  /** Valeur confirmée par l'utilisateur. */
   | 'accent'
   /** Plancher de sécurité atteint — seul usage d'un ton d'avertissement. */
   | 'caution';

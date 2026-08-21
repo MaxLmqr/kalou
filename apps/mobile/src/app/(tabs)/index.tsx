@@ -2,12 +2,11 @@ import { router } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 
 import {
-  Badge,
   BigNumber,
   Button,
   Fab,
-  Icon,
   List,
+  Pastille,
   PendingDot,
   ProgressBar,
   Row,
@@ -26,6 +25,7 @@ import {
   formatRemaining,
   formatSignedKcal,
   formatTime,
+  formatWeight,
 } from '@/design/format';
 import {
   manqueALOnboarding,
@@ -35,35 +35,6 @@ import {
 } from '@/hooks/use-journee';
 import { jourIso } from '@/lib/api';
 import { libellesManque, premiereEtapeManquante } from '@/lib/onboarding';
-
-/**
- * D'où vient l'apport cible affiché (doc 06 § 4), en deux registres : une
- * pastille de trois mots sous le chiffre, et la phrase complète au bas du bloc
- * de détail, là où la ligne « Apport cible » la rend nécessaire.
- *
- * La table est exhaustive par construction : ajouter une phase côté serveur
- * casse la compilation ici.
- */
-const PHASE = {
-  formule: {
-    badge: 'Estimé',
-    tone: 'pending',
-    note: 'Apport cible estimé — Kalou le mesurera après deux semaines de suivi.',
-  },
-  transition: {
-    badge: 'Mesure en cours',
-    tone: 'pending',
-    note: 'Apport cible en cours de mesure sur tes derniers jours.',
-  },
-  calibre: {
-    badge: 'Mesuré',
-    tone: 'accent',
-    note: 'Apport cible mesuré sur tes 14 derniers jours.',
-  },
-} satisfies Record<
-  Journee['detail']['phase'],
-  { badge: string; tone: 'pending' | 'accent'; note: string }
->;
 
 /**
  * Aujourd'hui — l'écran d'accueil (docs/03 § 2).
@@ -95,7 +66,6 @@ export default function AujourdHuiScreen() {
 function VueDuJour({ jour }: { jour: Journee }) {
   const theme = useTheme();
   const restant = formatRemaining(jour.restant_kcal);
-  const phase = PHASE[jour.detail.phase];
 
   const consomme = jour.apport_cible_kcal > 0 ? jour.apports_kcal / jour.apport_cible_kcal : 0;
   /** Repère de l'heure courante sur la piste : « où j'en suis dans la journée ». */
@@ -135,34 +105,22 @@ function VueDuJour({ jour }: { jour: Journee }) {
         lue autrement.
       */}
       <Surface padding="xl" radius="xl" style={{ gap: theme.spacing.xl }}>
-        <View style={{ gap: theme.spacing.md }}>
-          <BigNumber value={restant.value} label={restant.label} />
-          <Badge label={phase.badge} tone={phase.tone} style={{ alignSelf: 'center' }} />
-        </View>
+        <BigNumber value={restant.value} label={restant.label} />
         <ProgressBar value={consomme} marker={heureDuJour} />
       </Surface>
 
       <Surface variant="sunken" style={{ gap: theme.spacing.sm }}>
         <StatLine label="Mangé" value={formatKcal(jour.apports_kcal)} tone="intake" />
+        {/*
+          Aucune annotation sur cette ligne : ce que l'activité rend est déjà
+          dans le chiffre, et la séance qui l'a produit est dans le journal,
+          juste dessous. Le détail du calcul n'a pas d'écran à ouvrir tant que la
+          calibration est hors périmètre (doc 02 § 5).
+        */}
         <StatLine
           label="Besoin"
-          /*
-            Le chiffre annoncé est ce que l'activité **ajoute au besoin**, et non
-            la dépense de la séance : 489 kcal courues rendent 543 kcal
-            d'assiette, parce que manger plus coûte aussi plus de digestion
-            (doc 02 § 3.2). Afficher la dépense nette ici donnait un « dont »
-            qui ne tombait pas juste — le besoin ne bougeait pas de ce montant.
-            La dépense, elle, se lit dans le journal, où elle est signée.
-          */
-          note={
-            jour.detail.eat_ajout_kcal > 0
-              ? `activité ${formatSignedKcal(jour.detail.eat_ajout_kcal)}`
-              : 'aucune activité'
-          }
           value={formatKcal(jour.besoin_journalier_kcal)}
           tone="expenditure"
-          trailing={<Icon name="chevronRight" size={16} color="borderStrong" strokeWidth={2} />}
-          onPress={() => router.push('/calibration')}
         />
         <StatLine label="Apport cible" value={formatKcal(jour.apport_cible_kcal)} />
         {/*
@@ -179,8 +137,13 @@ function VueDuJour({ jour }: { jour: Journee }) {
             jour.proteines.partiel,
           )}
         />
+        {/*
+          Le principe « honnête sur l'incertitude » (docs/01) tient en une phrase
+          désormais fixe : dire d'où vient le chiffre, sans annoncer une mesure
+          que Kalou ne fait pas encore.
+        */}
         <Text variant="caption" color="textMuted" style={{ marginTop: theme.spacing.xs }}>
-          {phase.note}
+          Apport cible estimé depuis ta morphologie et ta tendance de poids.
         </Text>
       </Surface>
 
@@ -248,8 +211,13 @@ function heureDe(valeur: string | Date): string {
 }
 
 /**
- * Une ligne du journal. Les deux genres se ressemblent à dessein — mais une
- * dépense s'écrit signée, et jamais dans la couleur des apports.
+ * Une ligne du journal.
+ *
+ * Les trois genres se ressemblent à dessein : même hauteur, même heure à gauche,
+ * même valeur à droite. Ce qui les distingue tient à une pastille et à la
+ * couleur de la valeur — une dépense s'écrit signée, et jamais dans la couleur
+ * des apports ; une pesée n'est pas une calorie et n'en prend donc pas la
+ * teinte.
  */
 function LigneDuJournal({ entree }: { entree: EntreeDuJournal }) {
   const theme = useTheme();
@@ -257,6 +225,7 @@ function LigneDuJournal({ entree }: { entree: EntreeDuJournal }) {
   if (entree.genre === 'activite') {
     return (
       <Row
+        leading={<Pastille icon="run" tone="expenditure" />}
         time={heureDe(entree.occurredAt)}
         title={entree.libelle}
         detail={formatDuration(entree.dureeMin)}
@@ -281,8 +250,24 @@ function LigneDuJournal({ entree }: { entree: EntreeDuJournal }) {
     );
   }
 
+  if (entree.genre === 'pesee') {
+    return (
+      <Row
+        leading={<Pastille icon="scale" />}
+        time={heureDe(entree.occurredAt)}
+        title="Pesée"
+        // L'écart signalé se dit ici comme ailleurs : la pesée est gardée, elle
+        // pèse seulement moins dans la tendance (docs/03 § 1.5).
+        detail={entree.estAberrante ? 'écart signalé' : undefined}
+        value={formatWeight(entree.poidsKg)}
+        onPress={() => router.push('/weigh-in')}
+      />
+    );
+  }
+
   return (
     <Row
+      leading={<Pastille icon="meal" tone="intake" />}
       time={heureDe(entree.occurredAt)}
       title={entree.libelle}
       detail={detailDuRepas(entree)}

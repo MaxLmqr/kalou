@@ -52,7 +52,8 @@ export default function ApportCibleScreen() {
       <Surface variant="accent" style={{ flexDirection: 'row', gap: theme.spacing.md }}>
         <Icon name="info" size={20} color="accent" />
         <Text variant="body" color="accent" style={{ flex: 1 }}>
-          C&apos;est une estimation. Dans deux semaines, Kalou l&apos;aura mesurée pour de vrai.
+          C&apos;est une estimation : elle vient d&apos;une formule et de ta morphologie. C&apos;est
+          ta tendance de poids qui dira si elle est juste.
         </Text>
       </Surface>
     </OnboardingStep>

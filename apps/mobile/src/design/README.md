@@ -59,7 +59,8 @@ avertissement de la palette. L'utiliser ailleurs casse le principe « sans jugem
 | `BigNumber`, `StatLine` | Le chiffre unique et les lignes de détail sous lui |
 | `Row` | Ligne du journal du jour : heure, libellé, valeur, pastille |
 | `ProgressBar` | Consommation de l'apport cible, dépassement inclus, sans changement de couleur |
-| `Badge`, `PendingDot` | États : estimation, mesuré, en pause, plancher |
+| `Badge`, `PendingDot` | États : estimation en attente, saisi à la main, plancher |
+| `Pastille` | Genre d'une ligne de journal : repas, séance, pesée |
 | `Input` | Saisie texte ou numérique avec unité |
 | `Stepper` | Sélecteur à deux boutons : pesée, durée d'activité |
 | `Chip` | Pastille tactile : portion, durée pré-réglée, quantité |

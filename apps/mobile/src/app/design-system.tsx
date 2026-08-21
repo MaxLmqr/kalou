@@ -8,6 +8,7 @@ import {
   Divider,
   Fab,
   Input,
+  Pastille,
   PendingDot,
   PressableSurface,
   ProgressBar,
@@ -57,41 +58,44 @@ export default function DesignSystemScreen() {
           <Text variant="title">{formatDayHeading(new Date())}</Text>
         </View>
 
-        <View style={{ gap: theme.spacing.md }}>
-          <BigNumber value={remaining.value} label={remaining.label} />
-          <Badge label="Estimé" tone="pending" style={{ alignSelf: 'center' }} />
-        </View>
+        <BigNumber value={remaining.value} label={remaining.label} />
 
         <ProgressBar value={0.72} marker={0.6} />
 
         <View style={{ gap: theme.spacing.xs }}>
           <StatLine label="Mangé" value={formatKcal(475)} tone="intake" />
-          {/*
-            La note annonce ce que l'activité **rend** (489 / 0,90 = 543), pas ce
-            qu'elle a coûté : cf. doc 02 § 3.2.
-          */}
-          <StatLine
-            label="Besoin"
-            note={`activité ${formatSignedKcal(543)}`}
-            value={formatKcal(2833)}
-            tone="expenditure"
-          />
+          <StatLine label="Besoin" value={formatKcal(2833)} tone="expenditure" />
           <StatLine label="Apport cible" value={formatKcal(2222)} />
         </View>
 
         <Divider />
 
         <View>
-          <Row time="08:12" title="Café au lait" value={formatKcal(120)} onPress={() => {}} />
           <Row
+            leading={<Pastille icon="scale" />}
+            time="07:05"
+            title="Pesée"
+            value={formatWeight(82.4)}
+            onPress={() => {}}
+          />
+          <Row
+            leading={<Pastille icon="meal" tone="intake" />}
+            time="08:12"
+            title="Café au lait"
+            value={formatKcal(120)}
+            onPress={() => {}}
+          />
+          <Row
+            leading={<Pastille icon="meal" tone="intake" />}
             time="12:40"
             title="Salade César"
-            detail="estimation"
+            detail="2 composants"
             value={formatKcal(355)}
             trailing={<PendingDot style={{ marginLeft: theme.spacing.sm }} />}
             onPress={() => {}}
           />
           <Row
+            leading={<Pastille icon="run" tone="expenditure" />}
             time="18:05"
             title="Course"
             detail="45 min"
@@ -198,9 +202,9 @@ export default function DesignSystemScreen() {
       {/* ---- États ---- */}
       <Section title="États">
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
-          <Badge label="Estimation" tone="pending" />
-          <Badge label="Mesuré" tone="accent" />
-          <Badge label="En pause" tone="neutral" />
+          <Badge label="saisi" tone="pending" />
+          <Badge label="corrigé" tone="accent" />
+          <Badge label="2 composants" tone="neutral" />
           <Badge label="Plancher de sécurité" tone="caution" />
         </View>
         <View style={{ gap: theme.spacing.sm }}>

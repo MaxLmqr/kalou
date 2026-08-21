@@ -10,7 +10,7 @@
  *  — « sans jugement » : pas de rouge ni de vert de statut dans la palette.
  *    Dépasser son apport cible est une information, ça se dit avec du texte ;
  *  — « honnête sur l'incertitude » : une teinte discrète dédiée aux états
- *    provisoires (estimation en attente, apport cible non calibré).
+ *    provisoires (estimation en attente, valeur saisie à la main).
  */
 import { Platform } from 'react-native';
 

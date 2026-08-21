@@ -43,8 +43,9 @@ export type ThemeColors = {
   expenditure: string;
 
   /**
-   * État provisoire : estimation en attente, apport cible non encore calibré.
-   * Volontairement proche du neutre — c'est un signal, pas une alerte.
+   * État provisoire : estimation en attente, valeur saisie à la main plutôt que
+   * lue dans la base. Volontairement proche du neutre — c'est un signal, pas une
+   * alerte.
    */
   pending: string;
   pendingSurface: string;

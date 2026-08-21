@@ -43,7 +43,13 @@ de l'application.**
 - **Saisir une dépense** — table MET, durée → calories nettes. Référentiel semé, calcul
   et routes en place ; il ne manque que l'écran.
 - **Se peser** — une pesée par jour, tendance lissée calculée et affichée. Collectée
-  pour la calibration à venir.
+  pour la calibration à venir, et visible dans le journal du jour comme les autres
+  saisies.
+
+> **Aucune surface de calibration dans le V0.** Ni pastille de phase sur l'accueil, ni
+> écran, ni promesse de mesure à venir dans l'onboarding : l'application ne connaît que
+> le régime du § 3.2 du doc 02. L'anticiper à l'écran aurait engagé ce qu'elle ne fait
+> pas encore, et rendu l'accueil plus difficile à lire pour rien.
 
 > **Sur les calories indicatives.** Les valeurs du jeu de curation sont des ordres de
 > grandeur, pas des mesures. Deux raisons pour lesquelles c'est acceptable en V0 : la

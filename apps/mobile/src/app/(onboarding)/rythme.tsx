@@ -12,8 +12,8 @@ const DATE_COURTE = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'l
 
 /**
  * Écran 3 — trois cartes de rythme, avec la date d'atteinte projetée sur
- * chacune. Les dates sont calculées, pas écrites : elles bougeront quand la
- * calibration aura mesuré la dépense réelle, et l'écran le dit.
+ * chacune. Les dates sont calculées, pas écrites : elles bougeront avec la
+ * tendance de poids, et l'écran le dit.
  */
 export default function RythmeScreen() {
   const theme = useTheme();
@@ -56,8 +56,8 @@ export default function RythmeScreen() {
       <Surface variant="sunken" style={{ flexDirection: 'row', gap: theme.spacing.md }}>
         <Icon name="info" size={20} color="textMuted" />
         <Text variant="caption" color="textSecondary" style={{ flex: 1 }}>
-          Les dates sont projetées sur ton rythme actuel. Elles bougeront quand Kalou aura mesuré ta
-          dépense réelle.
+          Les dates sont projetées sur ton rythme actuel. Elles bougeront avec ta tendance de
+          poids.
         </Text>
       </Surface>
     </OnboardingStep>
