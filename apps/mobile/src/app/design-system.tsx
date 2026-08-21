@@ -19,7 +19,7 @@ import {
   Surface,
   Text,
 } from '@/components/ui';
-import { useTheme } from '@/design';
+import { fontFamily, useTheme } from '@/design';
 import {
   formatDayHeading,
   formatKcal,
@@ -49,28 +49,30 @@ export default function DesignSystemScreen() {
 
       {/* ---- Maquette de l'accueil (docs/03 § 2) ---- */}
       <Surface style={{ gap: theme.spacing.xl }}>
-        <Text variant="caption" color="textMuted">
-          {formatDayHeading(new Date())}
-        </Text>
+        {/* La date est le titre de l'écran : serif de titrage, en grand. */}
+        <View style={{ gap: theme.spacing.xs }}>
+          <Text variant="overline" color="textMuted">
+            Aujourd&apos;hui
+          </Text>
+          <Text variant="title">{formatDayHeading(new Date())}</Text>
+        </View>
 
-        <BigNumber
-          value={remaining.value}
-          label={remaining.label}
-          note="Apport cible estimé — mesuré dans 6 jours"
-          style={{ marginVertical: theme.spacing.sm }}
-        />
+        <View style={{ gap: theme.spacing.md }}>
+          <BigNumber value={remaining.value} label={remaining.label} />
+          <Badge label="Estimé" tone="pending" style={{ alignSelf: 'center' }} />
+        </View>
 
         <ProgressBar value={0.72} marker={0.6} />
 
         <View style={{ gap: theme.spacing.xs }}>
           <StatLine label="Mangé" value={formatKcal(475)} tone="intake" />
           <StatLine
-            label="Dépensé"
+            label="Besoin"
             note="dont 489 par l'activité"
-            value={formatKcal(2168)}
+            value={formatKcal(2833)}
             tone="expenditure"
           />
-          <StatLine label="Apport cible" value={formatKcal(1679)} />
+          <StatLine label="Apport cible" value={formatKcal(2222)} />
         </View>
 
         <Divider />
@@ -102,7 +104,18 @@ export default function DesignSystemScreen() {
 
       {/* ---- Typographie ---- */}
       <Section title="Typographie">
+        {/*
+          Deux familles, deux rôles : le grotesque porte les chiffres et
+          l'interface, le serif ne porte que la date et les titres d'écran. La
+          liste ci-dessous est l'endroit où l'on vérifie que le contraste entre
+          les deux suffit à faire la hiérarchie — sans empiler les graisses.
+        */}
         <Surface variant="sunken" style={{ gap: theme.spacing.md }}>
+          <Text variant="caption" color="textMuted">
+            {fontFamily.sans.replace(/_.*/, '')} pour les chiffres et l&apos;interface,{' '}
+            {fontFamily.serif.replace(/_.*/, '').replace(/([a-z])([A-Z])/g, '$1 $2')} pour les
+            titres.
+          </Text>
           <Text variant="display">1 204</Text>
           <Text variant="numberLarge">{formatWeight(72.4)}</Text>
           <Text variant="title">Titre d&apos;écran</Text>

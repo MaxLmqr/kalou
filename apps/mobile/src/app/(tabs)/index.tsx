@@ -2,17 +2,19 @@ import { router } from 'expo-router';
 import { ActivityIndicator, View } from 'react-native';
 
 import {
+  Badge,
   BigNumber,
   Button,
-  Divider,
   Fab,
   Icon,
+  List,
   PendingDot,
   ProgressBar,
   Row,
   Screen,
   Section,
   StatLine,
+  Surface,
   Text,
 } from '@/components/ui';
 import { useTheme } from '@/design';
@@ -35,14 +37,33 @@ import { jourIso } from '@/lib/api';
 import { libellesManque, premiereEtapeManquante } from '@/lib/onboarding';
 
 /**
- * D'où vient l'apport cible affiché (doc 06 § 4). La table est exhaustive par
- * construction : ajouter une phase côté serveur casse la compilation ici.
+ * D'où vient l'apport cible affiché (doc 06 § 4), en deux registres : une
+ * pastille de trois mots sous le chiffre, et la phrase complète au bas du bloc
+ * de détail, là où la ligne « Apport cible » la rend nécessaire.
+ *
+ * La table est exhaustive par construction : ajouter une phase côté serveur
+ * casse la compilation ici.
  */
-const NOTE_PHASE = {
-  formule: 'Apport cible estimé — Kalou le mesurera après deux semaines de suivi',
-  transition: 'Apport cible en cours de mesure sur tes derniers jours',
-  calibre: 'Apport cible mesuré sur tes 14 derniers jours',
-} satisfies Record<Journee['detail']['phase'], string>;
+const PHASE = {
+  formule: {
+    badge: 'Estimé',
+    tone: 'pending',
+    note: 'Apport cible estimé — Kalou le mesurera après deux semaines de suivi.',
+  },
+  transition: {
+    badge: 'Mesure en cours',
+    tone: 'pending',
+    note: 'Apport cible en cours de mesure sur tes derniers jours.',
+  },
+  calibre: {
+    badge: 'Mesuré',
+    tone: 'accent',
+    note: 'Apport cible mesuré sur tes 14 derniers jours.',
+  },
+} satisfies Record<
+  Journee['detail']['phase'],
+  { badge: string; tone: 'pending' | 'accent'; note: string }
+>;
 
 /**
  * Aujourd'hui — l'écran d'accueil (docs/03 § 2).
@@ -74,6 +95,7 @@ export default function AujourdHuiScreen() {
 function VueDuJour({ jour }: { jour: Journee }) {
   const theme = useTheme();
   const restant = formatRemaining(jour.restant_kcal);
+  const phase = PHASE[jour.detail.phase];
 
   const consomme = jour.apport_cible_kcal > 0 ? jour.apports_kcal / jour.apport_cible_kcal : 0;
   /** Repère de l'heure courante sur la piste : « où j'en suis dans la journée ». */
@@ -94,20 +116,33 @@ function VueDuJour({ jour }: { jour: Journee }) {
           onPress={() => router.push('/quick-actions')}
         />
       }>
-      <Text variant="caption" color="textMuted">
-        {titreDuJour}
-      </Text>
-
-      <BigNumber
-        value={restant.value}
-        label={restant.label}
-        note={NOTE_PHASE[jour.detail.phase]}
-        style={{ marginVertical: theme.spacing.sm }}
-      />
-
-      <ProgressBar value={consomme} marker={heureDuJour} />
-
+      {/*
+        La date est le titre de l'écran, et elle est traitée comme tel : le
+        serif de titrage, en grand. C'est la seule chose qui situe tout le
+        reste — un chiffre de calories restantes sans jour ne veut rien dire.
+      */}
       <View style={{ gap: theme.spacing.xs }}>
+        <Text variant="overline" color="textMuted">
+          Aujourd&apos;hui
+        </Text>
+        <Text variant="title">{titreDuJour}</Text>
+      </View>
+
+      {/*
+        Le chiffre unique sur sa propre carte. Le fond posé lui donne la
+        hiérarchie que la taille seule ne suffisait pas à établir, et la piste
+        de progression reste dans la même carte : c'est la même information,
+        lue autrement.
+      */}
+      <Surface padding="xl" radius="xl" style={{ gap: theme.spacing.xl }}>
+        <View style={{ gap: theme.spacing.md }}>
+          <BigNumber value={restant.value} label={restant.label} />
+          <Badge label={phase.badge} tone={phase.tone} style={{ alignSelf: 'center' }} />
+        </View>
+        <ProgressBar value={consomme} marker={heureDuJour} />
+      </Surface>
+
+      <Surface variant="sunken" style={{ gap: theme.spacing.sm }}>
         <StatLine label="Mangé" value={formatKcal(jour.apports_kcal)} tone="intake" />
         <StatLine
           label="Besoin"
@@ -136,22 +171,44 @@ function VueDuJour({ jour }: { jour: Journee }) {
             jour.proteines.partiel,
           )}
         />
-      </View>
+        <Text variant="caption" color="textMuted" style={{ marginTop: theme.spacing.xs }}>
+          {phase.note}
+        </Text>
+      </Surface>
 
-      <Divider />
-
-      <Section title="Aujourd'hui">
+      {/*
+        Le journal du jour est sur l'accueil, pas dans un onglet (docs/03 § 2).
+        Son titre est « Journal » et non « Aujourd'hui » : c'est désormais
+        l'en-tête de l'écran qui porte le jour, et le répéter à mi-hauteur ne
+        dirait rien de plus.
+      */}
+      <Section
+        title="Journal"
+        trailing={
+          jour.journal.length > 0 ? (
+            <Text variant="caption" color="textMuted">
+              {jour.journal.length === 1 ? '1 entrée' : `${jour.journal.length} entrées`}
+            </Text>
+          ) : null
+        }>
         {jour.journal.length === 0 ? (
-          <Text variant="body" color="textMuted">
-            Rien encore aujourd&apos;hui. Le bouton + ouvre les quatre façons d&apos;ajouter une
-            entrée.
-          </Text>
+          // La gouttière de droite dégage la place du bouton flottant : sans
+          // elle, la dernière ligne du message passe dessous, et c'est
+          // précisément le bouton dont le message parle.
+          <Surface
+            variant="sunken"
+            style={{ gap: theme.spacing.xs, paddingRight: theme.hitSize.fab + theme.spacing.sm }}>
+            <Text variant="label">Rien encore aujourd&apos;hui.</Text>
+            <Text variant="caption" color="textMuted">
+              Le bouton + ouvre les quatre façons d&apos;ajouter une entrée.
+            </Text>
+          </Surface>
         ) : (
-          <View>
+          <List>
             {jour.journal.map((entree) => (
               <LigneDuJournal key={entree.id} entree={entree} />
             ))}
-          </View>
+          </List>
         )}
       </Section>
     </Screen>
@@ -199,7 +256,19 @@ function LigneDuJournal({ entree }: { entree: EntreeDuJournal }) {
         // ce qu'elle est pour la journée : des calories rendues.
         value={formatSignedKcal(-entree.kcalNet)}
         valueTone="expenditure"
-        onPress={() => router.push('/activity')}
+        // Le tap rouvre la séance sur son propre écran de réglage : même
+        // activité, même durée, avec l'enregistrement à corriger ou à
+        // supprimer (docs/03 § 2).
+        onPress={() =>
+          router.push({
+            pathname: '/activity/[code]',
+            params: {
+              code: entree.activityCode,
+              entree: entree.id,
+              duree: entree.dureeMin,
+            },
+          })
+        }
       />
     );
   }
@@ -239,7 +308,7 @@ function ProfilIncomplet({ manque }: { manque: string[] }) {
   return (
     <Screen underTabBar scroll={false}>
       <View style={{ flex: 1, justifyContent: 'center', gap: theme.spacing.lg }}>
-        <Text variant="heading">Presque prêt</Text>
+        <Text variant="title">Presque prêt</Text>
         <Text variant="body" color="textSecondary">
           {manque.length > 0
             ? `Kalou ne peut pas encore calculer ton apport cible : il manque ${libellesManque(manque)}.`
@@ -257,7 +326,7 @@ function Indisponible({ onReessayer }: { onReessayer: () => void }) {
   return (
     <Screen underTabBar scroll={false}>
       <View style={{ flex: 1, justifyContent: 'center', gap: theme.spacing.lg }}>
-        <Text variant="heading">Journée indisponible</Text>
+        <Text variant="title">Journée indisponible</Text>
         <Text variant="body" color="textSecondary">
           Kalou n&apos;a pas réussi à joindre le serveur. Rien n&apos;est perdu — réessaie.
         </Text>

@@ -2,15 +2,23 @@
  * Règles typographiques des nombres (docs/03 § 8).
  *
  * Calories arrondies à l'unité, poids au dixième de kilo (100 g), séparateur
- * de milliers en espace insécable étroite comme le veut l'usage français.
+ * de milliers en espace insécable comme le veut l'usage français.
+ *
+ * **Insécable, et non insécable étroite.** L'usage typographique demande une
+ * fine (U+202F), mais Geist ne la dessine pas : le glyphe manquant part alors
+ * en repli sur une autre police, ce qui creuse un trou d'une largeur de cadratin
+ * au milieu du chiffre unique — et fait perdre l'alignement tabulaire, qui est
+ * la raison d'avoir choisi cette police pour les chiffres. Une insécable
+ * ordinaire (0,25 cadratin) est plus large que la règle, mais elle est dessinée
+ * par la bonne police.
  */
 
-const NARROW_NBSP = ' ';
+const NBSP = ' ';
 
 function group(value: number): string {
   return Math.abs(value)
     .toFixed(0)
-    .replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_NBSP);
+    .replace(/\B(?=(\d{3})+(?!\d))/g, NBSP);
 }
 
 /** `1204` → « 1 204 ». Le signe est omis : c'est la formulation qui le porte. */
@@ -51,35 +59,35 @@ export function formatProteines(
   partiel: boolean,
 ): string {
   const total = totalG === null ? '—' : `${partiel ? '≥ ' : ''}${Math.round(totalG)}`;
-  return `${total} / ${Math.round(plancherG)}${NARROW_NBSP}g`;
+  return `${total} / ${Math.round(plancherG)}${NBSP}g`;
 }
 
 /** `72.34` → « 72,3 kg ». */
 export function formatWeight(kg: number, withUnit = true): string {
   const text = kg.toFixed(1).replace('.', ',');
-  return withUnit ? `${text}${NARROW_NBSP}kg` : text;
+  return withUnit ? `${text}${NBSP}kg` : text;
 }
 
 /** `-0.42` → « −0,4 kg ». */
 export function formatWeightDelta(kg: number): string {
   const rounded = Math.round(kg * 10) / 10;
-  if (rounded === 0) return `0${NARROW_NBSP}kg`;
+  if (rounded === 0) return `0${NBSP}kg`;
   const sign = rounded < 0 ? '−' : '+';
-  return `${sign}${Math.abs(rounded).toFixed(1).replace('.', ',')}${NARROW_NBSP}kg`;
+  return `${sign}${Math.abs(rounded).toFixed(1).replace('.', ',')}${NBSP}kg`;
 }
 
 /** `0.5` → « 0,5 kg par semaine ». */
 export function formatRythme(kgSemaine: number): string {
   const texte = kgSemaine.toFixed(2).replace(/0$/, '').replace('.', ',');
-  return `${texte}${NARROW_NBSP}kg par semaine`;
+  return `${texte}${NBSP}kg par semaine`;
 }
 
 /** `45` → « 45 min », `90` → « 1 h 30 ». */
 export function formatDuration(minutes: number): string {
-  if (minutes < 60) return `${minutes}${NARROW_NBSP}min`;
+  if (minutes < 60) return `${minutes}${NBSP}min`;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
-  return m === 0 ? `${h}${NARROW_NBSP}h` : `${h}${NARROW_NBSP}h${NARROW_NBSP}${m}`;
+  return m === 0 ? `${h}${NBSP}h` : `${h}${NBSP}h${NBSP}${m}`;
 }
 
 const DATE_FORMATTER = new Intl.DateTimeFormat('fr-FR', {

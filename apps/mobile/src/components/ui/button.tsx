@@ -1,8 +1,9 @@
-import { ActivityIndicator, Pressable, View, type PressableProps } from 'react-native';
+import { ActivityIndicator, Pressable, type PressableProps } from 'react-native';
 import type { ReactNode } from 'react';
 
 import { elevation, useTheme } from '@/design';
 
+import { Icon } from './icon';
 import { Text } from './text';
 
 type Variant =
@@ -113,13 +114,11 @@ export function Fab({ accessibilityLabel, children, ...rest }: FabProps) {
         elevation(theme.scheme, 2),
       ]}
       {...rest}>
-      {children ?? (
-        <View>
-          <Text variant="title" color="textOnAccent" style={{ lineHeight: 30 }}>
-            +
-          </Text>
-        </View>
-      )}
+      {/*
+        Le « + » est tracé, pas composé : le titre d'écran est passé au serif de
+        titrage, dont le plus est fin et court — il ne fait pas un bouton.
+      */}
+      {children ?? <Icon name="plus" size={26} color="textOnAccent" strokeWidth={2} />}
     </Pressable>
   );
 }

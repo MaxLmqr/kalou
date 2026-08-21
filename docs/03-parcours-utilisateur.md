@@ -96,6 +96,17 @@ Sélection → sélecteur de durée pré-rempli sur la dernière durée utilisé
 activité. Les calories nettes s'affichent en direct pendant le réglage de la durée,
 pour que le lien entre effort et apport cible soit lisible.
 
+**Deux écrans en plein écran, et non une feuille** — la seule exception à la règle du
+geste court. Le choix se mène au clavier sur vingt-deux entrées : une feuille à détente
+n'a ni la hauteur pour la liste, ni la place pour le clavier. Les deux écrans forment
+leur propre pile, pour que le retour du réglage revienne au choix et non à l'accueil :
+la correction la plus fréquente est « pas cette activité-là ».
+
+Chaque ligne de la liste porte l'ordre de grandeur de l'effort — les calories nettes
+d'une séance de trente minutes, au poids de tendance — plutôt que son MET, qui ne dit
+rien à qui ne connaît pas la table. L'écran de réglage montre, lui, ce qui sera **figé**
+dans l'enregistrement : le poids retenu et la durée.
+
 ### 1.5 Me peser
 
 Un sélecteur numérique pré-positionné sur la dernière pesée. Un tap pour valider.
@@ -106,19 +117,23 @@ brute par rapport à hier.
 
 ```
 ┌─────────────────────────────────┐
+│  AUJOURD'HUI                    │
 │  Mercredi 20 août               │
-│                                 │
-│           1 747                 │
-│      calories restantes         │
-│                                 │
-│    ●━━━━━━━━━━━━━━○━━━━━━━      │
-│                                 │
-│  Mangé        475               │
-│  Besoin     2 833  (dont 489 ⚡)│
-│  Apport cible 2 222             │
-│  Protéines  ≥ 42 / 135 g        │
-│                                 │
-│  ── Aujourd'hui ──              │
+│ ┌─────────────────────────────┐ │
+│ │          1 747              │ │
+│ │     calories restantes      │ │
+│ │          (estimé)           │ │
+│ │  ●━━━━━━━━━━━━━━○━━━━━━━    │ │
+│ └─────────────────────────────┘ │
+│ ┌─────────────────────────────┐ │
+│ │ Mangé                   475 │ │
+│ │ Besoin   (dont 489 ⚡) 2 833 │ │
+│ │ Apport cible          2 222 │ │
+│ │ Protéines      ≥ 42 / 135 g │ │
+│ │ Apport cible estimé — Kalou │ │
+│ │ le mesurera après deux…     │ │
+│ └─────────────────────────────┘ │
+│  JOURNAL                        │
 │  08:12  Café au lait      120   │
 │  12:40  Salade César      355   │
 │  18:05  Course 45 min    −489   │
@@ -139,9 +154,23 @@ incomplète. Aucune alerte si elle n'est pas atteinte. Les trois lignes en desso
 le détail, en typographie secondaire. La barre de progression est neutre : elle se
 remplit, et continue au-delà sans changer de couleur pour l'alarme.
 
-**Le journal du jour** est directement sur l'accueil, pas dans un onglet. Chaque ligne
-est modifiable par tap et supprimable par balayage. Une entrée en attente d'estimation
-affiche une pastille discrète plutôt qu'un compte à rebours.
+**La date est le titre de l'écran**, et elle est composée comme tel : en grand, dans le
+serif de titrage. Un chiffre de calories restantes sans jour ne veut rien dire, et
+c'est la seule chose qui situe tout le reste. La provenance de l'apport cible se dit en
+deux registres : une pastille de trois mots sous le chiffre — « estimé », « mesuré » —
+et la phrase complète au bas du bloc de détail, là où la ligne « Apport cible » la rend
+nécessaire.
+
+**Deux blocs, pas quatre lignes flottantes.** Le chiffre unique et sa piste de
+progression sont sur une carte posée ; les quatre lignes de détail sont dans un bloc
+creusé juste dessous. C'est la même information que ci-dessus, mais la hiérarchie ne
+repose plus seulement sur la taille du chiffre.
+
+**Le journal du jour** est directement sur l'accueil, pas dans un onglet. Son en-tête
+dit « Journal » et non « Aujourd'hui » : c'est l'en-tête de l'écran qui porte le jour,
+et le répéter à mi-hauteur ne dirait rien de plus. Chaque ligne est modifiable par tap
+et supprimable par balayage. Une entrée en attente d'estimation affiche une pastille
+discrète plutôt qu'un compte à rebours.
 
 **État négatif** : « 340 calories au-dessus » remplace « −340 calories restantes ».
 Formulation factuelle, sans rouge.

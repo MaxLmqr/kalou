@@ -16,6 +16,7 @@ src/design/
   tokens.ts          Valeurs brutes : palette, espacement, rayons, typographie, mouvement
   theme.ts           Rôles sémantiques (clair / sombre) + élévation
   theme-provider.tsx <ThemeProvider> et useTheme()
+  fonts.ts           Chargement des fichiers de police au démarrage
   format.ts          Mise en forme des nombres (kcal, kg, durées, dates)
 
 src/components/ui/     Primitives, toutes réexportées par @/components/ui
@@ -33,6 +34,12 @@ C'est ce qui garantit que le mode sombre reste correct sans relecture.
 **Un seul `<BigNumber>` par écran.** S'il en faut deux, c'est que la hiérarchie
 de l'écran est à revoir, pas le composant.
 
+**Ne jamais écrire `fontFamily` ni `fontWeight`.** La famille est portée par la
+`variant` de `<Text>`, et par elle seule. Les fontes sont statiques, une par
+graisse : sur Android, un `fontWeight` posé à la main sur une fonte chargée n'est
+pas synthétisé et reste sans effet — le texte y paraîtrait plus léger que sur iOS
+sans que rien ne le signale.
+
 **Les nombres passent par `@/design/format`.** Séparateur de milliers en espace
 insécable, vrai signe moins, kilos au dixième : ces règles sont dans
 [docs/03 § 8](../../../../docs/03-parcours-utilisateur.md) et n'ont pas à être
@@ -45,7 +52,7 @@ avertissement de la palette. L'utiliser ailleurs casse le principe « sans jugem
 
 | Composant | Rôle |
 |---|---|
-| `Screen`, `Section` | Conteneur d'écran (zone sûre, gouttière, largeur max) et regroupement titré |
+| `Screen`, `Section` | Conteneur d'écran (zone sûre, gouttière, largeur max) et regroupement titré, avec un bout de ligne libre à droite du titre |
 | `Text` | Toute la typographie. `variant` + `color`, chiffres tabulaires automatiques |
 | `Surface`, `PressableSurface` | Carte posée, bloc creusé, aplat d'accent ; version tactile avec état sélectionné |
 | `Button`, `Fab` | Action principale / secondaire / tertiaire, et bouton d'action flottant |
@@ -62,6 +69,26 @@ avertissement de la palette. L'utiliser ailleurs casse le principe « sans jugem
 | `List` | Carte de lignes séparées d'un cheveu |
 | `Icon` | Jeu d'icônes au trait |
 | `Divider` | Séparateur d'un cheveu |
+
+## Polices
+
+Deux familles, deux rôles — et le contraste entre elles fait la hiérarchie, ce
+qui évite d'empiler les graisses :
+
+| Famille | Rôle | Pourquoi celle-là |
+|---|---|---|
+| **Geist** | Chiffres et interface. Graisses 300, 400, 500, 600. | Ses chiffres ont un vrai jeu tabulaire (`tnum`) : sans lui, le chiffre unique tremblerait à chaque incrément et la colonne de droite du journal ne s'alignerait pas. |
+| **Instrument Serif** | La date de l'accueil et les titres d'écran (`variant="title"`), rien d'autre. | Un serif de titrage donne à la date le poids d'un titre. Il n'a **pas** de chiffres tabulaires : il ne doit donc jamais porter une valeur qui change en place. |
+
+`fonts.ts` charge les cinq fichiers au démarrage et rend la main dès qu'ils sont
+prêts — ou dès que le chargement échoue, auquel cas la police système prend le
+relais plutôt que de laisser l'application sur son écran de démarrage. La racine
+(`app/_layout.tsx`) ne dessine rien avant : un premier rendu en police système
+suivi d'un saut typographique se verrait sur chaque écran.
+
+Ajouter une graisse suppose d'ajouter son fichier dans `fonts.ts` **et** de la
+citer dans `typography` : le `satisfies` du module tient les deux ensemble, et
+une famille sans fichier ne compile pas.
 
 ## Icônes
 

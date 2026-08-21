@@ -102,24 +102,76 @@ export const hitSize = {
   fab: 60,
 } as const;
 
+/**
+ * Familles de caractères.
+ *
+ * **Deux familles, deux rôles.** Un grotesque contemporain porte tout ce qui se
+ * lit et surtout tout ce qui se compte ; un serif de titrage porte la date et
+ * les titres d'écran. Le contraste entre les deux fait la hiérarchie à lui seul,
+ * sans avoir à empiler des graisses.
+ *
+ * — **Geist** pour les chiffres et l'interface. Ses chiffres ont un vrai jeu
+ *   tabulaire (`tnum`) : sans lui, le chiffre unique tremblerait à chaque
+ *   incrément et la colonne de droite du journal ne s'alignerait pas.
+ * — **Instrument Serif** pour la date de l'accueil et les titres d'écran. Il
+ *   n'a **pas** de chiffres tabulaires : il ne doit jamais porter une valeur qui
+ *   change en place.
+ *
+ * Les chaînes sont les noms sous lesquels `usePolices()` (`design/fonts.ts`)
+ * enregistre les fichiers — les deux côtés sont tenus ensemble par une
+ * assertion de type là-bas.
+ *
+ * Ce sont des **fontes statiques, une par graisse**. C'est ce qui impose de
+ * nommer une famille par graisse plutôt que d'écrire `fontWeight` : sur Android,
+ * la graisse d'une fonte chargée à la main n'est pas synthétisée, et un
+ * `fontWeight: '600'` y resterait sans effet.
+ */
+export const fontFamily = {
+  sansLight: 'Geist_300Light',
+  sans: 'Geist_400Regular',
+  sansMedium: 'Geist_500Medium',
+  sansSemiBold: 'Geist_600SemiBold',
+  serif: 'InstrumentSerif_400Regular',
+} as const;
+
 export const typography = {
   /** Le chiffre unique de l'accueil, et lui seul. */
-  display: { fontSize: 64, lineHeight: 68, fontWeight: '300', letterSpacing: -2 },
+  display: {
+    fontSize: 64,
+    lineHeight: 68,
+    fontFamily: fontFamily.sansLight,
+    letterSpacing: -2.4,
+  },
   /** Chiffre secondaire mis en avant (poids, apport cible dans l'onboarding). */
-  numberLarge: { fontSize: 34, lineHeight: 40, fontWeight: '400', letterSpacing: -0.8 },
-  /** Titre d'écran. */
-  title: { fontSize: 26, lineHeight: 32, fontWeight: '600', letterSpacing: -0.4 },
-  /** Titre de section. */
-  heading: { fontSize: 18, lineHeight: 24, fontWeight: '600', letterSpacing: -0.2 },
+  numberLarge: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontFamily: fontFamily.sans,
+    letterSpacing: -1,
+  },
+  /**
+   * Titre d'écran, et la date de l'accueil. Le seul rôle du serif.
+   *
+   * Il compose plus petit à taille égale qu'un grotesque : d'où les 32 points,
+   * qui le posent à la même hauteur optique que l'ancien titre de 26.
+   */
+  title: { fontSize: 32, lineHeight: 36, fontFamily: fontFamily.serif, letterSpacing: -0.2 },
+  /** Titre de section, titre de feuille. */
+  heading: { fontSize: 18, lineHeight: 24, fontFamily: fontFamily.sansSemiBold, letterSpacing: -0.2 },
   /** Texte courant. */
-  body: { fontSize: 16, lineHeight: 23, fontWeight: '400' },
-  bodyMedium: { fontSize: 16, lineHeight: 23, fontWeight: '500' },
+  body: { fontSize: 16, lineHeight: 23, fontFamily: fontFamily.sans },
+  bodyMedium: { fontSize: 16, lineHeight: 23, fontFamily: fontFamily.sansMedium },
   /** Libellé de contrôle, ligne de journal. */
-  label: { fontSize: 15, lineHeight: 20, fontWeight: '500' },
+  label: { fontSize: 15, lineHeight: 20, fontFamily: fontFamily.sansMedium },
   /** Légende, unité, mention d'incertitude. */
-  caption: { fontSize: 13, lineHeight: 18, fontWeight: '400' },
+  caption: { fontSize: 13, lineHeight: 18, fontFamily: fontFamily.sans },
   /** En-tête de section : petites capitales espacées. */
-  overline: { fontSize: 12, lineHeight: 16, fontWeight: '600', letterSpacing: 0.8 },
+  overline: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontFamily: fontFamily.sansSemiBold,
+    letterSpacing: 1,
+  },
 } as const;
 
 export type TypographyVariant = keyof typeof typography;

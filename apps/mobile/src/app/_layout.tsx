@@ -12,7 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, type ReactNode } from 'react';
 import { useColorScheme } from 'react-native';
 
-import { ThemeProvider, radius, themes } from '@/design';
+import { ThemeProvider, radius, themes, usePolices } from '@/design';
 import { useSession } from '@/lib/auth';
 import { queryClient } from '@/lib/query-client';
 
@@ -29,6 +29,7 @@ SplashScreen.preventAutoHideAsync();
  */
 export default function RootLayout() {
   const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const policesPretes = usePolices();
 
   // La navigation react-navigation a son propre thème : on le dérive des mêmes
   // jetons pour qu'aucune couleur ne diverge entre les écrans et les barres.
@@ -53,6 +54,11 @@ export default function RootLayout() {
     sheetGrabberVisible: true,
     sheetCornerRadius: radius.xl,
   } as const;
+
+  // Rien n'est dessiné avant que les polices soient là. L'écran de démarrage
+  // reste donc visible, plutôt que de laisser voir un premier rendu en police
+  // système suivi d'un saut typographique sur chaque écran.
+  if (!policesPretes) return null;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -80,7 +86,17 @@ export default function RootLayout() {
               options={{ ...sheet, sheetAllowedDetents: 'fitToContents' }}
             />
             <Stack.Screen name="weigh-in" options={{ ...sheet, sheetAllowedDetents: 'fitToContents' }} />
-            <Stack.Screen name="activity" options={{ ...sheet, sheetAllowedDetents: [0.85, 1] }} />
+            {/*
+              Ajouter une activité : plein écran, et non une feuille.
+
+              C'est un parcours à deux temps — choisir l'activité, régler la
+              durée — dont le premier se mène au clavier, sur une liste de
+              vingt-deux entrées. Une feuille à détente n'a ni la hauteur pour
+              la liste ni la place pour le clavier. Le sous-dossier `activity/`
+              porte sa propre pile : le retour du second écran revient au choix,
+              pas à l'accueil.
+            */}
+            <Stack.Screen name="activity" options={{ presentation: 'fullScreenModal' }} />
 
             {/* Le composeur est long et se remplit au clavier : plein écran. */}
             <Stack.Screen name="meal" options={{ presentation: 'fullScreenModal' }} />

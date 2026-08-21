@@ -136,19 +136,31 @@ export function Screen({
 export type SectionProps = ViewProps & {
   /** En-tête en petites capitales : « Aujourd'hui », « Réutiliser ». */
   title?: string;
+  /**
+   * Bout de ligne d'en-tête, aligné à droite du titre : un décompte, un lien.
+   * Une seule ligne, en typographie de légende — pas un emplacement d'action.
+   */
+  trailing?: ReactNode;
   children: ReactNode;
 };
 
 /** Regroupement titré, avec l'espacement vertical standard. */
-export function Section({ title, children, style, ...rest }: SectionProps) {
+export function Section({ title, trailing, children, style, ...rest }: SectionProps) {
   const theme = useTheme();
 
   return (
     <View style={[{ gap: theme.spacing.md }, style]} {...rest}>
-      {title ? (
-        <Text variant="overline" color="textMuted">
-          {title}
-        </Text>
+      {title || trailing ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+          {title ? (
+            <Text variant="overline" color="textMuted" style={{ flex: 1 }}>
+              {title}
+            </Text>
+          ) : (
+            <View style={{ flex: 1 }} />
+          )}
+          {trailing}
+        </View>
       ) : null}
       {children}
     </View>

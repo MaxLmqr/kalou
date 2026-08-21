@@ -3,8 +3,8 @@
  *
  * Les écrans encore non branchés sont alimentés d'ici. Un seul module, une seule
  * fois — quand l'API arrivera, c'est ce fichier qui disparaît, pas les écrans.
- * L'accueil, le profil et la pesée en sont déjà sortis : ils lisent `/days/today`,
- * `/me` et `/weigh-ins`.
+ * L'accueil, le profil, la pesée et les activités en sont déjà sortis : ils
+ * lisent `/days/today`, `/me`, `/weigh-ins` et `/activities`.
  *
  * **Aucun chiffre dérivable n'est écrit en dur.** Apport cible, besoin
  * journalier, reste, calories d'activité, dépense mesurée, plancher protéique,
@@ -194,25 +194,6 @@ export const alimentsTrouves = [
   { id: 'a2', libelle: 'Houmous', kcalPour100g: 307 },
   { id: 'a3', libelle: 'Pois chiches secs', kcalPour100g: 364 },
 ];
-
-/** Table MET du doc 02 § 7, triée par usage personnel puis alphabétique. */
-export const activites = [
-  { id: 'course-8', libelle: 'Course 8 km/h', met: 8.3 },
-  { id: 'marche-rapide', libelle: 'Marche rapide (6 km/h)', met: 4.3 },
-  { id: 'velo', libelle: 'Vélo tranquille (16 km/h)', met: 6 },
-  { id: 'natation', libelle: 'Natation', met: 7 },
-  { id: 'musculation', libelle: 'Musculation modérée', met: 3.5 },
-  { id: 'yoga', libelle: 'Yoga', met: 2.5 },
-];
-
-/** Durées proposées avant le clavier, la dernière utilisée en premier choix. */
-export const dureesProposees = [20, 30, 45, 60];
-export const DUREE_PAR_DEFAUT_MIN = 45;
-
-/** Calories nettes d'une séance, au poids de tendance du jour (doc 02 § 7). */
-export function caloriesActivite(met: number, dureeMin: number): number {
-  return kcalNet({ met, poidsKg: profil.tendanceKg, dureeMin });
-}
 
 export const dernierePesee = {
   poidsKg: 82.1,
