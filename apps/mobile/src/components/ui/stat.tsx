@@ -67,14 +67,24 @@ export function StatLine({ label, value, note, tone = 'text', trailing, onPress 
         gap: theme.spacing.sm,
         minHeight: 26,
       }}>
-      <Text variant="body" color="textSecondary" style={{ flex: 1 }}>
+      {/*
+        Le libellé ne se coupe pas et ne passe pas à la ligne : c'est la note qui
+        cède la place. Une note un peu plus longue que prévu avait suffi à
+        casser « Besoin » en « Beso / in ».
+      */}
+      <Text variant="body" color="textSecondary" numberOfLines={1}>
         {label}
       </Text>
       {note ? (
-        <Text variant="caption" color="textMuted">
+        <Text
+          variant="caption"
+          color="textMuted"
+          numberOfLines={1}
+          style={{ flex: 1, textAlign: 'right' }}>
           {note}
         </Text>
       ) : null}
+      {note ? null : <View style={{ flex: 1 }} />}
       <Text variant="bodyMedium" color={tone} tabular>
         {value}
       </Text>

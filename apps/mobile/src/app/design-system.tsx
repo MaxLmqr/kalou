@@ -66,9 +66,13 @@ export default function DesignSystemScreen() {
 
         <View style={{ gap: theme.spacing.xs }}>
           <StatLine label="Mangé" value={formatKcal(475)} tone="intake" />
+          {/*
+            La note annonce ce que l'activité **rend** (489 / 0,90 = 543), pas ce
+            qu'elle a coûté : cf. doc 02 § 3.2.
+          */}
           <StatLine
             label="Besoin"
-            note="dont 489 par l'activité"
+            note={`activité ${formatSignedKcal(543)}`}
             value={formatKcal(2833)}
             tone="expenditure"
           />

@@ -132,7 +132,7 @@ brute par rapport à hier.
 │ └─────────────────────────────┘ │
 │ ┌─────────────────────────────┐ │
 │ │ Mangé                   475 │ │
-│ │ Besoin   (dont 489 ⚡) 2 833 │ │
+│ │ Besoin   (dont 543 ⚡) 2 833 │ │
 │ │ Apport cible          2 222 │ │
 │ │ Protéines      ≥ 42 / 135 g │ │
 │ │ Apport cible estimé — Kalou │ │
@@ -152,6 +152,13 @@ Les chiffres de cet écran sont ceux du § 3.2 de [02](02-modele-calorique.md) �
 (2 061 + 489) / 0,90 = 2 833, apport cible (2 061 + 489 − 550) / 0,90 = 2 222,
 restant 2 222 − 475 = 1 747.
 
+**Le « dont » de la ligne « Besoin » annonce 543 et non 489** : ce que l'activité rend
+n'est pas ce qu'elle a coûté. La correction de TEF s'applique à elle aussi, donc
+489 / 0,90 = 543 kcal d'assiette gagnées — manger plus coûte aussi plus de digestion.
+La dépense nette, elle, se lit dans le journal, signée. Annoncer 489 ici donnait un
+« dont » qui ne tombait pas juste, et c'est la première chose qu'un lecteur essaie de
+vérifier.
+
 **Un seul grand chiffre** : les calories restantes. Les protéines sont la seule autre
 grandeur suivie (§ 9 de [02](02-modele-calorique.md)) : une ligne discrète, un plancher
 et non une cible, affichée en borne inférieure quand une entrée libre rend la somme
@@ -159,8 +166,8 @@ incomplète. Aucune alerte si elle n'est pas atteinte. Les trois lignes en desso
 le détail, en typographie secondaire. La barre de progression est neutre : elle se
 remplit, et continue au-delà sans changer de couleur pour l'alarme.
 
-**La date est le titre de l'écran**, et elle est composée comme tel : en grand, dans le
-serif de titrage. Un chiffre de calories restantes sans jour ne veut rien dire, et
+**La date est le titre de l'écran**, et elle est composée comme tel : en grand, dans la
+graisse de titrage. Un chiffre de calories restantes sans jour ne veut rien dire, et
 c'est la seule chose qui situe tout le reste. La provenance de l'apport cible se dit en
 deux registres : une pastille de trois mots sous le chiffre — « estimé », « mesuré » —
 et la phrase complète au bas du bloc de détail, là où la ligne « Apport cible » la rend

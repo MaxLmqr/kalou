@@ -146,9 +146,17 @@ function VueDuJour({ jour }: { jour: Journee }) {
         <StatLine label="Mangé" value={formatKcal(jour.apports_kcal)} tone="intake" />
         <StatLine
           label="Besoin"
+          /*
+            Le chiffre annoncé est ce que l'activité **ajoute au besoin**, et non
+            la dépense de la séance : 489 kcal courues rendent 543 kcal
+            d'assiette, parce que manger plus coûte aussi plus de digestion
+            (doc 02 § 3.2). Afficher la dépense nette ici donnait un « dont »
+            qui ne tombait pas juste — le besoin ne bougeait pas de ce montant.
+            La dépense, elle, se lit dans le journal, où elle est signée.
+          */
           note={
-            jour.detail.eat_kcal > 0
-              ? `dont ${formatKcal(jour.detail.eat_kcal)} par l'activité`
+            jour.detail.eat_ajout_kcal > 0
+              ? `activité ${formatSignedKcal(jour.detail.eat_ajout_kcal)}`
               : 'aucune activité'
           }
           value={formatKcal(jour.besoin_journalier_kcal)}
