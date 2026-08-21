@@ -10,7 +10,8 @@ import {
   Input,
   MessageErreur,
   PressableSurface,
-  Sheet,
+  Screen,
+  ScreenHeader,
   StatLine,
   Surface,
   Text,
@@ -38,6 +39,9 @@ const RAISON_DU_PLAFOND: Record<string, string> = {
  * n'a pas, et pousse à optimiser une valeur dont l'écart réel se mesure en
  * centaines de calories.
  *
+ * C'est un écran dédié, poussé sur la pile : un réglage durable se modifie
+ * dans un écran qui a son titre et son retour, pas dans une feuille.
+ *
  * Les plafonds — 1 % du poids par semaine, 25 % du besoin journalier, plancher
  * d'apport — sont appliqués **par le serveur**, qui renvoie le rythme retenu.
  * Les recalculer ici pour griser des cartes ferait diverger les deux règles à la
@@ -50,11 +54,12 @@ export default function ObjectifScreen() {
 
   if (isPending) {
     return (
-      <Sheet title="Ton objectif">
+      <Screen>
+        <ScreenHeader title="Ton objectif" onBack={() => router.back()} />
         <View style={{ paddingVertical: 48, alignItems: 'center' }}>
           <ActivityIndicator />
         </View>
-      </Sheet>
+      </Screen>
     );
   }
 
@@ -64,7 +69,7 @@ export default function ObjectifScreen() {
 /**
  * Séparé de l'écran pour que `useState` reçoive l'objectif courant dès son
  * premier rendu : un initialiseur ne se rejoue pas quand la requête arrive, et
- * la feuille resterait sur ses valeurs par défaut.
+ * l'écran resterait sur ses valeurs par défaut.
  */
 function Formulaire({ objectif }: { objectif: ObjectifExistant | null }) {
   const theme = useTheme();
@@ -89,20 +94,20 @@ function Formulaire({ objectif }: { objectif: ObjectifExistant | null }) {
         ...(cibleKg !== undefined ? { poids_cible_kg: cibleKg } : {}),
       });
       // Doc 02 § 6 : les plafonds s'appliquent silencieusement **puis
-      // s'expliquent**. Refermer la feuille sur un rythme qu'on n'a pas choisi,
-      // sans un mot, c'est n'appliquer que la moitié de la règle.
+      // s'expliquent**. Repartir sur un rythme qu'on n'a pas choisi, sans un
+      // mot, c'est n'appliquer que la moitié de la règle.
       if (resultat.plafonds_appliques.length === 0) router.back();
     } catch {
-      // Rendu par `messageErreur` : la feuille reste ouverte sur la saisie.
+      // Rendu par `messageErreur` : l'écran reste ouvert sur la saisie.
     }
   }
 
   const ajuste = enregistrer.data;
   if (ajuste && ajuste.plafonds_appliques.length > 0) {
     return (
-      <Sheet
-        title="Rythme ajusté"
-        footer={<Button label="Compris" onPress={() => router.back()} />}>
+      <Screen footer={<Button label="Compris" onPress={() => router.back()} />}>
+        <ScreenHeader title="Rythme ajusté" onBack={() => router.back()} />
+
         <View
           style={{
             alignItems: 'center',
@@ -130,14 +135,13 @@ function Formulaire({ objectif }: { objectif: ObjectifExistant | null }) {
             value={formatKcal(ajuste.besoin_journalier_estime)}
           />
         </Surface>
-      </Sheet>
+      </Screen>
     );
   }
 
   return (
-    <Sheet
-      title="Ton objectif"
-      scroll
+    <Screen
+      avoidKeyboard
       footer={
         <Button
           label="Enregistrer"
@@ -146,6 +150,8 @@ function Formulaire({ objectif }: { objectif: ObjectifExistant | null }) {
           onPress={valider}
         />
       }>
+      <ScreenHeader title="Ton objectif" onBack={() => router.back()} />
+
       <View style={{ gap: theme.spacing.md }}>
         {RYTHMES.map((option) => {
           const selectionne = option === rythme;
@@ -189,7 +195,7 @@ function Formulaire({ objectif }: { objectif: ObjectifExistant | null }) {
           déjà closes reste celui qui était le tien ce jour-là.
         </Text>
       </Surface>
-    </Sheet>
+    </Screen>
   );
 }
 

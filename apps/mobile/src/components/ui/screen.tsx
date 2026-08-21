@@ -1,5 +1,11 @@
 import { useState, type ReactNode } from 'react';
-import { ScrollView, View, type ViewProps } from 'react-native';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+  type ViewProps,
+} from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/design';
@@ -21,6 +27,20 @@ export type ScreenProps = ViewProps & {
   underTabBar?: boolean;
   /** Bouton d'action flottant, ancré en bas à droite. */
   floatingAction?: ReactNode;
+  /**
+   * Écran de formulaire : remonte le contenu et l'action ancrée au-dessus du
+   * clavier, et renvoie le clavier au défilement.
+   *
+   * iOS ne redimensionne pas la fenêtre quand le clavier apparaît : il la
+   * recouvre. Un écran à champs de saisie et à bouton ancré devient alors une
+   * impasse — on peut taper, mais plus valider. Les claviers numériques
+   * aggravent le cas : sans touche de retour, rien ne les referme.
+   *
+   * La zone sûre du bas est réservée en même temps : une action ancrée qui
+   * finit sous l'indicateur d'accueil n'est pas plus cliquable qu'une action
+   * cachée par le clavier.
+   */
+  avoidKeyboard?: boolean;
 };
 
 /** Conteneur d'écran : fond, zone sûre, gouttière et largeur maximale. */
@@ -31,6 +51,7 @@ export function Screen({
   footer,
   underTabBar,
   floatingAction,
+  avoidKeyboard,
   style,
   ...rest
 }: ScreenProps) {
@@ -54,33 +75,48 @@ export function Screen({
     alignSelf: 'center' as const,
   };
 
+  const corps = (
+    <>
+      {scroll ? (
+        <ScrollView
+          contentContainerStyle={contentStyle}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={avoidKeyboard ? 'on-drag' : 'none'}
+          showsVerticalScrollIndicator={false}>
+          {children}
+        </ScrollView>
+      ) : (
+        <View style={[contentStyle, { flex: 1 }]}>{children}</View>
+      )}
+      {footer ? (
+        <View
+          onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
+          style={{
+            paddingHorizontal: theme.spacing.lg,
+            paddingTop: theme.spacing.md,
+            paddingBottom: theme.spacing.lg + (avoidKeyboard ? insets.bottom : 0),
+            width: '100%',
+            maxWidth: theme.maxContentWidth,
+            alignSelf: 'center',
+          }}>
+          {footer}
+        </View>
+      ) : null}
+    </>
+  );
+
   return (
     <View style={[{ flex: 1, backgroundColor: theme.colors.background }, style]} {...rest}>
       <SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
-        {scroll ? (
-          <ScrollView
-            contentContainerStyle={contentStyle}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}>
-            {children}
-          </ScrollView>
+        {avoidKeyboard ? (
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            {corps}
+          </KeyboardAvoidingView>
         ) : (
-          <View style={[contentStyle, { flex: 1 }]}>{children}</View>
+          corps
         )}
-        {footer ? (
-          <View
-            onLayout={(event) => setFooterHeight(event.nativeEvent.layout.height)}
-            style={{
-              paddingHorizontal: theme.spacing.lg,
-              paddingTop: theme.spacing.md,
-              paddingBottom: theme.spacing.lg,
-              width: '100%',
-              maxWidth: theme.maxContentWidth,
-              alignSelf: 'center',
-            }}>
-            {footer}
-          </View>
-        ) : null}
       </SafeAreaView>
 
       {floatingAction ? (

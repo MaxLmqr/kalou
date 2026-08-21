@@ -86,15 +86,18 @@ export default function RootLayout() {
             <Stack.Screen name="meal" options={{ presentation: 'fullScreenModal' }} />
             <Stack.Screen name="search" options={{ presentation: 'fullScreenModal' }} />
 
-            {/* Réglages du profil : une feuille par sujet, pas un formulaire. */}
-            <Stack.Screen
-              name="profil-morphologie"
-              options={{ ...sheet, sheetAllowedDetents: [0.7, 1] }}
-            />
-            <Stack.Screen
-              name="profil-objectif"
-              options={{ ...sheet, sheetAllowedDetents: [0.8, 1] }}
-            />
+            {/*
+              Réglages du profil : un écran dédié par sujet, poussé sur la pile.
+
+              Ces deux-là étaient des feuilles, et c'était une erreur de
+              lecture de la règle : ils ne saisissent pas une entrée du jour,
+              ils modifient un réglage durable. Le geste n'est pas court — un
+              sexe, une date, une taille — et une feuille à détente promet une
+              hauteur que le contenu ne remplit jamais. Poussés, ils ont leur
+              en-tête, leur retour et toute la hauteur de l'écran.
+            */}
+            <Stack.Screen name="profil-morphologie" />
+            <Stack.Screen name="profil-objectif" />
 
             <Stack.Screen name="calibration" />
             <Stack.Screen name="design-system" />

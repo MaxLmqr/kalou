@@ -3,7 +3,15 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import { Button, Chip, Input, MessageErreur, Sheet, Text } from '@/components/ui';
+import {
+  Button,
+  Chip,
+  Input,
+  MessageErreur,
+  Screen,
+  ScreenHeader,
+  Text,
+} from '@/components/ui';
 import { useTheme } from '@/design';
 import { useEnregistrerProfil, useMoi } from '@/hooks/use-moi';
 import { jourIso } from '@/lib/api';
@@ -58,6 +66,9 @@ type ProfilExistant = {
  * Morphologie : les trois valeurs qui alimentent le métabolisme de base
  * (doc 02 § 2). Rien d'autre n'a sa place ici.
  *
+ * C'est un écran dédié, poussé sur la pile : un réglage durable se modifie
+ * dans un écran qui a son titre et son retour, pas dans une feuille.
+ *
  * L'attente du profil est un état à part entière, et non un formulaire vide
  * qu'on remplirait après coup : un initialiseur `useState` ne se rejoue pas
  * quand la requête arrive. Rendre le formulaire avant, c'était le condamner à
@@ -69,11 +80,12 @@ export default function MorphologieScreen() {
 
   if (isPending) {
     return (
-      <Sheet title="Morphologie">
+      <Screen>
+        <ScreenHeader title="Morphologie" onBack={() => router.back()} />
         <View style={{ paddingVertical: 48, alignItems: 'center' }}>
           <ActivityIndicator />
         </View>
-      </Sheet>
+      </Screen>
     );
   }
 
@@ -102,14 +114,13 @@ function Formulaire({ profile }: { profile: ProfilExistant | null }) {
       await enregistrer.mutateAsync({ sexe, date_naissance: iso, taille_cm: tailleCm });
       router.back();
     } catch {
-      // Rendu par `enregistrer.isError` : la feuille reste ouverte sur la saisie.
+      // Rendu par `enregistrer.isError` : l'écran reste ouvert sur la saisie.
     }
   }
 
   return (
-    <Sheet
-      title="Morphologie"
-      scroll
+    <Screen
+      avoidKeyboard
       footer={
         <Button
           label="Enregistrer"
@@ -118,6 +129,8 @@ function Formulaire({ profile }: { profile: ProfilExistant | null }) {
           onPress={valider}
         />
       }>
+      <ScreenHeader title="Morphologie" onBack={() => router.back()} />
+
       <View style={{ gap: theme.spacing.sm }}>
         <Text variant="caption" color="textSecondary">
           Sexe biologique
@@ -155,7 +168,7 @@ function Formulaire({ profile }: { profile: ProfilExistant | null }) {
       {enregistrer.isError ? (
         <MessageErreur>L&apos;enregistrement a échoué. Réessaie dans un instant.</MessageErreur>
       ) : null}
-    </Sheet>
+    </Screen>
   );
 }
 
