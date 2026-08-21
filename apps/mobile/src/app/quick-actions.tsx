@@ -31,8 +31,12 @@ export default function MenuActionRapideScreen() {
   const theme = useTheme();
 
   const actions: { icon: IconName; label: string; couleur: 'accent' | 'expenditure' | 'textSecondary'; vers: string }[] = [
-    { icon: 'camera', label: 'Photographier un repas', couleur: 'accent', vers: '/meal' },
-    { icon: 'search', label: 'Chercher ou décrire', couleur: 'accent', vers: '/search' },
+    // La photo mène au composeur en annonçant que l'estimation n'est pas
+    // branchée (doc 06 § 6 — `POST /estimations` reste à écrire). Mieux vaut
+    // arriver au bon écran avec une phrase honnête qu'ouvrir un appareil photo
+    // dont le résultat ne remplirait rien.
+    { icon: 'camera', label: 'Photographier un repas', couleur: 'accent', vers: '/meal?photo=1' },
+    { icon: 'search', label: 'Chercher un aliment', couleur: 'accent', vers: '/meal' },
     { icon: 'run', label: 'Ajouter une activité', couleur: 'expenditure', vers: '/activity' },
     { icon: 'scale', label: 'Me peser', couleur: 'textSecondary', vers: '/weigh-in' },
   ];

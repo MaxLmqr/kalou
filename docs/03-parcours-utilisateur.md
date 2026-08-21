@@ -73,6 +73,11 @@ correspond après trois mots saisis, l'estimation IA est mise en avant. Un mot o
 sont presque toujours une recherche, une phrase longue presque toujours une
 description.
 
+**Ce champ n'a pas d'écran à lui : il vit dans le composeur** (§ 1.3), comme dans la
+maquette du § 7 de [08](08-base-aliments.md) — le champ de recherche et la liste des
+composants y cohabitent. Un écran de recherche séparé imposait un aller-retour par
+aliment ajouté, et cachait le total au moment précis où on le fait monter.
+
 ### 1.3 Composer un repas
 
 L'écran de composition est le même quel que soit le point d'entrée — photo,

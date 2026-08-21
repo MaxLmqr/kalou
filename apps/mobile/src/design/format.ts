@@ -82,6 +82,21 @@ export function formatRythme(kgSemaine: number): string {
   return `${texte}${NBSP}kg par semaine`;
 }
 
+/** `88` → « 88 g ». Les grammes ne prennent pas de décimale. */
+export function formatGrammes(grammes: number): string {
+  return `${group(Math.round(grammes))}${NBSP}g`;
+}
+
+/**
+ * `48.5` → « 49 kcal/100 g ».
+ *
+ * Arrondi à l'unité comme toutes les calories : la décimale de CIQUAL est une
+ * précision de laboratoire, elle ne survit pas à une portion estimée à l'œil.
+ */
+export function formatKcalPour100g(kcal100g: number): string {
+  return `${Math.round(kcal100g)}${NBSP}kcal/100${NBSP}g`;
+}
+
 /** `45` → « 45 min », `90` → « 1 h 30 ». */
 export function formatDuration(minutes: number): string {
   if (minutes < 60) return `${minutes}${NBSP}min`;

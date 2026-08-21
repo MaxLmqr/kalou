@@ -98,9 +98,14 @@ export default function RootLayout() {
             */}
             <Stack.Screen name="activity" options={{ presentation: 'fullScreenModal' }} />
 
-            {/* Le composeur est long et se remplit au clavier : plein écran. */}
+            {/*
+              Le composeur est long et se remplit au clavier : plein écran.
+
+              Il n'y a plus d'écran de recherche séparé — le champ vit dans le
+              composeur, comme dans la maquette du doc 08 § 7. Chercher un
+              aliment et voir le total monter sont le même geste.
+            */}
             <Stack.Screen name="meal" options={{ presentation: 'fullScreenModal' }} />
-            <Stack.Screen name="search" options={{ presentation: 'fullScreenModal' }} />
 
             {/*
               Réglages du profil : un écran dédié par sujet, poussé sur la pile.

@@ -3,8 +3,9 @@
  *
  * Les écrans encore non branchés sont alimentés d'ici. Un seul module, une seule
  * fois — quand l'API arrivera, c'est ce fichier qui disparaît, pas les écrans.
- * L'accueil, le profil, la pesée et les activités en sont déjà sortis : ils
- * lisent `/days/today`, `/me`, `/weigh-ins` et `/activities`.
+ * L'accueil, le profil, la pesée, les activités et les repas en sont déjà
+ * sortis : ils lisent `/days/today`, `/me`, `/weigh-ins`, `/activities`,
+ * `/foods` et `/food-entries`.
  *
  * **Aucun chiffre dérivable n'est écrit en dur.** Apport cible, besoin
  * journalier, reste, calories d'activité, dépense mesurée, plancher protéique,
@@ -146,53 +147,6 @@ export const reutilisations = [
   { id: 'r1', titre: 'Café au lait', kcal: 120, type: 'repas' as const },
   { id: 'r2', titre: 'Tartines beurre', kcal: 310, type: 'repas' as const },
   { id: 'r3', titre: 'Course 45 min', kcal: -COURSE_45_MIN, type: 'activite' as const },
-];
-
-export type Composant = {
-  id: string;
-  libelle: string;
-  /** « 88 g », « 2 c. à s. · 26 g ». Absent pour un composant libre. */
-  quantite?: string;
-  kcal: number;
-  /** `libre` = libellé et calories saisis à la main (doc 08 § 3). */
-  origine: 'reference' | 'libre';
-  /** L'utilisateur a corrigé la ligne proposée par l'estimation. */
-  corrige?: boolean;
-};
-
-/** Le repas photographié à 12:40, tel que l'estimation l'a pré-rempli. */
-export const repasEstime = {
-  titre: 'Repas de 12:40',
-  estimation: true,
-  composants: [
-    { id: 'c1', libelle: 'Poulet grillé', quantite: 'env. 120 g', kcal: 198, origine: 'reference' },
-    { id: 'c2', libelle: 'Salade verte', quantite: '80 g', kcal: 14, origine: 'reference', corrige: true },
-    { id: 'c3', libelle: 'Croûtons', quantite: 'env. 25 g', kcal: 98, origine: 'reference' },
-    { id: 'c4', libelle: 'Sauce César', quantite: '1 c. à s. · 15 g', kcal: 45, origine: 'reference' },
-  ] satisfies Composant[],
-};
-
-/** Le même composeur, atteint par la recherche : l'exemple du doc 08 § 7. */
-export const repasCompose = {
-  titre: 'Composer un repas',
-  estimation: false,
-  composants: [
-    { id: 'c1', libelle: 'Pois chiches cuits', quantite: '88 g', kcal: 122, origine: 'reference' },
-    { id: 'c2', libelle: 'Pignons de pin', quantite: '2 c. à s. · 26 g', kcal: 175, origine: 'reference' },
-    { id: 'c3', libelle: 'Vinaigrette maison', kcal: 90, origine: 'libre' },
-  ] satisfies Composant[],
-};
-
-/** Résultats de recherche dans la base CIQUAL, pour « pois chi… ». */
-export const alimentsTrouves = [
-  {
-    id: 'a1',
-    libelle: 'Pois chiches cuits',
-    kcalPour100g: 139,
-    portion: '1 portion · 150 g · dernière quantité',
-  },
-  { id: 'a2', libelle: 'Houmous', kcalPour100g: 307 },
-  { id: 'a3', libelle: 'Pois chiches secs', kcalPour100g: 364 },
 ];
 
 export const dernierePesee = {

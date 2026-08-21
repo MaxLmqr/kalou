@@ -283,7 +283,9 @@ function LigneDuJournal({ entree }: { entree: EntreeDuJournal }) {
       trailing={
         entree.kcal === null ? <PendingDot style={{ marginLeft: theme.spacing.sm }} /> : undefined
       }
-      onPress={() => router.push('/meal')}
+      // Le tap rouvre le repas dans le composeur, avec ses composants : la
+      // correction d'une quantité est le geste le plus fréquent après la saisie.
+      onPress={() => router.push({ pathname: '/meal', params: { entree: entree.id } })}
     />
   );
 }
